@@ -1,4 +1,5 @@
 #include <string.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
 
@@ -88,7 +89,7 @@ void string_wright_arr(t_str* str, char* arr){
     while (str->lenght <= strlen(arr)+1)
         string_expansion(str);   //увеличения буфера строки
 
-
+    str->how_occupied = 0;
     for(ull slider = 0; arr[slider] != EOL; slider++){
         str->data[slider] = arr[slider];
         str->how_occupied++;
@@ -115,7 +116,7 @@ bool string_equales(t_str* str1, t_str* str2){
 
     for (ull slider = 0; slider < str1->how_occupied ; slider++){
         if(str1->data[slider] != str2->data[slider])
-            break;
+            return false;
     }
     return true;
 }
@@ -124,14 +125,36 @@ bool string_equales(t_str* str1, t_str* str2){
 
 int main(){
 //    char arr1[] = "123456789sadyftjgggggggggggggg";
-//    char arr2[] = "98765432112313124dgfdsfgfhdsfiywefbvyaiyvgvadffsdgasd";
+//    char arr2[] = "123456789sadyftggggggggggggggg";
 //    char s1 = 'a';
 //    char s2 = 'b';
 //
 //    t_str* string = string_init();
+//    t_str* string2 = string_init();
 //
 //    string_wright_arr(string, arr1);
 //    printf("string = %s\nhow_occupied = %lld \nlenght = %lld \n \n",string->data, string->how_occupied, string->lenght);
+//
+//    string_wright_arr(string2, arr1);
+//    printf("string = %s\nhow_occupied = %lld \nlenght = %lld \n \n",string2->data, string2->how_occupied, string2->lenght);
+//
+//    if(string_equales(string, string2)){
+//        printf("True\n\n");
+//    }else{
+//        printf("False\n\n");
+//    }
+//
+//    string_wright_arr(string, arr1);
+//    printf("string = %s\nhow_occupied = %lld \nlenght = %lld \n \n",string->data, string->how_occupied, string->lenght);
+//
+//    string_wright_arr(string2, arr2);
+//    printf("string = %s\nhow_occupied = %lld \nlenght = %lld \n \n",string2->data, string2->how_occupied, string2->lenght);
+//
+//    if(string_equales(string, string2)){
+//        printf("True\n\n");
+//    }else{
+//        printf("False\n\n");
+//    }
 //
 //    string_wright_char_begin(string,s1);
 //    printf("string = %s\nhow_occupied = %lld \nlenght = %lld \n \n",string->data, string->how_occupied, string->lenght);
