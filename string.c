@@ -7,6 +7,7 @@
 #define STRING_START 0  // начало строки
 #define EOL '\0'        // конец строки
 
+
 typedef unsigned long long ull;
 
 typedef struct s_string{
@@ -22,8 +23,7 @@ t_str* string_init()
 {
     t_str* str = (t_str*)malloc(sizeof (t_str));
     str->data = malloc(STRING_LEN * sizeof (char));
-    if(!str->data)
-    {
+    if(!str->data){
         //TODO вызов функции ошибки
     }
 
@@ -49,8 +49,7 @@ void string_free(t_str* str){
 void string_expansion(t_str* str){
     t_str string;
     string.data = realloc(str->data, (str->lenght * 2) * sizeof(char));
-    if(!string.data)
-    {
+    if(!string.data){
         //TODO добавить вывод ошибки
     }
 
