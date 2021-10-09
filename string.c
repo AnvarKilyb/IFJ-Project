@@ -202,7 +202,10 @@ int main(){
 //
 //
 //    string_free(string);
+<<<<<<< HEAD
 //
+=======
+>>>>>>> origin/develop
 
     return 0;
 }
