@@ -89,7 +89,7 @@ void string_wright_arr(t_str* str, char* arr){
     while (str->lenght <= strlen(arr)+1)
         string_expansion(str);   //увеличения буфера строки
 
-    str->how_occupied = STRING_START;
+    str->how_occupied = 0;
     for(ull slider = 0; arr[slider] != EOL; slider++){
         str->data[slider] = arr[slider];
         str->how_occupied++;
