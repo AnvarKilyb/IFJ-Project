@@ -122,7 +122,7 @@ bool string_equales(t_str* str1, t_str* str2){
 
 
 
-int main(){
+//int main(){
 //    char arr1[] = "123456789sadyftjgggggggggggggg";
 //    char arr2[] = "123456789sadyftggggggggggggggg";
 //    char s1 = 'a';
@@ -201,6 +201,6 @@ int main(){
 //
 //
 //    string_free(string);
-
-    return 0;
-}
+//
+//    return 0;
+//}
