@@ -4,6 +4,7 @@
 #include <stdbool.h>
 
 #include "string.c"
+#include "error.h"
 
 static FILE *code_file;
 static t_str *string;
@@ -29,31 +30,31 @@ typedef enum {
 }e_keyword;
 
 typedef enum{
-    TOKEN_PLUS = 20,                    // +
+    TOKEN_PLUS = 20,                    // +1
     TOKEN_MINUS,                        // -
-    TOKEN_MULTIPLICATION,               // *
+    TOKEN_MULTIPLICATION,               // *1
     TOKEN_DIVISION,                     // / деление выследок number
     TOKEN_INT_DIVISION,                 // // деление выследок integer
     TOKEN_CONCATENATION,                // ..
-    TOKEN_ASSIGNMENT,                   // =
+    TOKEN_ASSIGNMENT,                   // =1
 
     TOKEN_GREATER,                      // >
-    TOKEN_GREATER_OR_EQUAL              // >=,
+    TOKEN_GREATER_OR_EQUAL,             // >=,
     TOKEN_LESS,                         // <
     TOKEN_LESS_OR_EQUAL,                // <=
     TOKEN_EQUALS,                       // ==
     TOKEN_NOT_EQUALS,                   // ~=
 
-    TOKEN_LENGTH,                       // #
-    TOKEN_WRIGHT,                       // %
-    TOKEN_ASSIGNMENT_TYPE,              // :
-    TOKEN_LEFT_BRACKET,                 // (
-    TOKEN_RIGHT_BRACKET,                // )
+    TOKEN_LENGTH,                       // #1
+    TOKEN_WRIGHT,                       // %1
+    TOKEN_ASSIGNMENT_TYPE,              // :1
+    TOKEN_LEFT_BRACKET,                 // (1
+    TOKEN_RIGHT_BRACKET,                // )1
 
     TOKEN_KEYWORD,                      // keyword
-    TOKEN_EOF,                          // EOF
-    TOKEN_EOL,                          // \0
-    TOKEN_SPACE,                        // пробел
+    TOKEN_EOF,                          // EOF1
+    TOKEN_EOL,                          // \01
+    TOKEN_SPACE,                        // пробел1
     TOKEN_IDENTIFIER,                   // переменная
 
     TOKEN_INTEGER,                      // тип int
@@ -95,6 +96,7 @@ typedef enum {
     LEXICAL_STATE_GREATER,
     LEXICAL_STATE_LESS,
     LEXICAL_STATE_NOT,
+    LEXICAL_STATE_CONCATENATE,
 }e_lexical_state_fsm;
 
 typedef struct s_lexeme{
@@ -112,35 +114,77 @@ typedef struct s_token{
 
 void file_ptr(FILE* f){
     code_file = f;
-    if(!code_file)
+//    if(!code_file)
         //TODO chybove hlaseni
 }
 
 void string_create(){
     string = string_init();
-    if(!string)
+//    if(!string)
         //TODO chybove hlaseni
 }
 
-static void reload_string(t_str* string){
-    if(!string)
+void reload_string(t_str* str){
+    if(!str) {
         string_create();
-    string_init_state(string);
+        return;
+    }
+    string_init_state(str);
 }
-
 int get_token(t_token* token){
 
     reload_string(string);
     int state = LEXICAL_STATE_START;
 
     while(true){
-        char symbol = getc(code_file);
+        char symbol =(char) getc(code_file);
         switch (state) {
-            case LEXICAL_STATE_START{
-                if(symbol == '+')
-                    token->token_name
+            case LEXICAL_STATE_START:
+                if(symbol == '+') {
+                    token->token_name = TOKEN_PLUS;
+                    return IT_IS_OK;
+                }else if(symbol == '*')
+                {
+                    token->token_name = TOKEN_MULTIPLICATION;
+                    return IT_IS_OK;
+                }
+                else if(symbol == '#')
+                {
+                    token->token_name = TOKEN_LENGTH;
+                    return IT_IS_OK;
+                }
+                else if(symbol == '%')
+                {
+                    token->token_name = TOKEN_WRIGHT;
+                    return IT_IS_OK;
+                }
+                else if(symbol == ':')
+                {
+                    token->token_name = TOKEN_ASSIGNMENT_TYPE;
+                    return IT_IS_OK;
+                }
+                else if(symbol == '(')
+                {
+                    token->token_name = TOKEN_LEFT_BRACKET;
+                    return IT_IS_OK;
+                }else if(symbol == ')')
+                {
+                    token->token_name = TOKEN_RIGHT_BRACKET;
+                    return IT_IS_OK;
+                }else if(symbol == ' ')
+                {
+                    token->token_name = TOKEN_SPACE;
+                    return IT_IS_OK;
+                }else if(symbol == EOL)
+                {
+                    token->token_name = TOKEN_EOL;
+                    return IT_IS_OK;
+                }else if(symbol == EOF)
+                {
+                    token->token_name = TOKEN_EOF;
+                    return IT_IS_OK;
+                }
 
-            }
         }
     }
 
