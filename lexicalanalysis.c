@@ -31,19 +31,19 @@ typedef enum {
 
 typedef enum{
     TOKEN_PLUS = 20,                    // +1
-    TOKEN_MINUS,                        // -
+    TOKEN_MINUS,                        // -1
     TOKEN_MULTIPLICATION,               // *1
-    TOKEN_DIVISION,                     // / деление выследок number
+    TOKEN_DIVISION,                     // / деление выследок number 1
     TOKEN_INT_DIVISION,                 // // деление выследок integer
-    TOKEN_CONCATENATION,                // ..
+    TOKEN_CONCATENATION,                // .. 1
     TOKEN_ASSIGNMENT,                   // =1
 
-    TOKEN_GREATER,                      // >
+    TOKEN_GREATER,                      // > 1
     TOKEN_GREATER_OR_EQUAL,             // >=,
-    TOKEN_LESS,                         // <
+    TOKEN_LESS,                         // < 1
     TOKEN_LESS_OR_EQUAL,                // <=
     TOKEN_EQUALS,                       // ==
-    TOKEN_NOT_EQUALS,                   // ~=
+    TOKEN_NOT_EQUALS,                   // ~= 1
 
     TOKEN_LENGTH,                       // #1
     TOKEN_WRIGHT,                       // %1
@@ -94,6 +94,7 @@ typedef enum {
     LEXICAL_STATE_COMMENT_BLOCK_STOP,
     ///////////////////////////////////
     LEXICAL_STATE_GREATER,
+    LEXICAL_STATE_ASSIGNMENT,
     LEXICAL_STATE_LESS,
     LEXICAL_STATE_NOT,
     LEXICAL_STATE_CONCATENATE,
@@ -183,7 +184,45 @@ int get_token(t_token* token){
                 {
                     token->token_name = TOKEN_EOF;
                     return IT_IS_OK;
+                }else if(symbol == '-')
+                {
+                    state = LEXICAL_STATE_MINUS;
+                    break;
+                }else if(symbol == '/')
+                {
+                    state = LEXICAL_STATE_DIVISION;
+                    break;
                 }
+                else if(symbol == '.')
+                {
+                    state = LEXICAL_STATE_CONCATENATE;
+                    break;
+                }
+                else if(symbol == '>')
+                {
+                    state = LEXICAL_STATE_GREATER;
+                    break;
+                }
+                else if(symbol == '<')
+                {
+                    state = LEXICAL_STATE_LESS;
+                    break;
+                } else if(symbol == '=')
+                {
+                    state = LEXICAL_STATE_ASSIGNMENT;
+                    break;
+                } else if(symbol == '~')
+                {
+                    state = LEXICAL_STATE_NOT;
+                    break;
+                }else if(symbol == '\n')
+                {
+                    state = LEXICAL_STATE_EOL;
+                    break;
+                }
+                break;
+
+
 
         }
     }
