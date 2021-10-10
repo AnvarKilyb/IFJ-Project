@@ -5,8 +5,8 @@
 
 #include "string.c"
 
-FILE *code_file;
-t_str *string;
+static FILE *code_file;
+static t_str *string;
 
 const char* const KEYWORDS[] = {"do","global","number","else","if","require","end","integer","return","function","local","string","nil","then","while"};
 
@@ -29,7 +29,7 @@ typedef enum {
 }e_keyword;
 
 typedef enum{
-    TOKEN_PLUS = 20,                     // +
+    TOKEN_PLUS = 20,                    // +
     TOKEN_MINUS,                        // -
     TOKEN_MULTIPLICATION,               // *
     TOKEN_DIVISION,                     // / деление выследок number
@@ -109,5 +109,41 @@ typedef struct s_token{
     t_lexeme lexeme;
 }t_token;
 
+
+void file_ptr(FILE* f){
+    code_file = f;
+    if(!code_file)
+        //TODO chybove hlaseni
+}
+
+void string_create(){
+    string = string_init();
+    if(!string)
+        //TODO chybove hlaseni
+}
+
+static void reload_string(t_str* string){
+    if(!string)
+        string_create();
+    string_init_state(string);
+}
+
+int get_token(t_token* token){
+
+    reload_string(string);
+    int state = LEXICAL_STATE_START;
+
+    while(true){
+        char symbol = getc(code_file);
+        switch (state) {
+            case LEXICAL_STATE_START{
+                if(symbol == '+')
+                    token->token_name
+
+            }
+        }
+    }
+
+}
 
 
