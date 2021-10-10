@@ -120,6 +120,11 @@ bool string_equales(t_str* str1, t_str* str2){
     return true;
 }
 
+void string_init_state(t_str* str ){
+    str->data[STRING_START] = EOL;
+    str->how_occupied = 0;
+}
+
 
 
 //int main(){
