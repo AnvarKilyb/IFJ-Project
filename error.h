@@ -6,6 +6,7 @@
 
 typedef enum {
     IT_IS_OK = 0,
+    ERROR_LEX_ANALYSIS = 9,
     
     ERROR_INTERNAL = 99,
 }e_error_message;
