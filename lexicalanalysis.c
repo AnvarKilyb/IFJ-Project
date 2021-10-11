@@ -34,15 +34,15 @@ typedef enum{
     TOKEN_MINUS,                        // -1
     TOKEN_MULTIPLICATION,               // *1
     TOKEN_DIVISION,                     // / деление выследок number 1
-    TOKEN_INT_DIVISION,                 // // деление выследок integer
+    TOKEN_INT_DIVISION,                 // // деление выследок integer 1
     TOKEN_CONCATENATION,                // .. 1
     TOKEN_ASSIGNMENT,                   // =1
 
     TOKEN_GREATER,                      // > 1
-    TOKEN_GREATER_OR_EQUAL,             // >=,
+    TOKEN_GREATER_OR_EQUAL,             // >=,1
     TOKEN_LESS,                         // < 1
-    TOKEN_LESS_OR_EQUAL,                // <=
-    TOKEN_EQUALS,                       // ==
+    TOKEN_LESS_OR_EQUAL,                // <=1
+    TOKEN_EQUALS,                       // ==1
     TOKEN_NOT_EQUALS,                   // ~= 1
 
     TOKEN_LENGTH,                       // #1
@@ -50,11 +50,12 @@ typedef enum{
     TOKEN_ASSIGNMENT_TYPE,              // :1
     TOKEN_LEFT_BRACKET,                 // (1
     TOKEN_RIGHT_BRACKET,                // )1
+    TOKEN_COMMA,                        //, 1
 
     TOKEN_KEYWORD,                      // keyword
     TOKEN_EOF,                          // EOF1
-    TOKEN_EOL,                          // \01
-    TOKEN_SPACE,                        // пробел1
+//    TOKEN_EOL,                          // \01
+//    TOKEN_SPACE,                        // пробел1
     TOKEN_IDENTIFIER,                   // переменная
 
     TOKEN_INTEGER,                      // тип int
@@ -98,6 +99,8 @@ typedef enum {
     LEXICAL_STATE_LESS,
     LEXICAL_STATE_NOT,
     LEXICAL_STATE_CONCATENATE,
+    LEXICAL_STATE_EOL,
+    LEXICAL_STATE_SPACE,
 }e_lexical_state_fsm;
 
 typedef struct s_lexeme{
@@ -132,65 +135,128 @@ int find_token(t_token* token){
                     return IT_IS_OK;
                 }else if(symbol == '*'){
                     token->token_name = TOKEN_MULTIPLICATION;
-//                    string_wright_char_begin(string, symbol);
+                    string_wright_char_begin(string, symbol);
                     return IT_IS_OK;
                 }else if(symbol == '#'){
                     token->token_name = TOKEN_LENGTH;
-//                    string_wright_char_begin(string, symbol);
+                    string_wright_char_begin(string, symbol);
                     return IT_IS_OK;
                 }else if(symbol == '%'){
                     token->token_name = TOKEN_WRIGHT;
-//                    string_wright_char_begin(string, symbol);
+                    string_wright_char_begin(string, symbol);
                     return IT_IS_OK;
                 }else if(symbol == ':'){
                     token->token_name = TOKEN_ASSIGNMENT_TYPE;
+                    string_wright_char_begin(string, symbol);
                     return IT_IS_OK;
                 }else if(symbol == '('){
                     token->token_name = TOKEN_LEFT_BRACKET;
+                    string_wright_char_begin(string, symbol);
                     return IT_IS_OK;
                 }else if(symbol == ')'){
                     token->token_name = TOKEN_RIGHT_BRACKET;
+                    string_wright_char_begin(string, symbol);
                     return IT_IS_OK;
-                }else if(symbol == ' '){
-                    token->token_name = TOKEN_SPACE;
-                    return IT_IS_OK;
-                }else if(symbol == EOL){
-                    token->token_name = TOKEN_EOL;
+                }else if(symbol == ','){
+                    token->token_name = TOKEN_COMMA;
+                    string_wright_char_begin(string, symbol);
                     return IT_IS_OK;
                 }else if(symbol == EOF){
                     token->token_name = TOKEN_EOF;
                     return IT_IS_OK;
+                }else if(symbol == ' '){
+                    state = LEXICAL_STATE_SPACE;
+                }else if(symbol == EOL) {
+                    state = LEXICAL_STATE_EOL;
                 }else if(symbol == '-'){
                     state = LEXICAL_STATE_MINUS;
-                    break;
+                    string_wright_char_begin(string, symbol);
                 }else if(symbol == '/'){
                     state = LEXICAL_STATE_DIVISION;
-                    break;
+                    string_wright_char_begin(string, symbol);
                 }else if(symbol == '.'){
                     state = LEXICAL_STATE_CONCATENATE;
-                    break;
+                    string_wright_char_begin(string, symbol);
                 }else if(symbol == '>'){
                     state = LEXICAL_STATE_GREATER;
-                    break;
+                    string_wright_char_begin(string, symbol);
                 }else if(symbol == '<'){
                     state = LEXICAL_STATE_LESS;
-                    break;
+                    string_wright_char_begin(string, symbol);
                 } else if(symbol == '='){
                     state = LEXICAL_STATE_ASSIGNMENT;
-                    break;
+                    string_wright_char_begin(string, symbol);
                 } else if(symbol == '~'){
                     state = LEXICAL_STATE_NOT;
-                    break;
-                }else if(symbol == '\n'){
-//                    state = LEXICAL_STATE_EOL;
-                    break;
+                    string_wright_char_begin(string, symbol);
+                }else{
+                    return ERROR_LEX_ANALYSIS;
                 }
                 break;
 
             case LEXICAL_STATE_DIVISION:
                 if(symbol=='/'){
                     token->token_name = TOKEN_INT_DIVISION;
+                    string_wright_char_behind(string, symbol);
+                    return IT_IS_OK;
+                }else if(symbol == ' '){
+                    token->token_name = TOKEN_DIVISION;
+                    return IT_IS_OK;
+                }else{
+                    token->token_name = TOKEN_DIVISION;
+                    ungetc(symbol,code_file);
+                    return IT_IS_OK;;
                 }
+
+            case LEXICAL_STATE_CONCATENATE:
+                if(symbol == '.'){
+                    token->token_name = TOKEN_CONCATENATION;
+                    string_wright_char_behind(string, symbol);
+                    return IT_IS_OK;
+                }else{
+                    return ERROR_LEX_ANALYSIS;
+                }
+
+            case LEXICAL_STATE_GREATER:
+                if(symbol == '='){
+                    token->token_name = TOKEN_GREATER_OR_EQUAL;
+                    string_wright_char_behind(string, symbol);
+                    return IT_IS_OK;
+                }else{
+                    token->token_name = TOKEN_GREATER;
+                    return IT_IS_OK;
+                }
+
+            case LEXICAL_STATE_LESS:
+                if(symbol == '='){
+                    token->token_name = TOKEN_LESS_OR_EQUAL;
+                    string_wright_char_behind(string, symbol);
+                    return IT_IS_OK;
+                }else{
+                    token->token_name = TOKEN_LESS;
+                    return IT_IS_OK;
+                }
+
+            case LEXICAL_STATE_ASSIGNMENT:
+                if(symbol == '='){
+                    token->token_name = TOKEN_EQUALS;
+                    string_wright_char_behind(string, symbol);
+                    return IT_IS_OK;
+                }else{
+                    token->token_name = TOKEN_LESS;
+                    return IT_IS_OK;
+                }
+
+            case LEXICAL_STATE_NOT:
+                if(symbol == '='){
+                    token->token_name = TOKEN_NOT_EQUALS;
+                    string_wright_char_behind(string, symbol);
+                    return IT_IS_OK;
+                }else{
+                    return ERROR_LEX_ANALYSIS;
+                }
+            case LEXICAL_STATE_IDENTIFIER:
+                break;
         }
     }
 
@@ -220,6 +286,7 @@ int get_token(t_token* token){
 
     if(find_token(token)){
         //TODO обработка ошибок
+        string_free(string);
         return 2;
     }
 }
