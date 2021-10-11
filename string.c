@@ -19,19 +19,19 @@ typedef struct s_string{
 /*
  * Создание строки
  */
-t_str* string_init()
+int string_init(t_str* str)
 {
-    t_str* str = (t_str*)malloc(sizeof (t_str));
+//    t_str* str = malloc(sizeof (t_str));
     str->data = malloc(STRING_LEN * sizeof (char));
     if(!str->data){
         //TODO вызов функции ошибки
+        return 1;
     }
 
     str->data[STRING_START] = EOL;
     str->lenght = STRING_LEN;
     str->how_occupied = 0;
-
-    return str;
+    return 0;
 }
 
 /*
