@@ -6,8 +6,8 @@
 #include "string.c"
 #include "error.h"
 
-static FILE *code_file;
-static t_str *string;
+static FILE *code_file = NULL;
+static t_str *string = NULL;
 
 const char* const KEYWORDS[] = {"do","global","number","else","if","require","end","integer","return","function","local","string","nil","then","while"};
 
@@ -101,7 +101,7 @@ typedef enum {
 }e_lexical_state_fsm;
 
 typedef struct s_lexeme{
-    t_str inter;
+    t_str* inter;    //TODO *
     e_keyword keyword;
     int integer;
     double number;
@@ -109,32 +109,18 @@ typedef struct s_lexeme{
 
 typedef struct s_token{
     e_token_type token_name;
-    t_lexeme lexeme;
+    t_lexeme* lexeme;
 }t_token;
 
-
-void file_ptr(FILE* f){
+int file_ptr(FILE* f){
     code_file = f;
-//    if(!code_file)
-        //TODO chybove hlaseni
-}
-
-void string_create(){
-    string = string_init();
-//    if(!string)
-        //TODO chybove hlaseni
-}
-
-void reload_string(t_str* str){
-    if(!str) {
-        string_create();
-        return;
+    if(!code_file){
+        //TODO обработка ошибок
+        return 1;
     }
-    string_init_state(str);
 }
-int get_token(t_token* token){
 
-    reload_string(string);
+int find_token(t_token* token){
     int state = LEXICAL_STATE_START;
 
     while(true){
@@ -144,89 +130,98 @@ int get_token(t_token* token){
                 if(symbol == '+') {
                     token->token_name = TOKEN_PLUS;
                     return IT_IS_OK;
-                }else if(symbol == '*')
-                {
+                }else if(symbol == '*'){
                     token->token_name = TOKEN_MULTIPLICATION;
+//                    string_wright_char_begin(string, symbol);
                     return IT_IS_OK;
-                }
-                else if(symbol == '#')
-                {
+                }else if(symbol == '#'){
                     token->token_name = TOKEN_LENGTH;
+//                    string_wright_char_begin(string, symbol);
                     return IT_IS_OK;
-                }
-                else if(symbol == '%')
-                {
+                }else if(symbol == '%'){
                     token->token_name = TOKEN_WRIGHT;
+//                    string_wright_char_begin(string, symbol);
                     return IT_IS_OK;
-                }
-                else if(symbol == ':')
-                {
+                }else if(symbol == ':'){
                     token->token_name = TOKEN_ASSIGNMENT_TYPE;
                     return IT_IS_OK;
-                }
-                else if(symbol == '(')
-                {
+                }else if(symbol == '('){
                     token->token_name = TOKEN_LEFT_BRACKET;
                     return IT_IS_OK;
-                }else if(symbol == ')')
-                {
+                }else if(symbol == ')'){
                     token->token_name = TOKEN_RIGHT_BRACKET;
                     return IT_IS_OK;
-                }else if(symbol == ' ')
-                {
+                }else if(symbol == ' '){
                     token->token_name = TOKEN_SPACE;
                     return IT_IS_OK;
-                }else if(symbol == EOL)
-                {
+                }else if(symbol == EOL){
                     token->token_name = TOKEN_EOL;
                     return IT_IS_OK;
-                }else if(symbol == EOF)
-                {
+                }else if(symbol == EOF){
                     token->token_name = TOKEN_EOF;
                     return IT_IS_OK;
-                }else if(symbol == '-')
-                {
+                }else if(symbol == '-'){
                     state = LEXICAL_STATE_MINUS;
                     break;
-                }else if(symbol == '/')
-                {
+                }else if(symbol == '/'){
                     state = LEXICAL_STATE_DIVISION;
                     break;
-                }
-                else if(symbol == '.')
-                {
+                }else if(symbol == '.'){
                     state = LEXICAL_STATE_CONCATENATE;
                     break;
-                }
-                else if(symbol == '>')
-                {
+                }else if(symbol == '>'){
                     state = LEXICAL_STATE_GREATER;
                     break;
-                }
-                else if(symbol == '<')
-                {
+                }else if(symbol == '<'){
                     state = LEXICAL_STATE_LESS;
                     break;
-                } else if(symbol == '=')
-                {
+                } else if(symbol == '='){
                     state = LEXICAL_STATE_ASSIGNMENT;
                     break;
-                } else if(symbol == '~')
-                {
+                } else if(symbol == '~'){
                     state = LEXICAL_STATE_NOT;
                     break;
-                }else if(symbol == '\n')
-                {
-                    state = LEXICAL_STATE_EOL;
+                }else if(symbol == '\n'){
+//                    state = LEXICAL_STATE_EOL;
                     break;
                 }
                 break;
 
-
-
+            case LEXICAL_STATE_DIVISION:
+                if(symbol=='/'){
+                    token->token_name = TOKEN_INT_DIVISION;
+                }
         }
     }
 
+}
+
+int prepar_analysis(t_token* token){
+    if((!token) || (!token->lexeme) || (!token->lexeme->inter))
+        return 1; // TODO обработка ошибок
+
+    if(!code_file)
+        return 1; //TODO обработка ошибок
+
+    if(!string){
+        string = malloc(sizeof(t_str));
+        if(string_init(string))
+            return 1; // TODO обработка ошибок
+    }else
+        string_init_state(string);
+    return 0;
+}
+
+int get_token(t_token* token){
+    if (prepar_analysis(token)){
+        //TODO обработка ошибок
+        return 1;
+    }
+
+    if(find_token(token)){
+        //TODO обработка ошибок
+        return 2;
+    }
 }
 
 
