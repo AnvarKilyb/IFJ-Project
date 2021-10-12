@@ -57,27 +57,31 @@ void string_expansion(t_str* str){
     str->lenght = str->lenght * 2;
 }
 
+///*
+// * Вкладвает символ в начало строки
+// */
+//void string_wright_char_begin(t_str* str, const char symbol){
+//
+//    str->how_occupied = STRING_START;
+//    str->data[str->how_occupied++] = symbol;
+//    str->data[str->how_occupied++] = NUL;
+//
+//}
+
 /*
- * Вкладвает символ в начало строки
+ * Вкладвает символ в строку
  */
-void string_wright_char_begin(t_str* str, const char symbol){
-
-    str->how_occupied = STRING_START;
-    str->data[str->how_occupied++] = symbol;
-    str->data[str->how_occupied++] = NUL;
-
-}
-
-/*
- * Вкладвает символ за уже вложеными символами
- */
-void string_wright_char_behind(t_str* str, char symbol){
-    if(str->lenght <= str->how_occupied + 1)
+void string_wright_char(t_str* str, char symbol){
+    if(str->lenght <= str->how_occupied)
         string_expansion(str);
-
-    str->data[--str->how_occupied] = symbol; // str->how_occupied показывает сколько символов влодина считая и конец строки
-    str->data[++str->how_occupied] = NUL;
-    str->how_occupied++;
+    if(str->how_occupied == 0){
+        str->data[str->how_occupied++] = symbol;
+        str->data[str->how_occupied++] = NUL;
+    }else {
+        str->data[--str->how_occupied] = symbol; // str->how_occupied показывает сколько символов влодина считая и конец строки
+        str->data[++str->how_occupied] = NUL;
+        str->how_occupied++;
+    }
 
 }
 
