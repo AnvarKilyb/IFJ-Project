@@ -6,11 +6,13 @@
 #include "string.c"
 #include "error.h"
 
+#define EOL '\n'
+
 static FILE *code_file = NULL;
 static t_str *string = NULL;
 
 const char* const KEYWORDS[] = {"do","global","number","else","if","require","end","integer","return","function","local","string","nil","then","while"};
-
+const int AMOUNT_OF_KEYWORDS = (sizeof(KEYWORDS)/sizeof(KEYWORDS[0]));
 typedef enum {
     KEYWORD_DO = 0,
     KEYWORD_GLOBAL,
@@ -52,15 +54,16 @@ typedef enum{
     TOKEN_RIGHT_BRACKET,                // )1
     TOKEN_COMMA,                        //, 1
 
-    TOKEN_KEYWORD,                      // keyword
+    TOKEN_KEYWORD,                      // keyword1
     TOKEN_EOF,                          // EOF1
 //    TOKEN_EOL,                          // \01
 //    TOKEN_SPACE,                        // пробел1
-    TOKEN_IDENTIFIER,                   // переменная
+    TOKEN_IDENTIFIER,                   // переменная1
 
     TOKEN_INTEGER,                      // тип int
     TOKEN_NUMBER,                       // тип double
     TOKEN_NUMBER_EXPONENT,              // тип double c expon
+    TOKEN_STRING,                       // тип string
 
 }e_token_type;
 
@@ -89,6 +92,7 @@ typedef enum {
     LEXICAL_STATE_STRING_STOP,
     ////////////////////////////////////
     LEXICAL_STATE_MINUS,
+    LEXICAL_STATE_COMMENT_LINE_OR_BLOCK,
     LEXICAL_STATE_COMMENT_LINE,
     LEXICAL_STATE_COMMENT_BLOCK_START,
     LEXICAL_STATE_COMMENT_BLOCK,
@@ -100,6 +104,7 @@ typedef enum {
     LEXICAL_STATE_NOT,
     LEXICAL_STATE_CONCATENATE,
     LEXICAL_STATE_EOL,
+    LEXICAL_STATE_EOF,
     LEXICAL_STATE_SPACE,
 }e_lexical_state_fsm;
 
@@ -121,6 +126,20 @@ int file_ptr(FILE* f){
         //TODO обработка ошибок
         return 1;
     }
+    return IT_IS_OK;
+}
+
+void keyword_check(t_token* token)
+{
+    int number_keyword = 0;
+    for(;number_keyword <= AMOUNT_OF_KEYWORDS - 1;number_keyword++){
+        if(!string_arr_cmp(string, KEYWORDS[number_keyword])){
+            token->lexeme->keyword = number_keyword;
+            token->token_name = TOKEN_KEYWORD;
+            return;
+        }
+    }
+    token->token_name = TOKEN_IDENTIFIER;
 }
 
 int find_token(t_token* token){
@@ -162,8 +181,16 @@ int find_token(t_token* token){
                     string_wright_char_begin(string, symbol);
                     return IT_IS_OK;
                 }else if(symbol == EOF){
-                    token->token_name = TOKEN_EOF;
-                    return IT_IS_OK;
+                    state = LEXICAL_STATE_EOF;
+                }else if((symbol >= 'A' && symbol <= 'Z' ) || ( symbol >= 'a' && symbol <= 'z')|| symbol == '_'){
+                        string_wright_char_begin(string,symbol);
+                        state = LEXICAL_STATE_IDENTIFIER;
+                }else if(symbol == '\"'){
+                    state = LEXICAL_STATE_STRING_START;
+                    string_wright_char_begin(string,symbol);
+                }else if(symbol >= '0' && symbol <= '1' ){
+                    state = LEXICAL_STATE_NUMERIC;
+                    string_wright_char_begin(string,symbol);
                 }else if(symbol == ' '){
                     state = LEXICAL_STATE_SPACE;
                 }else if(symbol == EOL) {
@@ -205,7 +232,7 @@ int find_token(t_token* token){
                 }else{
                     token->token_name = TOKEN_DIVISION;
                     ungetc(symbol,code_file);
-                    return IT_IS_OK;;
+                    return IT_IS_OK;
                 }
 
             case LEXICAL_STATE_CONCATENATE:
@@ -223,6 +250,7 @@ int find_token(t_token* token){
                     string_wright_char_behind(string, symbol);
                     return IT_IS_OK;
                 }else{
+                    ungetc(symbol,code_file);
                     token->token_name = TOKEN_GREATER;
                     return IT_IS_OK;
                 }
@@ -233,6 +261,7 @@ int find_token(t_token* token){
                     string_wright_char_behind(string, symbol);
                     return IT_IS_OK;
                 }else{
+                    ungetc(symbol,code_file);
                     token->token_name = TOKEN_LESS;
                     return IT_IS_OK;
                 }
@@ -243,6 +272,7 @@ int find_token(t_token* token){
                     string_wright_char_behind(string, symbol);
                     return IT_IS_OK;
                 }else{
+                    ungetc(symbol,code_file);
                     token->token_name = TOKEN_LESS;
                     return IT_IS_OK;
                 }
@@ -256,7 +286,186 @@ int find_token(t_token* token){
                     return ERROR_LEX_ANALYSIS;
                 }
             case LEXICAL_STATE_IDENTIFIER:
+                if(symbol == ' ' || symbol == EOL){
+                    keyword_check(token);
+                    return IT_IS_OK;
+                }else if(symbol == EOF){
+                    ungetc(symbol,code_file);
+                    keyword_check(token);
+                    return IT_IS_OK;
+                }
+                else if((symbol >= 'A' && symbol <= 'Z' )||( symbol >= 'a' && symbol <= 'z')|| symbol == '_'){
+                    string_wright_char_behind(string, symbol);
+                    break;
+                }
+
+            case LEXICAL_STATE_MINUS:
+                if(symbol == '-'){
+                    state = LEXICAL_STATE_COMMENT_LINE_OR_BLOCK;
+                    string_init_state(string); // сбросить стороку
+                    break;
+                }else{
+                    ungetc(symbol,code_file);
+                    token->token_name = TOKEN_MINUS;
+                    return IT_IS_OK;
+                }
+
+            case LEXICAL_STATE_COMMENT_LINE_OR_BLOCK:
+                if(symbol == EOL)
+                {
+                    state = LEXICAL_STATE_START;
+                    break;
+                }else if(symbol == '['){
+                    state = LEXICAL_STATE_COMMENT_BLOCK_START;
+                    break;
+                }
+                else{
+                    state = LEXICAL_STATE_COMMENT_LINE;
+                }
+
+            case LEXICAL_STATE_COMMENT_LINE:
+                if(symbol == EOL)
+                {
+                    state = LEXICAL_STATE_START;
+                    break;
+                }else{
+                    break;
+                }
+
+            case LEXICAL_STATE_COMMENT_BLOCK_START:
+                if(symbol == '['){
+                    state = LEXICAL_STATE_COMMENT_BLOCK;
+                    break;
+                }else if(symbol == EOL){
+                    state = LEXICAL_STATE_START;
+                    break;
+                }
+                else{
+                    state = LEXICAL_STATE_COMMENT_LINE;
+                    break;
+                }
+
+            case LEXICAL_STATE_COMMENT_BLOCK:
+                if(symbol == ']'){
+                    state = LEXICAL_STATE_COMMENT_BLOCK_STOP;
+                    break;
+                }else if(symbol == EOF){
+                    return ERROR_LEX_ANALYSIS;
+                }else
+                {
+                    break;
+                }
+
+            case LEXICAL_STATE_COMMENT_BLOCK_STOP:
+                if(symbol == ']'){
+                    state = LEXICAL_STATE_START;
+                    break;
+                }else if(symbol == EOF){
+                    return ERROR_LEX_ANALYSIS;
+                }else{
+                    state = LEXICAL_STATE_COMMENT_BLOCK;
+                    break;
+                }
+            case LEXICAL_STATE_SPACE:
+                if(symbol != ' '){
+                    ungetc(symbol,code_file);
+                    state = LEXICAL_STATE_START;
+                }
                 break;
+
+            case LEXICAL_STATE_EOL:
+                if(symbol != ' ' || symbol != EOL){
+                    ungetc(symbol,code_file);
+                    state = LEXICAL_STATE_START;
+                }
+                break;
+
+            case LEXICAL_STATE_EOF:
+                token->token_name = TOKEN_EOF;
+                //TODO free function for free string
+                return IT_IS_OK;
+
+
+            case LEXICAL_STATE_NUMERIC:
+                if(symbol >= '0' && symbol <= '9'){
+                    string_wright_char_behind(string, symbol);
+                    break;
+                }else if(symbol == '.'){
+                    state = LEXICAL_STATE_NUMERIC_DOT;
+                    string_wright_char_behind(string, symbol);
+                    break;
+                }else if(symbol == 'e' || symbol == 'E'){
+                    state = LEXICAL_STATE_NUMERIC_EXP;
+                    string_wright_char_behind(string, symbol);
+                    break;
+                }else{
+                    token->token_name = TOKEN_INTEGER;
+                    ungetc(symbol,code_file);
+                    //TODO function for converting to a int number
+                    return IT_IS_OK;
+                }
+
+
+            case LEXICAL_STATE_NUMERIC_DOT:
+                if(symbol >= '0' && symbol <= '9'){
+                    string_wright_char_behind(string, symbol);
+                    state = LEXICAL_STATE_NUMERIC_NUMBER;
+                    break;
+                }else{
+                    return ERROR_LEX_ANALYSIS;
+                }
+
+
+            case LEXICAL_STATE_NUMERIC_NUMBER:
+                if(symbol >= '0' && symbol <= '9'){
+                    string_wright_char_behind(string, symbol);
+                    break;
+                }else if(symbol == 'e' || symbol == 'E'){
+                    state = LEXICAL_STATE_NUMERIC_EXP;
+                    string_wright_char_behind(string, symbol);
+                    break;
+                }else{
+                    ungetc(symbol,code_file);
+                    token->token_name = TOKEN_NUMBER;
+                    //TODO function for coverting to a double number
+                    return IT_IS_OK;
+                }
+
+
+            case LEXICAL_STATE_NUMERIC_EXP:
+                if(symbol == '+' || symbol == '-'){
+                    state = LEXICAL_STATE_NUMERIC_EXP_SIGN;
+                    string_wright_char_behind(string, symbol);
+                    break;
+                }else if(symbol >= '0' && symbol <= '9'){
+                    state = LEXICAL_STATE_NUMERIC_EXP_FINAL;
+                    string_wright_char_behind(string, symbol);
+                    break;
+                }else{
+                    return ERROR_LEX_ANALYSIS;
+                }
+
+
+            case LEXICAL_STATE_NUMERIC_EXP_SIGN:
+                if(symbol >= '0' && symbol <= '9'){
+                    state = LEXICAL_STATE_NUMERIC_EXP_FINAL;
+                    string_wright_char_behind(string, symbol);
+                    break;
+                }else{
+                    return ERROR_LEX_ANALYSIS;
+                }
+
+
+            case LEXICAL_STATE_NUMERIC_EXP_FINAL:
+                if(symbol >= '0' && symbol <= '9'){
+                    string_wright_char_behind(string, symbol);
+                    break;
+                }else{
+                    ungetc(symbol,code_file);
+                    token->token_name = TOKEN_NUMBER_EXPONENT;
+                    return IT_IS_OK;
+                }
+
         }
     }
 
@@ -289,6 +498,7 @@ int get_token(t_token* token){
         string_free(string);
         return 2;
     }
+    return IT_IS_OK;
 }
 
 
