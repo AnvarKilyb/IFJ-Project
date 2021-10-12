@@ -5,7 +5,7 @@
 
 #define STRING_LEN 16  // стандартная длин строки
 #define STRING_START 0  // начало строки
-#define EOL '\0'        // конец строки
+#define NUL '\0'        // конец строки
 
 
 typedef unsigned long long ull;
@@ -28,7 +28,7 @@ int string_init(t_str* str)
         return 1;
     }
 
-    str->data[STRING_START] = EOL;
+    str->data[STRING_START] = NUL;
     str->lenght = STRING_LEN;
     str->how_occupied = 0;
     return 0;
@@ -60,11 +60,11 @@ void string_expansion(t_str* str){
 /*
  * Вкладвает символ в начало строки
  */
-void string_wright_char_begin(t_str* str, char symbol){
+void string_wright_char_begin(t_str* str, const char symbol){
 
     str->how_occupied = STRING_START;
     str->data[str->how_occupied++] = symbol;
-    str->data[str->how_occupied++] = EOL;
+    str->data[str->how_occupied++] = NUL;
 
 }
 
@@ -72,11 +72,11 @@ void string_wright_char_begin(t_str* str, char symbol){
  * Вкладвает символ за уже вложеными символами
  */
 void string_wright_char_behind(t_str* str, char symbol){
-    if(str->lenght < str->how_occupied + 1)
+    if(str->lenght <= str->how_occupied + 1)
         string_expansion(str);
 
     str->data[--str->how_occupied] = symbol; // str->how_occupied показывает сколько символов влодина считая и конец строки
-    str->data[++str->how_occupied] = EOL;
+    str->data[++str->how_occupied] = NUL;
     str->how_occupied++;
 
 }
@@ -89,12 +89,12 @@ void string_wright_arr(t_str* str, char* arr){
         string_expansion(str);   //увеличения буфера строки
 
     str->how_occupied = STRING_START;
-    for(ull slider = 0; arr[slider] != EOL; slider++){
+    for(ull slider = 0; arr[slider] != NUL; slider++){
         str->data[slider] = arr[slider];
         str->how_occupied++;
     }
 
-    str->data[str->how_occupied++] = EOL; // сначало вкладываем 0 потом приболяем
+    str->data[str->how_occupied++] = NUL; // сначало вкладываем 0 потом приболяем
 
 }
 
@@ -109,7 +109,7 @@ ull string_lenght(t_str *str){
 /*
  * Узнает соответсвует ли первая строка второй строке
  */
-bool string_equales(t_str* str1, t_str* str2){
+bool string_cmp(t_str* str1, t_str* str2){
     if (str1->how_occupied != str2->how_occupied)
         return false;
 
@@ -120,8 +120,12 @@ bool string_equales(t_str* str1, t_str* str2){
     return true;
 }
 
+bool string_arr_cmp(t_str* str,const char* arr){
+    return strcmp(str->data,arr);
+}
+
 void string_init_state(t_str* str ){
-    str->data[STRING_START] = EOL;
+    str->data[STRING_START] = NUL;
     str->how_occupied = 0;
 }
 
