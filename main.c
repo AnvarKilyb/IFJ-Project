@@ -18,15 +18,15 @@ int main(int argc, char** argv){
     file_ptr(file_name);
 
     get_token(token);
-    printf("%d\n",token->token_name);
+    printf("%d, %d\n",token->token_name,token->lexeme->keyword);
     get_token(token);
-    printf("%d\n",token->token_name);
+    printf("%d, %d\n",token->token_name,token->lexeme->keyword);
     get_token(token);
-    printf("%d\n",token->token_name);
+    printf("%d, %d\n",token->token_name,token->lexeme->keyword);
     get_token(token);
-    printf("%d\n",token->token_name);
+    printf("%d, %d\n",token->token_name,token->lexeme->keyword);
     get_token(token);
-    printf("%d\n",token->token_name);
+    printf("%d, %d\n",token->token_name,token->lexeme->keyword);
 
     string_free(token->lexeme->inter);
     free(token->lexeme);
