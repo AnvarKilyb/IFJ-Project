@@ -565,16 +565,18 @@ int find_token(t_token* token){
                     state = LEXICAL_STATE_STRING_START;
                     escape_seq[2] = symbol;
                     //TODO функция для перевода тр пр
+                    break;
                 }else{
                     return ERROR_LEX_ANALYSIS;
                 }
 
 
-            case LEXICAL_STATE_STRING_ESCAPE_TN
+            case LEXICAL_STATE_STRING_ESCAPE_TN:
                 if((symbol >= '0') && (symbol <= '9')){
                     state = LEXICAL_STATE_STRING_START;
                     escape_seq[2] = symbol;
                     //TODO функция для перевода тр пр
+                    break;
                 }else{
                     return ERROR_LEX_ANALYSIS;
                 }
@@ -585,13 +587,10 @@ int find_token(t_token* token){
                     state = LEXICAL_STATE_STRING_START;
                     escape_seq[2] = symbol;
                     //TODO функция для перевода тр пр
+                    break;
                 }else{
                     return ERROR_LEX_ANALYSIS;
                 }
-
-
-
-
 
         }
     }
