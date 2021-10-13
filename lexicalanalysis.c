@@ -112,9 +112,9 @@ typedef enum {
 }e_lexical_state_fsm;
 
 typedef struct s_lexeme{
-    t_str* inter;    //TODO *
+    t_str* inter;
     e_keyword keyword;
-    long long int integer;
+    int integer;
     double number;
 }t_lexeme;
 
@@ -127,7 +127,7 @@ int file_ptr(FILE* f){
     code_file = f;
     if(!code_file){
         //TODO обработка ошибок
-        return 1;
+        return ERROR_INTERNAL;
     }
     return IT_IS_OK;
 }
@@ -170,7 +170,7 @@ int convert_str_numeric(t_token* token){
         double symbol = strtod(string->data,&endptr);
         if(endptr == string->data || *endptr != NUL || ((symbol == HUGE_VAL ||  symbol == -HUGE_VAL) && errno == ERANGE))
             return ERROR_INTERNAL;
-        token->lexeme->integer = symbol;
+        token->lexeme->number = symbol;
         return IT_IS_OK;
     }
     return ERROR_INTERNAL;
@@ -223,7 +223,7 @@ int find_token(t_token* token){
                 }else if(symbol == '\"'){
                     state = LEXICAL_STATE_STRING_START;
 //                    string_wright_char(string,symbol);
-                }else if(symbol >= '0' && symbol <= '1' ){
+                }else if(symbol >= '0' && symbol <= '9' ){
                     state = LEXICAL_STATE_NUMERIC;
                     string_wright_char(string,symbol);
                 }else if(symbol == ' '){
@@ -359,7 +359,7 @@ int find_token(t_token* token){
                 }
 
             case LEXICAL_STATE_COMMENT_LINE:
-                if(symbol == EOL)
+                if(symbol == EOL || symbol == EOF)
                 {
                     state = LEXICAL_STATE_START;
                     break;
@@ -417,7 +417,6 @@ int find_token(t_token* token){
 
             case LEXICAL_STATE_EOF:
                 token->token_name = TOKEN_EOF;
-                //TODO free function for free string
                 return IT_IS_OK;
 
 
@@ -437,7 +436,6 @@ int find_token(t_token* token){
                     token->token_name = TOKEN_INTEGER;
                     ungetc(symbol,code_file);
                     convert_str_numeric(token);
-                    //TODO function for converting to a int number
                     return IT_IS_OK;
                 }
 
@@ -464,7 +462,6 @@ int find_token(t_token* token){
                     ungetc(symbol,code_file);
                     token->token_name = TOKEN_NUMBER;
                     convert_str_numeric(token);
-                    //TODO function for coverting to a double number
                     return IT_IS_OK;
                 }
 
@@ -684,7 +681,7 @@ int get_token(t_token* token){
     return IT_IS_OK;
 }
 
-/// TODO перевести escape последовательности из чисел в знаки, дописать две функции для перевода строковых чисел в обычные
+
 /// TODO пернести дефиниции и enum(ы) с константами в файл библиотеки дописать обработку ошибок
 /// TODO дописать пару тестов
 
