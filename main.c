@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
+
 #include "lexicalanalysis.c"
 
 int main(int argc, char** argv){
@@ -17,16 +18,23 @@ int main(int argc, char** argv){
     string_init(token->lexeme->inter);
     file_ptr(file_name);
 
-    get_token(token);
-    printf("%d, %d\n",token->token_name,token->lexeme->keyword);
-    get_token(token);
-    printf("%d, %d\n",token->token_name,token->lexeme->keyword);
-    get_token(token);
-    printf("%d, %d\n",token->token_name,token->lexeme->keyword);
-    get_token(token);
-    printf("%d, %d\n",token->token_name,token->lexeme->keyword);
-    get_token(token);
-    printf("%d, %d\n",token->token_name,token->lexeme->keyword);
+    while(token->token_name != TOKEN_EOF){
+        token->lexeme->keyword = 100;
+        token->lexeme->inter->data[0] = '\0';
+        token->lexeme->inter->how_occupied = 0;
+        get_token(token);
+        printf("...>%d<.....>%d<.....>%s<...\n",token->token_name,token->lexeme->keyword,token->lexeme->inter->data);
+    }
+//    get_token(token);
+//    printf("...>%d<.....>%d<.....>%s<...\n",token->token_name,token->lexeme->keyword,token->lexeme->inter->data);
+//    get_token(token);
+//    printf("...>%d<.....>%d<.....>%s<...\n",token->token_name,token->lexeme->keyword,token->lexeme->inter->data);
+//    get_token(token);
+//    printf("...>%d<.....>%d<.....>%s<...\n",token->token_name,token->lexeme->keyword,token->lexeme->inter->data);
+//    get_token(token);
+//    printf("...>%d<.....>%d<.....>%s<...\n",token->token_name,token->lexeme->keyword,token->lexeme->inter->data);
+//    get_token(token);
+//    printf("...>%d<.....>%d<.....>%s<...\n",token->token_name,token->lexeme->keyword,token->lexeme->inter->data);
 
     string_free(token->lexeme->inter);
     free(token->lexeme);
