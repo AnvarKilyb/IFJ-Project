@@ -87,7 +87,6 @@ void string_copy(t_str* str1, t_str* str2){
 void string_wright_char(t_str* str, char symbol){
     if(str->lenght <= str->how_occupied) {
         string_expansion(str);
-        printf("JA TUT\n");
     }
     if(str->how_occupied == 0){
         str->data[str->how_occupied++] = symbol;
