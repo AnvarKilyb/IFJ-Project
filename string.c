@@ -25,7 +25,7 @@ int string_init(t_str* str)
     str->data = malloc(STRING_LEN * sizeof (char));
     if(!str->data){
         //TODO вызов функции ошибки
-        return 1;
+        return 99;
     }
 
     str->data[STRING_START] = NUL;
@@ -57,7 +57,20 @@ void string_expansion(t_str* str){
     str->lenght = str->lenght * 2;
 }
 
-///*
+void string_copy(t_str* str1, t_str* str2){
+    while(str1->how_occupied > str2->lenght){
+        string_expansion(str2);
+    }
+    str2->how_occupied = STRING_START;
+    for(ull slider = 0; str1->data[slider] != NUL; slider++){
+        str2->data[slider] = str1->data[slider];
+        str2->how_occupied++;
+    }
+
+    str2->data[str2->how_occupied++] = NUL;
+}
+
+//*
 // * Вкладвает символ в начало строки
 // */
 //void string_wright_char_begin(t_str* str, const char symbol){
@@ -72,8 +85,10 @@ void string_expansion(t_str* str){
  * Вкладвает символ в строку
  */
 void string_wright_char(t_str* str, char symbol){
-    if(str->lenght <= str->how_occupied)
+    if(str->lenght <= str->how_occupied) {
         string_expansion(str);
+        printf("JA TUT\n");
+    }
     if(str->how_occupied == 0){
         str->data[str->how_occupied++] = symbol;
         str->data[str->how_occupied++] = NUL;
