@@ -2,6 +2,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <limits.h>
+#include <errno.h>
+#include <math.h>
 
 #include "string.c"
 #include "error.h"
@@ -111,7 +114,7 @@ typedef enum {
 typedef struct s_lexeme{
     t_str* inter;    //TODO *
     e_keyword keyword;
-    int integer;
+    long long int integer;
     double number;
 }t_lexeme;
 
@@ -140,6 +143,37 @@ void keyword_check(t_token* token)
         }
     }
     token->token_name = TOKEN_IDENTIFIER;
+}
+
+
+int convert_escape(char* arr){
+    errno = 0;
+    char* endptr = NULL;
+    long symbol = strtol(arr,&endptr,10);
+    if(endptr == arr || *endptr != NUL || ((symbol == LONG_MIN ||  symbol == LONG_MAX) && errno == ERANGE))
+        return ERROR_INTERNAL;
+    string_wright_char(string,symbol);
+    printf("%s\n",string->data);
+    return IT_IS_OK;
+}
+
+int convert_str_numeric(t_token* token){
+    errno = 0;
+    char* endptr = NULL;
+    if (token->token_name == TOKEN_INTEGER){
+        int symbol = (int) strtol(string->data,&endptr,10);
+        if(endptr == string->data || *endptr != NUL || ((symbol == INT_MIN ||  symbol == INT_MAX) && errno == ERANGE))
+            return ERROR_INTERNAL;
+        token->lexeme->integer = symbol;
+        return IT_IS_OK;
+    }else if(token->token_name == TOKEN_NUMBER || token->token_name == TOKEN_NUMBER_EXPONENT){
+        double symbol = strtod(string->data,&endptr);
+        if(endptr == string->data || *endptr != NUL || ((symbol == HUGE_VAL ||  symbol == -HUGE_VAL) && errno == ERANGE))
+            return ERROR_INTERNAL;
+        token->lexeme->integer = symbol;
+        return IT_IS_OK;
+    }
+    return ERROR_INTERNAL;
 }
 
 int find_token(t_token* token){
@@ -402,6 +436,7 @@ int find_token(t_token* token){
                 }else{
                     token->token_name = TOKEN_INTEGER;
                     ungetc(symbol,code_file);
+                    convert_str_numeric(token);
                     //TODO function for converting to a int number
                     return IT_IS_OK;
                 }
@@ -428,6 +463,7 @@ int find_token(t_token* token){
                 }else{
                     ungetc(symbol,code_file);
                     token->token_name = TOKEN_NUMBER;
+                    convert_str_numeric(token);
                     //TODO function for coverting to a double number
                     return IT_IS_OK;
                 }
@@ -462,8 +498,9 @@ int find_token(t_token* token){
                     string_wright_char(string, symbol);
                     break;
                 }else{
-                    ungetc(symbol,code_file);
                     token->token_name = TOKEN_NUMBER_EXPONENT;
+                    ungetc(symbol,code_file);
+                    convert_str_numeric(token);
                     return IT_IS_OK;
                 }
 
@@ -493,11 +530,11 @@ int find_token(t_token* token){
                     string_wright_char(string, '\"');
                     state = LEXICAL_STATE_STRING_START;
                     break;
-                }else if(symbol == '\n'){
+                }else if(symbol == 'n'){
                     string_wright_char(string, '\n');
                     state = LEXICAL_STATE_STRING_START;
                     break;
-                }else if(symbol == '\t'){
+                }else if(symbol == 't'){
                     string_wright_char(string, '\t');
                     state = LEXICAL_STATE_STRING_START;
                     break;
@@ -564,7 +601,9 @@ int find_token(t_token* token){
                 if((symbol >= '1') && (symbol <= '9')){
                     state = LEXICAL_STATE_STRING_START;
                     escape_seq[2] = symbol;
-                    //TODO функция для перевода тр пр
+                    if(convert_escape(escape_seq)){
+                        return ERROR_INTERNAL;
+                    }
                     break;
                 }else{
                     return ERROR_LEX_ANALYSIS;
@@ -575,7 +614,9 @@ int find_token(t_token* token){
                 if((symbol >= '0') && (symbol <= '9')){
                     state = LEXICAL_STATE_STRING_START;
                     escape_seq[2] = symbol;
-                    //TODO функция для перевода тр пр
+                    if(convert_escape(escape_seq)){
+                        return ERROR_INTERNAL;
+                    }
                     break;
                 }else{
                     return ERROR_LEX_ANALYSIS;
@@ -586,7 +627,9 @@ int find_token(t_token* token){
                 if((symbol >= '0') && (symbol <= '5')){
                     state = LEXICAL_STATE_STRING_START;
                     escape_seq[2] = symbol;
-                    //TODO функция для перевода тр пр
+                    if(convert_escape(escape_seq)){
+                        return ERROR_INTERNAL;
+                    }
                     break;
                 }else{
                     return ERROR_LEX_ANALYSIS;
@@ -597,19 +640,30 @@ int find_token(t_token* token){
 }
 
 int prepar_analysis(t_token* token){
-    if((!token) || (!token->lexeme) || (!token->lexeme->inter))
-        return 1; // TODO обработка ошибок
+
+    if(!token){
+        return ERROR_INTERNAL;
+    }
+    else if(!token->lexeme){
+        return ERROR_INTERNAL;
+    }
+    else if(!token->lexeme->inter){
+        return ERROR_INTERNAL;
+    }
+
 
     if(!code_file)
-        return 1; //TODO обработка ошибок
+        return ERROR_INTERNAL;
 
     if(!string){
         string = malloc(sizeof(t_str));
         if(string_init(string))
-            return 1; // TODO обработка ошибок
-    }else
+            return ERROR_INTERNAL;
+    }else{
         string_init_state(string);
-    return 0;
+    }
+
+    return IT_IS_OK;
 }
 
 int get_token(t_token* token){
@@ -623,6 +677,10 @@ int get_token(t_token* token){
         string_free(string);
         return 2;
     }
+
+    if(token->token_name != TOKEN_EOF)
+        string_copy(string,token->lexeme->inter);
+
     return IT_IS_OK;
 }
 
