@@ -6,7 +6,7 @@
 
 typedef struct s_stack_unit{
     int data; //TODO вместо инта дополнить что нужно
-    struct s_stack_unit* low_down_element;
+    struct s_stack_unit* down_element;
 }t_stack_element;
 
 typedef struct s_stack{
@@ -37,7 +37,7 @@ int stack_push(t_stack* stack, int a /* TODO заменит на то что н�
         return ERROR_INTERNAL;
 
     ptr->data = a;
-    ptr->low_down_element = stack->stack_top;
+    ptr->down_element = stack->stack_top;
 
     stack->stack_top = ptr;
     stack->amount_of_elements++;
@@ -58,7 +58,7 @@ int stack_pop(t_stack* stack){
         return ERROR_INTERNAL;
 
     t_stack_element* ptr = stack->stack_top;
-    stack->stack_top = stack->stack_top->low_down_element;
+    stack->stack_top = stack->stack_top->down_element;
     stack->amount_of_elements--;
     free(ptr);
     return IT_IS_OK;
