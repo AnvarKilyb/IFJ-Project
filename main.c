@@ -2,10 +2,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "sya.c"
 
-
-#include "lexicalanalysis.c"
-#include "mystack.c"
+//#include "lexicalanalysis.c"
+//#include "mystack.c"
 
 int main(int argc, char** argv){
 /*
@@ -56,27 +56,27 @@ int main(int argc, char** argv){
  * Проверка стека
  *
  */
-    t_stack stack;
-    stack_init(&stack);
-    stack_push(&stack,10);
-    printf("%d......%d\n",stack.stack_top->data,stack.amount_of_elements);
-    stack_push(&stack,11);
-    printf("%d......%d\n",stack.stack_top->data,stack.amount_of_elements);
-    stack_push(&stack,12);
-    printf("%d......%d\n",stack.stack_top->data,stack.amount_of_elements);
-    int a = stack_top(&stack);
-    printf("%d\n",a);
-    stack_pop(&stack);
-    printf("%d......%d\n",stack.stack_top->data,stack.amount_of_elements);
-    a = stack_top(&stack);
-    stack_pop(&stack);
-    printf("%d\n",a);
-    printf("%d......%d\n",stack.stack_top->data,stack.amount_of_elements);
-    a = stack_top(&stack);
-    stack_pop(&stack);
-    printf("%d\n",a);
-    stack_pop(&stack);
-    printf("%s......%d\n",stack.stack_top,stack.amount_of_elements);
+//    t_stack stack;
+//    stack_init(&stack);
+//    stack_push(&stack,10);
+//    printf("%d......%d\n",stack.stack_top->data,stack.amount_of_elements);
+//    stack_push(&stack,11);
+//    printf("%d......%d\n",stack.stack_top->data,stack.amount_of_elements);
+//    stack_push(&stack,12);
+//    printf("%d......%d\n",stack.stack_top->data,stack.amount_of_elements);
+//    int a = stack_top(&stack);
+//    printf("%d\n",a);
+//    stack_pop(&stack);
+//    printf("%d......%d\n",stack.stack_top->data,stack.amount_of_elements);
+//    a = stack_top(&stack);
+//    stack_pop(&stack);
+//    printf("%d\n",a);
+//    printf("%d......%d\n",stack.stack_top->data,stack.amount_of_elements);
+//    a = stack_top(&stack);
+//    stack_pop(&stack);
+//    printf("%d\n",a);
+//    stack_pop(&stack);
+//    printf("%s......%d\n",stack.stack_top,stack.amount_of_elements);
 
     return 0;
 }

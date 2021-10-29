@@ -4,10 +4,22 @@
 
 #define STACK_IS_EMPTY 0
 
+typedef enum {
+    $,
+    PROG,
+    CHUNK,
+    FUNCTION,
+}e_rule;
+
+
 typedef struct s_stack_unit{
-    int data; //TODO вместо инта дополнить что нужно
+    e_rule data; //TODO вместо инта дополнить что нужно
     struct s_stack_unit* down_element;
 }t_stack_element;
+
+//typedef struct s_stack_data{
+//
+//}t_stack_data;
 
 typedef struct s_stack{
     t_stack_element* stack_top;
@@ -28,7 +40,7 @@ static int stack_is_empty(t_stack* stack){
     return stack->amount_of_elements == 0;
 }
 
-int stack_push(t_stack* stack, int a /* TODO заменит на то что надо вставить в стек*/){
+int stack_push(t_stack* stack, e_rule a /* TODO заменит на то что надо вставить в стек*/){
     if(!stack)
         return ERROR_INTERNAL;
 
