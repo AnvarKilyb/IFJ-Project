@@ -1,6 +1,6 @@
 #include <string.h>
 #include <stdlib.h>
-//#include "error.h"
+#include "error.h"
 
 #define STACK_IS_EMPTY 0
 
