@@ -37,8 +37,10 @@ node *tree_insert(node *root, int key, sData data){
         return tree_init(key, data);
     else if(key > root->key) // Ищет место вставки в правом поддереве, если ключ больше ключа узла
         root->right_node = tree_insert(root->right_node, key, data);
-    else // Ищет место вставки в левом поддереве, если ключ меньше ключа узла
+    else if(key < root->key)// Ищет место вставки в левом поддереве, если ключ меньше ключа узла
         root->left_node = tree_insert(root->left_node, key, data);
+    else
+        root->data = data;
     return root;
 }
 
@@ -96,7 +98,7 @@ void table_delete(s_stack *stack){
 void table_leftMostPre(s_stack *stack, node *tree){
     while(tree != NULL){
         table_push(stack, tree);
-        printf("Key: %d\n", tree->key);
+        printf("Key(%d)\n", tree->key);
         tree = tree->left_node;
     }
 }
@@ -112,16 +114,46 @@ void table_preOrder(node *tree){
     table_delete(&stack);
 }
 
-// int main(){
-//     sData data = {func, 1, 100};
-//     node *tree;
-//     tree = tree_init(2, data);
-//     sData data1 = {var, 0, 101};
-//     tree_insert(tree, 3, data1);
-//     sData data2 = {func, 1, 102};
-//     tree_insert(tree, 1, data2);
+unsigned long hashcode(unsigned char *str){
+    unsigned long hash = 0, x = 0;
+    
+    for(char c = *str; c != '\0'; c = *(++str)){
+        hash = (hash << 4) + c;
+        if((x = hash & 0xF0000000L) != 0){
+            hash ^= (x >> 24);
+        }
+        hash &= ~x;
+    }
+    return hash;
+}
 
-//     table_defVarPre(tree);
+int main(){
+    // char arr1[] = "return";
+    // char arr2[] = "stop";
+    // char arr3[] = "while";
+    // t_str *string1 = string_init();
+    // t_str *string2 = string_init();
+    // t_str *string3 = string_init();
 
-//     tree = tree_delete(tree);
-//  }
+    // string_wright_arr(string1, arr1);
+    // string_wright_arr(string2, arr2);
+    // string_wright_arr(string3, arr3);
+
+    // int key1 = 0, key2 = 0, key3 = 0;
+    // key1 = hashcode(string1->data);
+    // key2 = hashcode(string2->data);
+    // key3 = hashcode(string3->data);
+    // sData data1 = {string1->data, FUNC, 0, 0};
+    // sData data2 = {string2->data, VAR, 0, 0};
+    // sData data3 = {string3->data, VAR, 0, 0};
+
+    // node *tree;
+    // tree = tree_init(key1, data1);
+    // tree_insert(tree, key2, data2);
+    // tree_insert(tree, key3, data3);
+
+    // table_preOrder(tree);
+
+    // tree = tree_delete(tree);
+    return 0;
+ }
