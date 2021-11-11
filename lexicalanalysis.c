@@ -36,6 +36,7 @@ typedef enum {
     KEYWORD_NIL,
     KEYWORD_THEN,
     KEYWORD_WHILE,
+    NONE_K = 50,
 }e_keyword;
 
 typedef enum{
@@ -71,7 +72,7 @@ typedef enum{
     TOKEN_NUMBER,                       // тип double1
     TOKEN_NUMBER_EXPONENT,              // тип double c expon1
     TOKEN_STRING,                       // тип string1
-
+    NONE_T,
 }e_token_type;
 
 typedef enum {
@@ -667,6 +668,11 @@ int prepar_analysis(t_token* token)
     else if(!token->lexeme->inter){
         return ERROR_INTERNAL;
     }
+
+    /// не проверенно
+    token->token_name = NONE_T;
+    token->lexeme->keyword = NONE_K;
+    ///
 
 
     if(!code_file)
