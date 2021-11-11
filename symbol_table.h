@@ -2,14 +2,17 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
+#include "string.c"
+
 #define STACK_CHUNK 100 // Размер стэка, если перевалит то выделит доп. память
 
 typedef enum{
-    var,
-    func
+    VAR,
+    FUNC
 } sType;
 
 typedef struct{
+    t_str name;
     sType type; // Тип идентификатора
     bool flag; // Был ли идентификатор уже определен в табулке
     int params; // Кол-во параметров
@@ -67,3 +70,5 @@ void table_leftMostPre(s_stack *stack, node *tree);
 void table_preOrder(node *tree);
 // Удаляет табулку
 void table_delete(s_stack *stack);
+//Кодирует строку в ключ
+unsigned long hashcode(unsigned char *str);
