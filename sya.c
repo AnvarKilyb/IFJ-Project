@@ -250,7 +250,145 @@ int return_types(t_token *token){
 }
 
 int statement(t_token *token){
+    GET_TOKEN(token);
+    if(token->token_name == TOKEN_KEYWORD && token->lexeme->keyword == KEYWORD_LOCAL){
+        GET_TOKEN(token);
+        if(token->token_name == TOKEN_IDENTIFIER){
+            //TODO add to symbol table
+        }else
+        {
+            return ERROR_SYN_ANALYSIS;
+            //TODO ошибка
+        }
+        GET_TOKEN(token);
+        if(token->token_name != TOKEN_ASSIGNMENT_TYPE){
+            return ERROR_SYN_ANALYSIS;
+            //TODO error
+        }
 
+        if(!data_type(token)){
+            return ERROR_SYN_ANALYSIS;;
+            //TODO error
+        }
+
+        GET_TOKEN(token);
+        if(token->token_name != TOKEN_ASSIGNMENT){
+            return ERROR_SYN_ANALYSIS;
+            //TODO error
+        }
+
+        if(!value(token)){
+            return ERROR_SYN_ANALYSIS;
+            //TODO error
+        }
+        if(!statement(token)){
+            return ERROR_SYN_ANALYSIS;
+            //TODO error
+        }
+
+    }else if(token->token_name == TOKEN_IDENTIFIER){
+        //TODO add to symbol table
+
+        if(!next_id(token)){
+            return ERROR_SYN_ANALYSIS;
+            //TODO error
+        }
+
+        GET_TOKEN(token);
+        if(token->token_name != TOKEN_ASSIGNMENT){
+            return ERROR_SYN_ANALYSIS;
+            //TODO error
+        }
+
+        if(!value(token)){
+            return ERROR_SYN_ANALYSIS;
+            //TODO error
+        }
+
+        if(!statement(token)){
+            return ERROR_SYN_ANALYSIS;
+            //TODO error
+        }
+
+    }else if(token->token_name == TOKEN_KEYWORD && token->lexeme->keyword == KEYWORD_IF ){
+        if(!expression(token)){
+            return ERROR_SYN_ANALYSIS;
+            //TODO error
+        }
+
+        GET_TOKEN(token);
+        if(token->token_name != TOKEN_KEYWORD && token->lexeme->keyword != KEYWORD_THEN){
+            return ERROR_SYN_ANALYSIS;
+            //TODO error
+        }
+
+        if(!statement(token)){
+            return ERROR_SYN_ANALYSIS;
+            //TODO error
+        }
+
+        GET_TOKEN(token);
+        if(token->token_name != TOKEN_KEYWORD && token->lexeme->keyword != KEYWORD_ELSE){
+            return ERROR_SYN_ANALYSIS;
+            //TODO error
+        }
+
+        if(!statement(token)){
+            return ERROR_SYN_ANALYSIS;
+            //TODO error
+        }
+
+        GET_TOKEN(token);
+        if(token->token_name != TOKEN_KEYWORD && token->lexeme->keyword != KEYWORD_END){
+            return ERROR_SYN_ANALYSIS;
+            //TODO error
+        }
+
+        if(!statement(token)){
+            return ERROR_SYN_ANALYSIS;
+            //TODO error
+        }
+
+    }else if(token->token_name == TOKEN_KEYWORD && token->lexeme->keyword == KEYWORD_WHILE){
+        if(!expression(token)){
+            return ERROR_SYN_ANALYSIS;
+            //TODO error
+        }
+
+        GET_TOKEN(token);
+        if(token->token_name != TOKEN_KEYWORD && token->lexeme->keyword != KEYWORD_DO){
+            return ERROR_SYN_ANALYSIS;
+            //TODO error
+        }
+
+        if(!statement(token)){
+            return ERROR_SYN_ANALYSIS;
+            //TODO error
+        }
+
+        GET_TOKEN(token);
+        if(token->token_name != TOKEN_KEYWORD && token->lexeme->keyword != KEYWORD_END){
+            return ERROR_SYN_ANALYSIS;
+            //TODO error
+        }
+
+        if(!statement(token)){
+            return ERROR_SYN_ANALYSIS;
+            //TODO error
+        }
+    }else if(token->token_name == TOKEN_KEYWORD && token->lexeme->keyword == KEYWORD_RETURN){
+        if(!expression(token)){
+            return ERROR_SYN_ANALYSIS;
+            //TODO error
+        }
+        if(!statement(token)){
+            return ERROR_SYN_ANALYSIS;
+            //TODO error
+        }
+    }
+    else{
+        return IT_IS_OK;
+    }
     return IT_IS_OK;
 }
 
@@ -416,6 +554,7 @@ int function_call(t_token *token){
 }
 
 int args(t_token *token){ //TODO предпологаю что функция будет определять параметры есть или нет
+
     return IT_IS_OK;
 }
 
@@ -528,11 +667,43 @@ int expression(t_token *token){
 
 int new_expression(t_token *token){
     //TODO first write the prec analysis table in code
+    GET_TOKEN(token);
+    if(token->token_name == TOKEN_COMMA){
+        if(!expression(token)){
+            return ERROR_SYN_ANALYSIS;
+            //TODO error
+        }
+
+        if(!new_expression(token)){
+            return ERROR_SYN_ANALYSIS;
+            //TODO error
+        }
+
+    }else{
+        return IT_IS_OK;
+    }
     return IT_IS_OK;
 }
 
 
 int next_id(t_token *token){
+    GET_TOKEN(token);
+    if(token->token_name == TOKEN_COMMA){
+        if(token->token_name == TOKEN_IDENTIFIER){
+            //TODO add to symbol table
+        }else{
+            return ERROR_SYN_ANALYSIS;
+            //TODO error
+        }
+
+        if(!next_id(token)){
+            return ERROR_SYN_ANALYSIS;
+            //TODO error
+        }
+
+    }else{
+        return IT_IS_OK;
+    }
     return IT_IS_OK;
 }
 

@@ -16,6 +16,7 @@
 #define SCALE_OF_NOTATION 10;
 static FILE *code_file = NULL;
 static t_str *string = NULL;
+static  bool hold = false;
 
 
 const char* const KEYWORDS[] = {"do","global","number","else","if","require","end","integer","return","function","local","string","nil","then","while"};
@@ -672,6 +673,10 @@ int prepar_analysis(t_token* token)
     /// не проверенно
     token->token_name = NONE_T;
     token->lexeme->keyword = NONE_K;
+    token->lexeme->inter->data[0] = '\0';
+    token->lexeme->inter->how_occupied = 0;
+    token->lexeme->integer = 0;
+    token->lexeme->number = 0.0;
     ///
 
 
@@ -689,8 +694,17 @@ int prepar_analysis(t_token* token)
     return IT_IS_OK;
 }
 
+int hold_token(t_token* token){
+    hold = true;
+}
+
 int get_token(t_token* token)
 {
+    if(hold){
+        hold = false;
+        return IT_IS_OK;
+    }
+
     if (prepar_analysis(token)){
         //TODO обработка ошибок
         return 1;
@@ -708,6 +722,53 @@ int get_token(t_token* token)
     return IT_IS_OK;
 }
 
+
+//int main(){
+//    FILE* file_name;
+//    file_name = fopen( "test.txt","r");
+//    t_token* token;
+//    token = malloc(sizeof (t_token));
+//    token->lexeme = malloc((sizeof (t_lexeme)));
+//    token->lexeme->inter = malloc(sizeof (t_str));
+//    string_init(token->lexeme->inter);
+//    file_ptr(file_name);
+//
+//    token->lexeme->keyword = 100;
+//    token->lexeme->inter->data[0] = '\0';
+//    token->lexeme->inter->how_occupied = 0;
+//    token->lexeme->integer = 0;
+//    token->lexeme->number = 0.0;
+//
+//    get_token(token);
+//    printf("...token{ %d }.....data{ %s }.....keyword{ %d }.....number_int{ %d }.....number_double{ %g }...\n",
+//           token->token_name, token->lexeme->inter->data, token->lexeme->keyword, token->lexeme->integer,
+//           token->lexeme->number);
+//    hold_token(token);
+//    get_token(token);
+//    printf("...token{ %d }.....data{ %s }.....keyword{ %d }.....number_int{ %d }.....number_double{ %g }...\n",
+//           token->token_name, token->lexeme->inter->data, token->lexeme->keyword, token->lexeme->integer,
+//           token->lexeme->number);
+//    get_token(token);
+//    printf("...token{ %d }.....data{ %s }.....keyword{ %d }.....number_int{ %d }.....number_double{ %g }...\n",
+//           token->token_name, token->lexeme->inter->data, token->lexeme->keyword, token->lexeme->integer,
+//           token->lexeme->number);
+//
+//
+//
+////    while(token->token_name != TOKEN_EOF) {
+////        token->lexeme->keyword = 100;
+////        token->lexeme->inter->data[0] = '\0';
+////        token->lexeme->inter->how_occupied = 0;
+////        token->lexeme->integer = 0;
+////        token->lexeme->number = 0.0;
+////
+////        get_token(token);
+////        printf("...token{ %d }.....data{ %s }.....keyword{ %d }.....number_int{ %d }.....number_double{ %g }...\n",
+////               token->token_name, token->lexeme->inter->data, token->lexeme->keyword, token->lexeme->integer,
+////               token->lexeme->number);
+////    }
+//
+//}
 
 /// TODO пернести дефиниции и enum(ы) с константами в файл библиотеки дописать обработку ошибок
 /// TODO дописать пару тестов
