@@ -1,8 +1,8 @@
-#include <string.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
-
+//#include <string.h>
+//#include <stdio.h>
+//#include <stdlib.h>
+//#include <stdbool.h>
+//
 
 typedef enum {
     IT_IS_OK = 0,

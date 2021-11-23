@@ -1,11 +1,11 @@
+
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "sya.c"
-
-//#include "lexicalanalysis.c"
-//#include "mystack.c"
+#include "lexicalanalysis.h"
+#include "syntacticalanalyzer.h"
+//#include "main.h"
 
 int main(int argc, char** argv){
 /*
@@ -30,22 +30,22 @@ int main(int argc, char** argv){
     token->lexeme->integer = 0;
     token->lexeme->number = 0.0;
 
-    return start_analysis(token);
+   return start_analysis(token);
 
 
 
 
-//    while(token->token_name != TOKEN_EOF){
-//        token->lexeme->keyword = 100;
-//        token->lexeme->inter->data[0] = '\0';
-//        token->lexeme->inter->how_occupied = 0;
-//        token->lexeme->integer = 0;
-//        token->lexeme->number = 0.0;
-//
-//        get_token(token);
-//        printf("...token{ %d }.....data{ %s }.....keyword{ %d }.....number_int{ %d }.....number_double{ %g }...\n",
-//               token->token_name,token->lexeme->inter->data,token->lexeme->keyword,token->lexeme->integer,token->lexeme->number);
-//    }
+    while(token->token_name != TOKEN_EOF){
+        token->lexeme->keyword = 100;
+        token->lexeme->inter->data[0] = '\0';
+        token->lexeme->inter->how_occupied = 0;
+        token->lexeme->integer = 0;
+        token->lexeme->number = 0.0;
+
+        get_token(token);
+        printf("...token{ %d }.....data{ %s }.....keyword{ %d }.....number_int{ %d }.....number_double{ %g }...\n",
+               token->token_name,token->lexeme->inter->data,token->lexeme->keyword,token->lexeme->integer,token->lexeme->number);
+    }
 //    get_token(token);
 //    printf("...>%d<.....>%d<.....>%s<...\n",token->token_name,token->lexeme->keyword,token->lexeme->inter->data);
 //    get_token(token);

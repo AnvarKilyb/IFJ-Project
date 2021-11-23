@@ -1,8 +1,11 @@
+#ifndef IFJ_PROJEKT_SYMBOL_TABLE_H
+#define IFJ_PROJEKT_SYMBOL_TABLE_H
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "string.c"
+#include "string.h"
 
 #define STACK_CHUNK 100 // Размер стэка, если перевалит то выделит доп. память
 
@@ -72,3 +75,5 @@ void table_preOrder(node *tree);
 void table_delete(s_stack *stack);
 //Кодирует строку в ключ
 unsigned long hashcode(unsigned char *str);
+
+#endif //IFJ_PROJEKT_SYMBOL_TABLE_H

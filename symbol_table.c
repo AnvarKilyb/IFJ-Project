@@ -127,7 +127,7 @@ unsigned long hashcode(unsigned char *str){
     return hash;
 }
 
-int main(){
+//int main(){
     // char arr1[] = "return";
     // char arr2[] = "stop";
     // char arr3[] = "while";
@@ -155,5 +155,5 @@ int main(){
     // table_preOrder(tree);
 
     // tree = tree_delete(tree);
-    return 0;
- }
+//    return 0;
+// }

@@ -1,20 +1,4 @@
-#include <string.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
-
-#define STRING_LEN 16  // стандартная длин строки
-#define STRING_START 0  // начало строки
-#define NUL '\0'        // конец строки
-
-
-typedef unsigned long long ull;
-
-typedef struct s_string{
-    char* data;
-    ull lenght;
-    ull how_occupied;
-}t_str;
+#include "string.h"
 
 /*
  * Создание строки
