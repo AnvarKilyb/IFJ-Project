@@ -1,4 +1,63 @@
 
+#include "codgen.h"
+char *header = ".IFJcode21";
+static t_str *program_body;
+static t_str *program_header;
+
+int code_header(){
+    if(string_init(program_header))
+        return ERROR_INTERNAL;
+
+    string_wright_arr(program_header, header);
+    return IT_IS_OK;
+}
+int code_expression_node(t_ast_node *ast_tree){
+    return IT_IS_OK;
+}
+int code_loop(t_ast_node *ast_tree){
+    return IT_IS_OK;
+}
+int code_if(t_ast_node *ast_tree){
+    return IT_IS_OK;
+}
+int code_declaration_variable(t_ast_node *ast_tree){
+    return IT_IS_OK;
+}
+
+int code_function(t_ast_node *ast_tree){
+    return IT_IS_OK;
+}
+int code_gen(t_ast_node *ast_tree){
+    if(!program_body){
+       if(string_init(program_body)){
+           return ERROR_INTERNAL;
+       }
+    }
+
+    if(ast_tree->it_is_expression_node){
+        if(code_expression_node(ast_tree))
+            return ERROR_INTERNAL;
+    }
+    else if(ast_tree->it_is_loop){
+        if(code_loop(ast_tree))
+            return ERROR_INTERNAL;
+    }
+    else if(ast_tree->it_is_if){
+        if(code_if(ast_tree))
+            return ERROR_INTERNAL;
+    }
+    else if(ast_tree->it_is_declaration_variable){
+        if(code_declaration_variable(ast_tree))
+            return ERROR_INTERNAL;
+    }
+    else if(ast_tree->it_is_function){
+        if(code_function(ast_tree))
+            return ERROR_INTERNAL;
+    }
+
+    return IT_IS_OK;
+}
+
 //const char start[] = ".IFJcode21";
 //
 //void start_generet(/*tree*/){

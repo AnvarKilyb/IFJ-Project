@@ -4,7 +4,7 @@
 #include "symbol_table.h"
 #include "error.h"
 
-node *tree_search(node *root, int key){
+node *tree_search(node *root, unsigned long key){
     if(root == NULL || root->key == key)
         return root; // Возвращает нужный узел
     else if(key > root->key) // Ищет в правом поддереве нужый узел, пока ключи не совпадут
@@ -20,19 +20,50 @@ node *tree_min(node *root){
         return tree_min(root->left_node);
     return root;
 }
+
+//static void copy_data(sData *data, node *root){
+//    if(!root->data.name) {
+//        root->data.name = malloc(sizeof(t_str));
+//        string_init(root->data.name);
+//    }
+//    if(!root->data.string_params) {
+//        root->data.string_params = malloc(sizeof(t_str));
+//        string_init(root->data.string_params);
+//    }
+//
+//    root->data.type = data->type;
+//    string_copy(data->string_params, root->data.string_params);
+//    root->data.define = data->define;
+//    root->data.params = data->params;
+//    string_copy(data->string_params, root->data.string_params);
+//}
 // Создает дерево, уже с первым узлом
-node *tree_init(int key, sData data){
+static node *tree_init(unsigned long  key, sData *data){
     node *root;
     root = malloc(sizeof(node));
-    root->data = data;
+
+
+    //copy_data(&data, root);
+//    root->data.name = malloc(sizeof (t_str));
+//    string_init(root->data.name);
+//    root->data.string_params = malloc(sizeof (t_str));
+//    string_init(root->data.string_params);
+////    root->data = data;
+//    root->data.type = data.type;
+//    string_copy(data.string_params, root->data.string_params);
+//    root->data.define = data.define;
+//    root->data.params = data.params;
+//    string_copy(data.string_params, root->data.string_params);
+//
+
     root->key = key;
     root->left_node = NULL;
     root->right_node = NULL;
-
+    root->data = data;
     return root;
 }
 // Добавление узла в дерево, ищет место куда вставить новый узел
-node *tree_insert(node *root, int key, sData data){
+node *tree_insert(node *root, unsigned long  key, sData *data){
     if(root == NULL)
         return tree_init(key, data);
     else if(key > root->key) // Ищет место вставки в правом поддереве, если ключ больше ключа узла
@@ -40,7 +71,8 @@ node *tree_insert(node *root, int key, sData data){
     else if(key < root->key)// Ищет место вставки в левом поддереве, если ключ меньше ключа узла
         root->left_node = tree_insert(root->left_node, key, data);
     else
-        root->data = data;
+        //copy_data(&data, root);
+       root->data = data;
     return root;
 }
 
@@ -98,7 +130,7 @@ void table_delete(s_stack *stack){
 void table_leftMostPre(s_stack *stack, node *tree){
     while(tree != NULL){
         table_push(stack, tree);
-        printf("Key(%d)\n", tree->key);
+        printf("Key(%ld)\n", tree->key);
         tree = tree->left_node;
     }
 }
@@ -114,7 +146,7 @@ void table_preOrder(node *tree){
     table_delete(&stack);
 }
 
-unsigned long hashcode(unsigned char *str){
+unsigned long hashcode(/*unsigned*/ char *str){
     unsigned long hash = 0, x = 0;
     
     for(char c = *str; c != '\0'; c = *(++str)){

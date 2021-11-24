@@ -8,12 +8,69 @@
 //#include "main.h"
 
 int main(int argc, char** argv){
+//    char arr1[] = "aaaaaaaaaaaaaaaaaaaaaaaaaa";
+//    char arr2[] = "123456789sadyftggggggggggggggg";
+//    char s1 = 'a';
+//    char s2 = 'b';
+//
+//    t_str *string = malloc(sizeof (t_str));
+//    string_init(string);
+//    t_str *string2 = malloc(sizeof (t_str));;
+//    string_init(string2);
+//
+//    string_wright_arr(string2, arr2);
+//
+//    string_wright_arr(string, arr1);
+//    string_add_string(string2,string);
+//    printf("string = %s\nhow_occupied = %lld \nlenght = %lld \n \n",string->data, string->how_occupied, string->lenght);
+//
+//    string_wright_arr(string2, arr2);
+//    printf("string = %s\nhow_occupied = %lld \nlenght = %lld \n \n",string2->data, string2->how_occupied, string2->lenght);
+
+
+
+//    node* gl = NULL;
+//    char *a = "aaaaaa";
+//    char *b = "aaavaaa";
+//    char *c = "aaaaaa";
+//    char *d = "aaaaaa";
+//    char *e = "aaaaaa";
+//    sData *data = malloc(sizeof(sData));
+//    data->type = FUNC;
+//    data->string_params = malloc( sizeof (t_str));
+//    string_init(data->string_params);
+//    string_wright_arr(data->string_params, a);
+//
+//    gl = tree_insert(gl, hashcode(a),data);
+//
+//    sData *data1 = malloc(sizeof(sData));
+//    data1->type = FUNC;
+//    data1->string_params = malloc( sizeof (t_str));
+//    string_init(data1->string_params);
+//    string_wright_arr(data1->string_params, b);
+//
+//    s_stack *stack = malloc(sizeof (s_stack));
+//    table_init(stack);
+//
+//
+//
+//    gl = tree_insert(gl, hashcode(b),data1);
+//
+//    node *n;
+//    node *f;
+//    n = tree_search(gl,hashcode(a));
+//    f = tree_search(gl,hashcode(b));
+//
+//    printf("%s\n",n->data->string_params->data);
+//    printf("%s\n",f->data->string_params->data);
+//
+
 /*
  *
  * Проверка лексического анализатора
  *
  */
-    //TODO обработка ошибок с читением имени файла
+//    //TODO обработка ошибок с читением имени файла
     FILE* file_name;
     file_name = fopen( argv[1],"r");
     printf("%s\n",argv[1]);
@@ -30,7 +87,7 @@ int main(int argc, char** argv){
     token->lexeme->integer = 0;
     token->lexeme->number = 0.0;
 
-   return start_analysis(token);
+//   return start_analysis(token);
 
 
 
@@ -57,9 +114,9 @@ int main(int argc, char** argv){
 //    get_token(token);
 //    printf("...>%d<.....>%d<.....>%s<...\n",token->token_name,token->lexeme->keyword,token->lexeme->inter->data);
 
-    string_free(token->lexeme->inter);
-    free(token->lexeme);
-    free(token);
+//    string_free(token->lexeme->inter);
+//    free(token->lexeme);
+//    free(token);
 
 
 /*

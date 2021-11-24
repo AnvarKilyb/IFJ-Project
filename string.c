@@ -54,6 +54,13 @@ void string_copy(t_str* str1, t_str* str2){
     str2->data[str2->how_occupied++] = NUL;
 }
 
+void string_add_string(t_str* str1, t_str* str2){
+    for(int slider = 0; str1->data[slider] != NUL; slider++){
+        string_wright_char(str2,str1->data[slider]);
+    }
+
+}
+
 //*
 // * Вкладвает символ в начало строки
 // */

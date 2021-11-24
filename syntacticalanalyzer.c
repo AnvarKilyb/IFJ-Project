@@ -1,5 +1,11 @@
-#include "lexicalanalysis.h"
+
 #include "syntacticalanalyzer.h"
+#include "codgen.h"
+
+bool GLOBAL = false;
+
+node *global_table;
+s_stack *stack_table;
 
 int start_program(t_token *token){
 
@@ -13,7 +19,9 @@ int start_program(t_token *token){
     else
         return ERROR_SYN_ANALYSIS;
 
+
     //TODO добавить переход в функцию в генераторе кода где будет реалтзована запись в строку начала программы
+    code_header();
     if(chunk(token)){
         return ERROR_SYN_ANALYSIS;
         //TODO ошибки
@@ -39,19 +47,29 @@ int function(t_token *token){
     GET_TOKEN(token);
 
     if (token->token_name == TOKEN_KEYWORD && token->lexeme->keyword == KEYWORD_GLOBAL){
+        GLOBAL = true;
         GET_TOKEN(token);
         if(token->token_name == TOKEN_IDENTIFIER){
+            sData *global_function = malloc(sizeof(sData));
+            if(!global_function){
+                return ERROR_INTERNAL;
+            }
+            global_function->type = FUNC;
+            global_function->name = malloc(sizeof(t_str));
+            string_init(global_function->name);
+            string_copy(token->lexeme->inter,global_function->name);
+
             //TODO Записать до табулки симвалов
         }else{
             return ERROR_SYN_ANALYSIS;
             //TODO обработка ошибок
         }
 
-        GET_TOKEN(token);
-        if(token->token_name != TOKEN_LEFT_BRACKET) {
-            return ERROR_SYN_ANALYSIS;
-            //TODO обработка ошибок ожидалась скобка
-        }
+//        GET_TOKEN(token);
+//        if(token->token_name != TOKEN_LEFT_BRACKET) {
+//            return ERROR_SYN_ANALYSIS;
+//            //TODO обработка ошибок ожидалась скобка
+//        }
 
         GET_TOKEN(token);
         if(token->token_name != TOKEN_ASSIGNMENT_TYPE){
@@ -554,6 +572,10 @@ int params(t_token *token){
     GET_TOKEN(token);
     //token == id
     if(token->token_name == TOKEN_IDENTIFIER){
+        if(GLOBAL){
+
+        }
+
         //TODO запмсать в узел как пересенная параметра не проверять потомучто может быть не дефинована
         // добавить в табулку как параметр функции
 
@@ -688,6 +710,16 @@ int next_id(t_token *token){
 
 
 int start_analysis(t_token *token){
+//    if(!global_table) {
+//        node *global_function = malloc(sizeof(sData));
+//        if (!global_function) {
+//            return ERROR_INTERNAL;
+//            //TODO error
+//        }
+//    }
+
+    table_init(stack_table);
+
     return (start_program(token));
 
 }

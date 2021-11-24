@@ -2,21 +2,37 @@
 #define IFJ_PROJEKT_SYNTACTICALANALYZER_H
 
 #define GET_TOKEN(token) if(get_token(token)) return ERROR_LEX_ANALYSIS
+#include "symbol_table.h"
+#include "lexicalanalysis.h"
 
-//typedef struct s_node{
-//    // TODO Какаяниюудь стабулка ссимволов где искть
-//
-//    sData head;
-//    sData params;
-//    sData body;
-//
-//    bool it_is_loop;
-//    bool is_is_declaration;
-//    bool it_is_if;
-//    bool it_is_def_function;
-//    bool it_is_function;
-//}t_node;
-//
+typedef struct s_node_expression{
+    bool expression_variable_function;
+    bool call_function;
+    bool expression;
+
+    // что то там exp
+    t_str *variable;
+    sData function;
+
+}t_node_expression;
+
+typedef struct s_ast_node{
+    node global;
+    node in_function;
+    node local;
+
+    sData body;
+    //что то там что то там expression
+    t_node_expression expression;
+    bool it_is_expression_node;
+    bool it_is_loop;
+    bool it_is_if;
+    bool it_is_declaration_variable;
+    bool it_is_function;
+    bool it_is_in_function;
+    struct s_ast_node *next_node;
+}t_ast_node;
+
 
 int chunk(t_token *token);
 int function(t_token *token);
