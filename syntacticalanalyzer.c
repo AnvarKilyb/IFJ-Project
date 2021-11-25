@@ -2,7 +2,6 @@
 #include "syntacticalanalyzer.h"
 #include "codgen.h"
 
-bool GLOBAL = false;
 
 node *global_table;
 s_stack *stack_table;
@@ -47,19 +46,33 @@ int function(t_token *token){
     GET_TOKEN(token);
 
     if (token->token_name == TOKEN_KEYWORD && token->lexeme->keyword == KEYWORD_GLOBAL){
-        GLOBAL = true;
         GET_TOKEN(token);
+        sData *repeat_function = NULL;
+        sData *global_function = NULL;
         if(token->token_name == TOKEN_IDENTIFIER){
-            sData *global_function = malloc(sizeof(sData));
-            if(!global_function){
-                return ERROR_INTERNAL;
+            node *repeat_function_node =  tree_search(global_table, hashcode(token->lexeme->inter->data));
+            if(repeat_function_node){
+                repeat_function = repeat_function_node->data;
+                // проверка была ли уже декларация функции если да то ошибка
+                if(repeat_function->declaration){
+                    return ERROR_SEMANTIC_ANALYSIS;
+                    //TODO error
+                }else{
+                    repeat_function->declaration = true;
+                }
+            }else {
+                global_function = malloc(sizeof(sData));
+                if (!global_function) {
+                    return ERROR_INTERNAL;
+                }
+                global_function->type = FUNC;
+                global_function->declaration = true;
+                global_function->name = malloc(sizeof(t_str));
+                string_init(global_function->name);
+                string_copy(token->lexeme->inter, global_function->name);
+                // заливаем узел в дерево
+                global_table = tree_insert(global_table, hashcode(global_function->name->data), global_function);
             }
-            global_function->type = FUNC;
-            global_function->name = malloc(sizeof(t_str));
-            string_init(global_function->name);
-            string_copy(token->lexeme->inter,global_function->name);
-
-            //TODO Записать до табулки симвалов
         }else{
             return ERROR_SYN_ANALYSIS;
             //TODO обработка ошибок
@@ -88,10 +101,18 @@ int function(t_token *token){
             //TODO обработка ошибок ожидалась скобка
         }
 
-        if(!params(token)){
-            return ERROR_SYN_ANALYSIS;
-            //TODO ожидались параметры функции
+        if(repeat_function){
+            if (!params(token, hashcode(repeat_function->name->data))) {
+                return ERROR_SYN_ANALYSIS;
+                //TODO ожидались параметры функции
+            }
+        }else{
+            if (!params(token, hashcode(global_function->name->data))) {
+                return ERROR_SYN_ANALYSIS;
+                //TODO ожидались параметры функции
+            }
         }
+
 
         GET_TOKEN(token);
         if(token->token_name != TOKEN_RIGHT_BRACKET) {
@@ -132,7 +153,7 @@ int function(t_token *token){
             //TODO обработка ошибок ожидалась скобка
         }
 
-        if(!params(token)){
+        if(!params(token, hashcode("aaa"))){
             return ERROR_SYN_ANALYSIS;
             //TODO ожидались параметры функции
         }
@@ -568,13 +589,13 @@ int next_data_type(t_token *token){
     return IT_IS_OK;
 }
 
-int params(t_token *token){
+int params(t_token *token, ul hash){
     GET_TOKEN(token);
     //token == id
     if(token->token_name == TOKEN_IDENTIFIER){
-        if(GLOBAL){
+        node *repeat_function_node =  tree_search(global_table, hashcode(token->lexeme->inter->data));
 
-        }
+
 
         //TODO запмсать в узел как пересенная параметра не проверять потомучто может быть не дефинована
         // добавить в табулку как параметр функции

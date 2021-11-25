@@ -18,12 +18,15 @@ typedef enum{
 
 typedef struct{
     sType type; // Тип идентификатора
-    t_str* name;
+    bool declaration;
     bool define; // Был ли дифинован
+    t_str* name;
 //    bool flag; // Был ли идентификатор уже определен в табулке
-    int params; // Кол-во параметров
+    int count_params; // Кол-во параметров
     t_str* string_params; // Параметры
+    int count_returned_params;
     t_str* type_returned_params; // Возвращаемы параметры
+    int count_help;
 } sData;
 
 typedef struct tree{

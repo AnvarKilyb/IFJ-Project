@@ -4,7 +4,7 @@
 #define GET_TOKEN(token) if(get_token(token)) return ERROR_LEX_ANALYSIS
 #include "symbol_table.h"
 #include "lexicalanalysis.h"
-
+typedef unsigned long ul;
 typedef struct s_node_expression{
     bool expression_variable_function;
     bool call_function;
@@ -36,7 +36,7 @@ typedef struct s_ast_node{
 
 int chunk(t_token *token);
 int function(t_token *token);
-int params(t_token *token);
+int params(t_token *token, ul hash);
 int return_types(t_token *token);
 int statement(t_token *token);
 int function_call(t_token *token);

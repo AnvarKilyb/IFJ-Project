@@ -40,6 +40,7 @@ int main(int argc, char** argv){
 //    data->string_params = malloc( sizeof (t_str));
 //    string_init(data->string_params);
 //    string_wright_arr(data->string_params, a);
+//    data->declaration = true;
 //
 //    gl = tree_insert(gl, hashcode(a),data);
 //
@@ -59,11 +60,23 @@ int main(int argc, char** argv){
 //    node *n;
 //    node *f;
 //    n = tree_search(gl,hashcode(a));
+//    if(n->data->declaration)
+//    {
+//        printf("data is declaration\n");
+//    }
+//    if(!n->data->declaration){
+//        printf("data is not declaration 1\n");
+//    }
+//    n->data->declaration = false;
+//    if(!n->data->declaration){
+//        printf("data is not declaration\n");
+//    }
+//
 //    f = tree_search(gl,hashcode(b));
 //
 //    printf("%s\n",n->data->string_params->data);
 //    printf("%s\n",f->data->string_params->data);
-//
+
 
 /*
  *
