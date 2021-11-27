@@ -34,7 +34,7 @@ void string_free(t_str* str);
 /*
  * Увелисиавает строку
  */
-void string_expansion(t_str* str);
+int string_expansion(t_str* str);
 
 void string_copy(t_str* str1, t_str* str2);
 

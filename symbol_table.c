@@ -4,6 +4,27 @@
 #include "symbol_table.h"
 #include "error.h"
 
+int sData_init(sData* node){
+    sType type; // Тип идентификатора
+    t_str* name;
+
+    bool declaration;
+    bool define; // Был ли дифинован
+
+    int count_params; // Кол-во параметров
+    t_str_param* params; // Параметры
+    t_str_param* type_params;
+
+    int count_returned_params;
+    t_str_param * returned_params; // Возвращаемы параметры
+    t_str_param * type_returned_params; // Возвращаемы параметры
+
+    int data_int;
+    double data_double;
+    t_str* data_string;
+}
+
+
 node *tree_search(node *root, unsigned long key){
     if(root == NULL || root->key == key)
         return root; // Возвращает нужный узел

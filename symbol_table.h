@@ -6,6 +6,7 @@
 #include <stdbool.h>
 
 #include "string.h"
+#include "string_param.h"
 
 #define STACK_CHUNK 100 // Размер стэка, если перевалит то выделит доп. память
 
@@ -16,18 +17,27 @@ typedef enum{
     FUNC,
 } sType;
 
+
 typedef struct{
     sType type; // Тип идентификатора
+    t_str* name;
+
     bool declaration;
     bool define; // Был ли дифинован
-    t_str* name;
-//    bool flag; // Был ли идентификатор уже определен в табулке
+
     int count_params; // Кол-во параметров
-    t_str* string_params; // Параметры
+    t_str_param* params; // Параметры
+    t_str_param* type_params;
+
     int count_returned_params;
-    t_str* type_returned_params; // Возвращаемы параметры
-    int count_help;
+    t_str_param * returned_params; // Возвращаемы параметры
+    t_str_param * type_returned_params; // Возвращаемы параметры
+
+    int data_int;
+    double data_double;
+    t_str* data_string;
 } sData;
+
 
 typedef struct tree{
     sData* data;

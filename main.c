@@ -5,9 +5,41 @@
 #include <stdbool.h>
 #include "lexicalanalysis.h"
 #include "syntacticalanalyzer.h"
+#include "string_param.h"
 //#include "main.h"
 
 int main(int argc, char** argv){
+
+    t_str_param* a = malloc(sizeof (t_str_param));
+
+    string_param_init(a);
+    char b[] = "aaaaaaa";
+    char* d = "aaaaaaa";
+    char h[] = "adadasdassda";
+    t_str str;
+    string_init(&str);
+    string_wright_arr(&str,d);
+//    char r[] = "not";
+
+    string_wright_arr(a->data[0], b );
+    string_wright_arr(a->data[1], d );
+    string_wright_arr(a->data[2], h );
+//    string_wright_arr(a->data[3], r);
+
+    printf("%s\n",a->data[0]->data);
+    printf("%s\n",a->data[1]->data);
+    printf("%s\n",a->data[2]->data);
+//    printf("%s\n",a->data[3]->data);
+
+    if(string_param_cmp_string_param(a, 0, a, 1)){
+        printf("Ravno\n");
+    }
+    if(string_param_cmp_string(a, 0, &str)){
+        printf("Ravno1\n");
+    }
+
+    string_param_free(a);
+
 //    char arr1[] = "aaaaaaaaaaaaaaaaaaaaaaaaaa";
 //    char arr2[] = "123456789sadyftggggggggggggggg";
 //    char s1 = 'a';
@@ -84,38 +116,42 @@ int main(int argc, char** argv){
  *
  */
 //    //TODO обработка ошибок с читением имени файла
-    FILE* file_name;
-    file_name = fopen( argv[1],"r");
-    printf("%s\n",argv[1]);
-    t_token* token;
-    token = malloc(sizeof (t_token));
-    token->lexeme = malloc((sizeof (t_lexeme)));
-    token->lexeme->inter = malloc(sizeof (t_str));
-    string_init(token->lexeme->inter);
-    file_ptr(file_name);
+//    FILE* file_name;
+//    file_name = fopen( argv[1],"r");
+//    printf("%s\n",argv[1]);
+//    t_token* token;
+//    token = malloc(sizeof (t_token));
+//    token->lexeme = malloc((sizeof (t_lexeme)));
+//    token->lexeme->inter = malloc(sizeof (t_str));
+//    string_init(token->lexeme->inter);
+//    file_ptr(file_name);
+//
+//    token->lexeme->keyword = 100;
+//    token->lexeme->inter->data[0] = '\0';
+//    token->lexeme->inter->how_occupied = 0;
+//    token->lexeme->integer = 0;
+//    token->lexeme->number = 0.0;
+//
+////   return start_analysis(token);
+//
+//
+//
+//
+//    while(token->token_name != TOKEN_EOF){
+//        token->lexeme->keyword = 100;
+//        token->lexeme->inter->data[0] = '\0';
+//        token->lexeme->inter->how_occupied = 0;
+//        token->lexeme->integer = 0;
+//        token->lexeme->number = 0.0;
+//
+//        get_token(token);
+//        printf("...token{ %d }.....data{ %s }.....keyword{ %d }.....number_int{ %d }.....number_double{ %g }...\n",
+//               token->token_name,token->lexeme->inter->data,token->lexeme->keyword,token->lexeme->integer,token->lexeme->number);
+//    }
 
-    token->lexeme->keyword = 100;
-    token->lexeme->inter->data[0] = '\0';
-    token->lexeme->inter->how_occupied = 0;
-    token->lexeme->integer = 0;
-    token->lexeme->number = 0.0;
-
-//   return start_analysis(token);
 
 
 
-
-    while(token->token_name != TOKEN_EOF){
-        token->lexeme->keyword = 100;
-        token->lexeme->inter->data[0] = '\0';
-        token->lexeme->inter->how_occupied = 0;
-        token->lexeme->integer = 0;
-        token->lexeme->number = 0.0;
-
-        get_token(token);
-        printf("...token{ %d }.....data{ %s }.....keyword{ %d }.....number_int{ %d }.....number_double{ %g }...\n",
-               token->token_name,token->lexeme->inter->data,token->lexeme->keyword,token->lexeme->integer,token->lexeme->number);
-    }
 //    get_token(token);
 //    printf("...>%d<.....>%d<.....>%s<...\n",token->token_name,token->lexeme->keyword,token->lexeme->inter->data);
 //    get_token(token);

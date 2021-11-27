@@ -100,7 +100,7 @@ int function(t_token *token){
             return ERROR_SYN_ANALYSIS;
             //TODO обработка ошибок ожидалась скобка
         }
-
+        //повторется функция или нет
         if(repeat_function){
             if (!params(token, hashcode(repeat_function->name->data))) {
                 return ERROR_SYN_ANALYSIS;
@@ -593,7 +593,27 @@ int params(t_token *token, ul hash){
     GET_TOKEN(token);
     //token == id
     if(token->token_name == TOKEN_IDENTIFIER){
-        node *repeat_function_node =  tree_search(global_table, hashcode(token->lexeme->inter->data));
+        node *function_node =  tree_search(global_table, hashcode(token->lexeme->inter->data));
+        if(!function_node->data->define){
+
+            GET_TOKEN(token);
+
+            if(token->token_name != TOKEN_ASSIGNMENT_TYPE){
+                //TODO добавить обработку ошибок
+                return ERROR_SYN_ANALYSIS;
+            }
+
+            if(!data_type(token)){
+                return ERROR_SYN_ANALYSIS;
+                //TODO добавить обрабутку ошибок
+            }
+
+            if(!next_param(token)){
+                return ERROR_SYN_ANALYSIS;
+                //TODO добавить обработку ошибок
+            }
+
+        }
 
 
 

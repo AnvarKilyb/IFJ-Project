@@ -30,7 +30,7 @@ void string_free(t_str* str){
 /*
  * Увелисиавает строку
  */
-void string_expansion(t_str* str){
+int string_expansion(t_str* str){
     t_str string;
     string.data = realloc(str->data, (str->lenght * 2) * sizeof(char));
     if(!string.data){
@@ -39,8 +39,9 @@ void string_expansion(t_str* str){
 
     str->data = string.data;
     str->lenght = str->lenght * 2;
+    return 0;
 }
-
+/*str1 - откуда str2 - куда копируется*/
 void string_copy(t_str* str1, t_str* str2){
     while(str1->how_occupied > str2->lenght){
         string_expansion(str2);
@@ -89,6 +90,23 @@ void string_wright_char(t_str* str, char symbol){
     }
 
 }
+
+////функция для строки в строке
+//void string_wright_char(t_str* str, t_str* str_in){
+//    if(str->lenght <= str->how_occupied) {
+//        string_expansion(str);
+//    }
+//    if(str->how_occupied == 0){
+//        str->data[str->how_occupied++] = str_in;
+//        str->data[str->how_occupied++] = NUL;
+//    }else {
+//        str->data[--str->how_occupied] = str_in; // str->how_occupied показывает сколько символов влодина считая и конец строки
+//        str->data[++str->how_occupied] = NUL;
+//        str->how_occupied++;
+//    }
+//
+//}
+
 
 /*
  * Переписывает масив в строку
