@@ -5,6 +5,7 @@ static t_str *program_body;
 static t_str *program_header;
 
 int code_header(){
+    program_header = malloc(sizeof (t_str));
     if(string_init(program_header))
         return ERROR_INTERNAL;
 
