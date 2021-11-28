@@ -60,6 +60,7 @@ int function(t_token *token){
                     //TODO error
                 }else{//если функция уже была дифинована
                     repeat_function->declaration = true;
+                    repeat_function->it_is_define = false;
                 }
             //если функция не была не декларована не дифинована
             }else {
@@ -165,6 +166,7 @@ int function(t_token *token){
                     //TODO error
                 } else {//если функция уже была дифинована
                     repeat_function->define = true;
+                    repeat_function->it_is_define = true;
                 }
                 //TODO Записать до табулки симвалов
             }else{
@@ -180,6 +182,7 @@ int function(t_token *token){
                 string_init(global_function->type);
                 string_wright_arr(global_function->type, func);
                 global_function->define = true;
+                global_function->it_is_define = true;
                 global_function->name = malloc(sizeof(t_str));
                 if(!global_function->name){
                     return ERROR_INTERNAL;
@@ -656,9 +659,13 @@ int next_data_type(t_token *token, node* function_node, bool ret_param){
     }else{
         //если функция была и декларована и дифинована то проверяем сходятся ли счетчики параметров после проврки
         if(function_node->data->declaration && function_node->data->define){
-            if(function_node->data->count_returned_params != function_node->data->help_count){
+            if((function_node->data->count_returned_params != function_node->data->help_count) && ret_param){
                 return ERROR_SYN_ANALYSIS;
                 //TODO количество возвращемых параметров в дефениции и деклорацуии не соответсвует
+            }
+            if ((function_node->data->count_params != function_node->data->help_count) && !ret_param) {
+                return ERROR_SYN_ANALYSIS;
+                //TODO корличесво парметров не соответствует в деклорации и дефеницуии
             }
         }
         hold_token();
@@ -671,73 +678,71 @@ int next_data_type(t_token *token, node* function_node, bool ret_param){
 int data_type(t_token *token, node* function_node, bool ret_param){
     GET_TOKEN(token);
     //если это не возвращаемые параметры то
-    if(!ret_param) {
-        //если функция только декларовна
-        if (function_node->data->declaration && !(function_node->data->define)) {
-            if (token->lexeme->keyword == KEYWORD_INTEGER || token->lexeme->keyword == KEYWORD_NUMBER ||token->lexeme->keyword == KEYWORD_STRING) {
+    if(token->lexeme->keyword == KEYWORD_INTEGER || token->lexeme->keyword == KEYWORD_NUMBER || token->lexeme->keyword == KEYWORD_STRING){
+        if (!ret_param) {//если функция только декларовна
+            if (function_node->data->declaration && !(function_node->data->define)) {
                 //копируем тип глобальную таблицу
                 string_param_copy_string(function_node->data->type_params, token->lexeme->inter);
                 //увеличиваем счетчик переменных
                 function_node->data->count_params++;
-            } else {
-                return ERROR_SYN_ANALYSIS;
-            }
-        //если функция была и дикларована и дифинована
-        }else if(function_node->data->declaration && function_node->data->define){
-            //увеличиваем количество переменных на +1
-            function_node->data->help_count++;
-            if (token->lexeme->keyword == KEYWORD_INTEGER || token->lexeme->keyword == KEYWORD_NUMBER
-            ||token->lexeme->keyword == KEYWORD_STRING){
+
+                //если функция была и дикларована и дифинована
+            }else if (function_node->data->declaration && function_node->data->define){
+                //увеличиваем количество переменных на +1
+                function_node->data->help_count++;
                 //проверяем одинаковый ли тип у перменных в дифиниции и деклорации
-                if(!string_param_cmp_string(function_node->data->type_params, (function_node->data->help_count - 1), token->lexeme->inter)){
+                if (!string_param_cmp_string(function_node->data->type_params,(function_node->data->help_count), token->lexeme->inter)) {
                     return ERROR_SYN_ANALYSIS;
                     //TODO не сответствует тип переменнорй в декларации и дефиниции
                 }
-            } else {
-                return ERROR_SYN_ANALYSIS;
-            }
-        }else if(!(function_node->data->declaration) && function_node->data->define){
-            if (token->lexeme->keyword == KEYWORD_INTEGER || token->lexeme->keyword == KEYWORD_NUMBER
-                                                            ||token->lexeme->keyword == KEYWORD_STRING) {
+                if(function_node->data->it_is_define){
+                    node *in_function = tree_search(table_top(stack_table),hashcode(function_node->data->params->data[function_node->data->help_count - 1]->data));
+
+                    in_function->data->type = malloc(sizeof(t_str)); //аллакуем место под тип переменной
+                    if (!in_function->data->type)
+                        return ERROR_INTERNAL;
+
+                    string_init(in_function->data->type);
+                    string_copy(token->lexeme->inter,in_function->data->type);
+                }
+            }else if (!(function_node->data->declaration) && function_node->data->define){
                 //записываем до глобальной таблицы
                 string_param_copy_string(function_node->data->type_params, token->lexeme->inter);
                 function_node->data->count_params++; // увеличиваем число параметров потомучто они уже записаны
                 //забираем таблицу функции со стека
-                node* in_function = tree_search(table_top(stack_table), hashcode(function_node->data->params->data[function_node->data->count_params-1]->data));
-                in_function->data->type = malloc(sizeof (t_str)); //аллакуем место под тип переменной
-                if(!in_function->data->type){
+                node *in_function = tree_search(table_top(stack_table),hashcode(function_node->data->params->data[function_node->data->count_params - 1]->data));
+
+                in_function->data->type = malloc(sizeof(t_str)); //аллакуем место под тип переменной
+                if (!in_function->data->type)
                     return ERROR_INTERNAL;
-                }
+
                 string_init(in_function->data->type);
-                string_copy(token->lexeme->inter, in_function->data->type);//копируем тип переменой в таблицу функции
-            } else {
-                return ERROR_SYN_ANALYSIS;
-            }
-        }
-    }else{// если это возвращаемые парамеры то
-        //если функция была только декларована
-        if (function_node->data->declaration && !(function_node->data->define) || (!(function_node->data->declaration) && function_node->data->define)) {
-            if (token->lexeme->keyword == KEYWORD_INTEGER || token->lexeme->keyword == KEYWORD_NUMBER ||token->lexeme->keyword == KEYWORD_STRING) {
+                string_copy(token->lexeme->inter,in_function->data->type);//копируем тип переменой в таблицу функции
+           }
+
+        } else {// если это возвращаемые парамеры то
+            //если функция была только декларована
+            if (function_node->data->declaration && !(function_node->data->define) ||
+                (!(function_node->data->declaration) && function_node->data->define)) {
                 //копируем параметры до главной таблицы
                 string_param_copy_string(function_node->data->type_returned_params, token->lexeme->inter);
                 function_node->data->count_returned_params++; //увенличиваем счетчик
-            } else {
-                return ERROR_SYN_ANALYSIS;
-            }
+
             //если функция была либо дикларована или дифинована
-        } else if(function_node->data->declaration && function_node->data->define){
-            //увеличим счетчик помощник потомучто точно знаем что там будет параметр
-            function_node->data->help_count++;
-            if (token->lexeme->keyword == KEYWORD_INTEGER || token->lexeme->keyword == KEYWORD_NUMBER ||token->lexeme->keyword == KEYWORD_STRING){
+            }else if (function_node->data->declaration && function_node->data->define) {
+                //увеличим счетчик помощник потомучто точно знаем что там будет параметр
+                function_node->data->help_count++;
                 //проверяем равняется ли тип параметров при дифиниции и декларации
-                if(!string_param_cmp_string(function_node->data->type_returned_params, (function_node->data->help_count - 1), token->lexeme->inter)){
+                if (!string_param_cmp_string(function_node->data->type_returned_params,
+                                             (function_node->data->help_count), token->lexeme->inter)) {
                     return ERROR_SYN_ANALYSIS;
                     //TODO не сответствует тип переменнорй в декларации и дефиниции
                 }
-            } else {
-                return ERROR_SYN_ANALYSIS;
             }
         }
+    }else{
+        return ERROR_SYN_ANALYSIS;
+        //ожидался тип параметра функции
     }
     return IT_IS_OK;
 }
@@ -787,6 +792,7 @@ int global_params(t_token *token, ul hash){
         }
         hold_token();
     }
+    return IT_IS_OK;
 }
 int params(t_token *token, ul hash){
     GET_TOKEN(token);
@@ -840,12 +846,30 @@ int params(t_token *token, ul hash){
                 //TODO добавить обработку ошибок
             }
 
-        }else if(function_node->data->declaration && function_node->data->define) {
-            function_node->data->help_count++;
-            if(!string_param_cmp_string(function_node->data->params, (function_node->data->help_count - 1), token->lexeme->inter)){
-                return ERROR_SYN_ANALYSIS;
-                //TODO не сответствует название переменнорй в декларации и дефиниции
+        }else if(function_node->data->declaration && function_node->data->define && function_node->data->it_is_define) {
+//            function_node->data->help_count++;
+            function_var = malloc(sizeof (sData));
+            if(!function_var){
+                return ERROR_INTERNAL;
             }
+            s_data_init(function_var);
+            function_var->name = malloc(sizeof (t_str));
+            if(!function_var->name){
+                return ERROR_INTERNAL;
+            }
+            string_init(function_var->name);
+            string_copy(token->lexeme->inter, function_var->name);
+            in_function = tree_insert(in_function, hashcode(function_var->name->data),function_var);
+            table_push(stack_table,in_function);
+
+            function_node->data->params = malloc(sizeof (t_str_param));
+            if(!function_node->data->params){
+                return ERROR_INTERNAL;
+            }
+            string_param_init(function_node->data->params);
+            string_param_copy_string(function_node->data->params, token->lexeme->inter);
+
+
             GET_TOKEN(token);
 
             if (token->token_name != TOKEN_ASSIGNMENT_TYPE) {
@@ -876,87 +900,46 @@ int params(t_token *token, ul hash){
 /// Maybe leave only check if there comma or not ?
 int next_param(t_token *token, node* function_node, bool ret_param){
     GET_TOKEN(token);
+    node* in_function;
+    sData* function_var;
     if(token->token_name == TOKEN_COMMA){
         GET_TOKEN(token);
-        if(function_node->data->declaration && !(function_node->data->define)) { //token == id
-            if (token->token_name == TOKEN_IDENTIFIER) {
-                string_param_copy_string(function_node->data->params, token->lexeme->inter);
-                GET_TOKEN(token);
-
-                if (token->token_name != TOKEN_ASSIGNMENT_TYPE) {
-                    //TODO добавить обработку ошибок
-                    return ERROR_SYN_ANALYSIS;
-                }
-
-                if (data_type(token, function_node, ret_param)) {
-                    return ERROR_SYN_ANALYSIS;
-                    //TODO добавить обрабутку ошибок
-                }
-
-                if (next_param(token,function_node, ret_param)) {
-                    return ERROR_SYN_ANALYSIS;
-                    //TODO добавить обработку ошибок
-                }
-
-            }
-            // если функция уже была декларована или дифинована
-        }else if(function_node->data->declaration && function_node->data->define){
-            function_node->data->help_count++;
-            if(!string_param_cmp_string(function_node->data->params, (function_node->data->help_count - 1), token->lexeme->inter)){
-                return ERROR_SYN_ANALYSIS;
-                //TODO не сответствует название переменнорй в декларации и дефиниции
-            }
-
-            if (token->token_name != TOKEN_ASSIGNMENT_TYPE) {
-                //TODO добавить обработку ошибок
-                return ERROR_SYN_ANALYSIS;
-            }
-
-            if (data_type(token, function_node, ret_param)) {
-                return ERROR_SYN_ANALYSIS;
-                //TODO добавить обрабутку ошибок
-            }
-
-            if (next_param(token,function_node, ret_param)) {
-                return ERROR_SYN_ANALYSIS;
-                //TODO добавить обработку ошибок
-            }
-            //если строка только дифинована
-        }else if(!(function_node->data->declaration) && function_node->data->define){
-            //добавляем в главную таблицу
-            string_param_copy_string(function_node->data->params, token->lexeme->inter);
-
-            //добавляем в таблицу функции
-            node* in_function = table_top(stack_table);
-            sData* function_var = malloc(sizeof (sData));
-            if(!function_var){
-                return ERROR_INTERNAL;
-            }
-            s_data_init(function_var);
-            function_var->name = malloc(sizeof (t_str));
-            string_init(function_var->name);
-            string_copy(token->lexeme->inter, function_var->name);
-            in_function = tree_insert(in_function, hashcode(function_var->name->data),function_var);
-
-            GET_TOKEN(token);
-
-            if (token->token_name != TOKEN_ASSIGNMENT_TYPE) {
-                //TODO добавить обработку ошибок
-                return ERROR_SYN_ANALYSIS;
-            }
-
-            if (data_type(token, function_node, ret_param)) {
-                return ERROR_SYN_ANALYSIS;
-                //TODO добавить обрабутку ошибок
-            }
-
-            if (next_param(token,function_node, ret_param)) {
-                return ERROR_SYN_ANALYSIS;
-                //TODO добавить обработку ошибок
-            }
-
-
+        if(!sting_param_uncmp_string(function_node->data->params, token->lexeme->inter)){
+            return ERROR_SYN_ANALYSIS;
+            //Одинаковое название переменных
         }
+        //добавляем в главную таблицу
+        string_param_copy_string(function_node->data->params, token->lexeme->inter);
+
+        //добавляем в таблицу функции
+        in_function = table_top(stack_table);
+        function_var = malloc(sizeof (sData));
+        if(!function_var){
+            return ERROR_INTERNAL;
+        }
+        s_data_init(function_var);
+        function_var->name = malloc(sizeof (t_str));
+        string_init(function_var->name);
+        string_copy(token->lexeme->inter, function_var->name);
+        in_function = tree_insert(in_function, hashcode(function_var->name->data),function_var);
+
+        GET_TOKEN(token);
+
+        if (token->token_name != TOKEN_ASSIGNMENT_TYPE) {
+            //TODO добавить обработку ошибок
+            return ERROR_SYN_ANALYSIS;
+        }
+
+        if (data_type(token, function_node, ret_param)) {
+            return ERROR_SYN_ANALYSIS;
+            //TODO добавить обрабутку ошибок
+        }
+
+        if (next_param(token,function_node, ret_param)) {
+            return ERROR_SYN_ANALYSIS;
+            //TODO добавить обработку ошибок
+        }
+
     }else{// если идет не запятая
         if(function_node->data->declaration && function_node->data->define) {
             if (function_node->data->count_params != function_node->data->help_count) {
