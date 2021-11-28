@@ -22,4 +22,5 @@ void string_param_free(t_str_param* str);
 void string_param_copy_string(t_str_param* str_par, t_str* str);
 bool string_param_cmp_string_param(t_str_param* str1, ull numb_p1, t_str_param * str2, ull numb_p2);
 bool string_param_cmp_string(t_str_param* str_p, ull numb_p, t_str* str);
+bool sting_param_uncmp_string(t_str_param* str_param, t_str* str);
 #endif //IFJ_PROJEKT_STRING_PARAM_H

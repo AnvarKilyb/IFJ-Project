@@ -10,6 +10,7 @@ void s_data_init(sData* node){
 
     node->declaration = false;
     node->define = false;
+    node->it_is_define = false;
 
     node->count_params = 0;
     node->params = NULL;

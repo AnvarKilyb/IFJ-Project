@@ -25,6 +25,7 @@ typedef struct{
 
     bool declaration;
     bool define; // Был ли дифинован
+    bool it_is_define;
 
     int count_params; // Кол-во параметров
     t_str_param* params; // Параметры
