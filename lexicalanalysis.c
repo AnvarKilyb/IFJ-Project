@@ -206,17 +206,18 @@ int find_token(t_token* token)
                     return ERROR_LEX_ANALYSIS;
                 }
             case LEXICAL_STATE_IDENTIFIER:
-                if(symbol == ' ' || symbol == EOL){
-                    keyword_check(token);
-                    return IT_IS_OK;
+                if((symbol >= 'A' && symbol <= 'Z' )||( symbol >= 'a' && symbol <= 'z')|| symbol == '_'){
+                    string_wright_char(string, symbol);
+                    break;
                 }else if(symbol == EOF){
                     ungetc(symbol,code_file);
                     keyword_check(token);
                     return IT_IS_OK;
                 }
-                else if((symbol >= 'A' && symbol <= 'Z' )||( symbol >= 'a' && symbol <= 'z')|| symbol == '_'){
-                    string_wright_char(string, symbol);
-                    break;
+                else {
+                    ungetc(symbol,code_file);
+                    keyword_check(token);
+                    return IT_IS_OK;
                 }
 
             case LEXICAL_STATE_MINUS:
@@ -558,7 +559,7 @@ int prepar_analysis(t_token* token)
     return IT_IS_OK;
 }
 
-int hold_token(t_token* token){
+void hold_token(){
     hold = true;
 }
 

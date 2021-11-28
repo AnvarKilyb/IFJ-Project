@@ -136,6 +136,7 @@ int convert_str_numeric(t_token* token);
 int find_token(t_token* token);
 int prepar_analysis(t_token* token);
 int get_token(t_token* token);
+void hold_token();
 
 
 #endif //IFJ_PROJEKT_LEXICALANALYSIS_H

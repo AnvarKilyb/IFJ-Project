@@ -4,24 +4,25 @@
 #include "symbol_table.h"
 #include "error.h"
 
-int sData_init(sData* node){
-    sType type; // Тип идентификатора
-    t_str* name;
+void s_data_init(sData* node){
+    node->name = NULL;
+    node->type = NULL;
 
-    bool declaration;
-    bool define; // Был ли дифинован
+    node->declaration = false;
+    node->define = false;
 
-    int count_params; // Кол-во параметров
-    t_str_param* params; // Параметры
-    t_str_param* type_params;
+    node->count_params = 0;
+    node->params = NULL;
+    node->type_params = NULL;
 
-    int count_returned_params;
-    t_str_param * returned_params; // Возвращаемы параметры
-    t_str_param * type_returned_params; // Возвращаемы параметры
+    node->count_returned_params = 0;
+    node->type_returned_params = NULL;
 
-    int data_int;
-    double data_double;
-    t_str* data_string;
+    node->data_int = 0;
+    node->data_double = 0.0;
+    node->data_string = NULL;
+
+    node->help_count = 0;
 }
 
 
@@ -62,20 +63,6 @@ node *tree_min(node *root){
 static node *tree_init(unsigned long  key, sData *data){
     node *root;
     root = malloc(sizeof(node));
-
-
-    //copy_data(&data, root);
-//    root->data.name = malloc(sizeof (t_str));
-//    string_init(root->data.name);
-//    root->data.string_params = malloc(sizeof (t_str));
-//    string_init(root->data.string_params);
-////    root->data = data;
-//    root->data.type = data.type;
-//    string_copy(data.string_params, root->data.string_params);
-//    root->data.define = data.define;
-//    root->data.params = data.params;
-//    string_copy(data.string_params, root->data.string_params);
-//
 
     root->key = key;
     root->left_node = NULL;
@@ -123,7 +110,7 @@ void table_push(s_stack *stack, node *tree){
     if(stack == NULL) return;
 
     stack->top_index++;
-    if(stack->size <= stack->top_index){
+    if((stack->size - 1) <= stack->top_index){
         stack->size += STACK_CHUNK;
         stack->ptr = realloc(stack->ptr, sizeof(node *) * stack->size);
     }
@@ -137,6 +124,13 @@ node* table_pop(s_stack *stack){
         return NULL;
     
     return stack->ptr[stack->top_index--];
+}
+
+node* table_top(s_stack *stack){
+    if(stack == NULL || stack->top_index < 0)
+        return NULL;
+
+    return stack->ptr[stack->top_index];
 }
 
 void table_delete(s_stack *stack){

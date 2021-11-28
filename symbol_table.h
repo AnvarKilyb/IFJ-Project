@@ -19,8 +19,9 @@ typedef enum{
 
 
 typedef struct{
-    sType type; // Тип идентификатора
+//    sType type; // Тип идентификатора
     t_str* name;
+    t_str* type;
 
     bool declaration;
     bool define; // Был ли дифинован
@@ -30,12 +31,13 @@ typedef struct{
     t_str_param* type_params;
 
     int count_returned_params;
-    t_str_param * returned_params; // Возвращаемы параметры
     t_str_param * type_returned_params; // Возвращаемы параметры
 
     int data_int;
     double data_double;
     t_str* data_string;
+
+    int help_count;
 } sData;
 
 
@@ -51,7 +53,8 @@ typedef struct{
     int top_index;
     node **ptr; // Список указателей на дерево
 } s_stack;
-
+node* table_top(s_stack *stack);
+void s_data_init(sData* node);
 //Находит нужный узел в дереве
 node* tree_search(node *root, unsigned long key);
 //Находит узел с минимальным ключом, незнаю если нужен но пусть будет
