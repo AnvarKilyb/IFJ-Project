@@ -19,6 +19,7 @@ typedef struct s_ast_node{
 
     sData* func;
     t_str_param* func_param;
+    int count_func_param;
 
 
     //что то там что то там expression

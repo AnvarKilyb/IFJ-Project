@@ -514,7 +514,6 @@ int function_call(t_token *token){// заходит с чистым аст ст�
 int args(t_token *token){ //TODO предпологаю что функция будет определять параметры есть или нет
 
 
-
     next_args(token);
     return IT_IS_OK;
 }
@@ -899,6 +898,7 @@ void ast_init(t_ast_node* ast){
 
     ast->func = NULL;
     ast->func_param = NULL;
+    ast->count_func_param = 0;
 
 
     //что то там что то там expression
