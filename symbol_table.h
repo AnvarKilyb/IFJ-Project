@@ -37,6 +37,8 @@ typedef struct{
     int data_int;
     double data_double;
     t_str* data_string;
+    bool system_function;
+    bool system_function_infinity_param;
 
     int help_count;
 } sData;
