@@ -2,10 +2,14 @@
 #include "syntacticalanalyzer.h"
 #include "codgen.h"
 char func[] = "function";
+char strin[] = "string";
+char integ[] = "integer";
+char numb[] = "number";
 
 
 node *global_table;
 s_stack *stack_table;
+t_ast_node* ast_node;
 
 int start_program(t_token *token){
 
@@ -127,12 +131,6 @@ int function(t_token *token){
             //TODO обработка ошибок ожидалась скобка
         }
 
-//        GET_TOKEN(token);
-//        if(token->token_name != TOKEN_ASSIGNMENT_TYPE){
-//            return ERROR_SYN_ANALYSIS;
-//            //TODO обработка ошибок ожидалась двоеточие
-//        }
-
         if(repeat_function) {
             if (return_types(token, hashcode(repeat_function->name->data))) {
                 return ERROR_SYN_ANALYSIS;
@@ -232,6 +230,17 @@ int function(t_token *token){
             }
         }
 
+        //////////
+        ast_node->it_is_function_define = true;
+        if(repeat_function){
+            ast_node->func = tree_search(global_table, hashcode(repeat_function->name->data))->data;
+        }
+        else
+            ast_node->func = tree_search(global_table, hashcode(global_function->name->data))->data;
+        ast_node->global = global_table;
+        code_gen(ast_node);
+        //////////
+
         if(statement(token)){
             return ERROR_SYN_ANALYSIS;
             //TODO оюработка ошибок
@@ -249,32 +258,6 @@ int function(t_token *token){
         return IT_IS_OK;
     }
 
-//    else if(token->token_name == TOKEN_IDENTIFIER){
-//        //TODO проверка индификатора на то что это функция
-//
-//        GET_TOKEN(token);
-//        if(token->token_name != TOKEN_LEFT_BRACKET) {
-//            return ERROR_SYN_ANALYSIS;
-//            //TODO обработка ошибок ожидалась скобка
-//        }
-//
-//        if(!args(token)){
-//            return ERROR_SYN_ANALYSIS;
-//            //TODO ожидались параметры функции
-//        }
-//
-//        GET_TOKEN(token);
-//        if(token->token_name == TOKEN_RIGHT_BRACKET) {
-//            if(!chunk(token)){
-//                return ERROR_SYN_ANALYSIS;
-//                //TODO обработка ошибок
-//            }
-//        }else{
-//            return ERROR_SYN_ANALYSIS;
-//            //TODO обработка ошибок ожидалась скобка
-//        }
-//        return IT_IS_OK;
-//    }
     else{
         if(function_call(token)){
             return ERROR_SYN_ANALYSIS;
@@ -479,163 +462,35 @@ int statement(t_token *token){
     return IT_IS_OK;
 }
 
-int function_call(t_token *token){
-    if(token->token_name == TOKEN_IDENTIFIER){
-        //TODO проверка индификатора на то что это функция
-        //TODO вернет с табулкисимволов назев и если назев подхолдит под что то то сверяем аргументы
-        t_str id_fun; //TODO заглушшка перерписать
+int function_call(t_token *token){// заходит с чистым аст стромом либо заполненой принемающимим параметрами
+    node* global_function = tree_search(global_table, hashcode(token->lexeme->inter->data));
+    if(!global_function){
+        return ERROR_SEMANTIC_ANALYSIS;
+    }
 
-        //TODO у каждего ифа долдна происзодить запиись до узла
-        if(string_arr_cmp(&id_fun,"write")){
-            GET_TOKEN(token);
-            if(token->token_name != TOKEN_LEFT_BRACKET) {
-                return ERROR_SYN_ANALYSIS;
-                //TODO обработка ошибок ожидалась скобка
-            }
+    ast_node->func = global_function->data;
 
-            if(args(token)){
-                return ERROR_SYN_ANALYSIS;
-                //TODO ожидались параметры функции
-            }
+    GET_TOKEN(token);
+    if(token->token_name != TOKEN_LEFT_BRACKET) {
+        return ERROR_SYN_ANALYSIS;
+        //TODO обработка ошибок ожидалась скобка
+    }
 
-            GET_TOKEN(token);
-            if(token->token_name != TOKEN_RIGHT_BRACKET) {
-                return ERROR_SYN_ANALYSIS;
-                //TODO обработка ошибок ожидалась скобка
-            }
+    if(global_function->data->count_params != 0){
+        if (args(token)) {
+            return ERROR_SYN_ANALYSIS;
+            //TODO ожидались параметры функции
         }
-        else if(string_arr_cmp(&id_fun,"reads")){
-            GET_TOKEN(token);
-            if(token->token_name != TOKEN_LEFT_BRACKET) {
-                return ERROR_SYN_ANALYSIS;
-                //TODO обработка ошибок ожидалась скобка
-            }
-
-            GET_TOKEN(token);
-            if(token->token_name != TOKEN_RIGHT_BRACKET) {
-                return ERROR_SYN_ANALYSIS;
-                //TODO обработка ошибок ожидалась скобка
-            }
+    }else{
+        if(token->token_name == TOKEN_IDENTIFIER || token->token_name == TOKEN_STRING){
+            //дописать типы моджет быть хоть что
         }
-        else if(string_arr_cmp(&id_fun,"readi")){
-            GET_TOKEN(token);
-            if(token->token_name != TOKEN_LEFT_BRACKET) {
-                return ERROR_SYN_ANALYSIS;
-                //TODO обработка ошибок ожидалась скобка
-            }
+    }
 
-            GET_TOKEN(token);
-            if(token->token_name != TOKEN_RIGHT_BRACKET) {
-                return ERROR_SYN_ANALYSIS;
-                //TODO обработка ошибок ожидалась скобка
-            }
-        }
-        else if(string_arr_cmp(&id_fun,"readn")){
-
-            GET_TOKEN(token);
-            if(token->token_name != TOKEN_LEFT_BRACKET) {
-                return ERROR_SYN_ANALYSIS;
-                //TODO обработка ошибок ожидалась скобка
-            }
-
-            GET_TOKEN(token);
-            if(token->token_name != TOKEN_RIGHT_BRACKET) {
-                return ERROR_SYN_ANALYSIS;
-                //TODO обработка ошибок ожидалась скобка
-            }
-        }
-        else if(string_arr_cmp(&id_fun,"tointager")){
-            GET_TOKEN(token);
-            if(token->token_name != TOKEN_LEFT_BRACKET) {
-                return ERROR_SYN_ANALYSIS;
-                //TODO обработка ошибок ожидалась скобка
-            }
-
-            if(args(token)){
-                return ERROR_SYN_ANALYSIS;
-                //TODO ожидались параметры функции
-            }
-
-            GET_TOKEN(token);
-            if(token->token_name != TOKEN_RIGHT_BRACKET) {
-                return ERROR_SYN_ANALYSIS;
-                //TODO обработка ошибок ожидалась скобка
-            }
-        }
-        else if(string_arr_cmp(&id_fun,"substr")){
-            GET_TOKEN(token);
-            if(token->token_name != TOKEN_LEFT_BRACKET) {
-                return ERROR_SYN_ANALYSIS;
-                //TODO обработка ошибок ожидалась скобка
-            }
-
-            if(args(token)){
-                return ERROR_SYN_ANALYSIS;
-                //TODO ожидались параметры функции
-            }
-
-            GET_TOKEN(token);
-            if(token->token_name != TOKEN_RIGHT_BRACKET) {
-                return ERROR_SYN_ANALYSIS;
-                //TODO обработка ошибок ожидалась скобка
-            }
-        }
-        else if(string_arr_cmp(&id_fun,"ord")){
-            GET_TOKEN(token);
-            if(token->token_name != TOKEN_LEFT_BRACKET) {
-                return ERROR_SYN_ANALYSIS;
-                //TODO обработка ошибок ожидалась скобка
-            }
-
-            if(args(token)){
-                return ERROR_SYN_ANALYSIS;
-                //TODO ожидались параметры функции
-            }
-
-            GET_TOKEN(token);
-            if(token->token_name != TOKEN_RIGHT_BRACKET) {
-                return ERROR_SYN_ANALYSIS;
-                //TODO обработка ошибок ожидалась скобка
-            }
-        }
-        else if(string_arr_cmp(&id_fun,"chr")){
-            GET_TOKEN(token);
-            if(token->token_name != TOKEN_LEFT_BRACKET) {
-                return ERROR_SYN_ANALYSIS;
-                //TODO обработка ошибок ожидалась скобка
-            }
-
-            if(args(token)){
-                return ERROR_SYN_ANALYSIS;
-                //TODO ожидались параметры функции
-            }
-
-            GET_TOKEN(token);
-            if(token->token_name != TOKEN_RIGHT_BRACKET) {
-                return ERROR_SYN_ANALYSIS;
-                //TODO обработка ошибок ожидалась скобка
-            }
-        }
-        else {
-            //TODO спросить у табулке символов а был ли он определен если нет ошибка
-            GET_TOKEN(token);
-            if (token->token_name != TOKEN_LEFT_BRACKET) {
-                return ERROR_SYN_ANALYSIS;
-                //TODO обработка ошибок ожидалась скобка
-            }
-
-            if (args(token)) {
-                return ERROR_SYN_ANALYSIS;
-                //TODO ожидались параметры функции
-            }
-
-            GET_TOKEN(token);
-            if (token->token_name != TOKEN_RIGHT_BRACKET) {
-                return ERROR_SYN_ANALYSIS;
-                //TODO обработка ошибок ожидалась скобка
-            }
-            return IT_IS_OK;
-        }
+    GET_TOKEN(token);
+    if(token->token_name != TOKEN_RIGHT_BRACKET) {
+        return ERROR_SYN_ANALYSIS;
+        //TODO обработка ошибок ожидалась скобка
     }
     return IT_IS_OK;
 }
@@ -692,7 +547,7 @@ int data_type(t_token *token, node* function_node, bool ret_param){
                 function_node->data->help_count++;
                 //проверяем одинаковый ли тип у перменных в дифиниции и деклорации
                 if (!string_param_cmp_string(function_node->data->type_params,(function_node->data->help_count), token->lexeme->inter)) {
-                    return ERROR_SYN_ANALYSIS;
+                    return ERROR_SEMANTIC_ANALYSIS;
                     //TODO не сответствует тип переменнорй в декларации и дефиниции
                 }
                 if(function_node->data->it_is_define){
@@ -735,7 +590,7 @@ int data_type(t_token *token, node* function_node, bool ret_param){
                 //проверяем равняется ли тип параметров при дифиниции и декларации
                 if (!string_param_cmp_string(function_node->data->type_returned_params,
                                              (function_node->data->help_count), token->lexeme->inter)) {
-                    return ERROR_SYN_ANALYSIS;
+                    return ERROR_SEMANTIC_ANALYSIS;
                     //TODO не сответствует тип переменнорй в декларации и дефиниции
                 }
             }
@@ -824,6 +679,7 @@ int params(t_token *token, ul hash){
             }
             string_init(function_var->name);
             string_copy(token->lexeme->inter, function_var->name);
+            function_var->declaration = true;
             in_function = tree_insert(in_function, hashcode(function_var->name->data),function_var);
             table_push(stack_table,in_function);
 
@@ -859,6 +715,7 @@ int params(t_token *token, ul hash){
             }
             string_init(function_var->name);
             string_copy(token->lexeme->inter, function_var->name);
+            function_var->declaration = true;
             in_function = tree_insert(in_function, hashcode(function_var->name->data),function_var);
             table_push(stack_table,in_function);
 
@@ -921,6 +778,7 @@ int next_param(t_token *token, node* function_node, bool ret_param){
         function_var->name = malloc(sizeof (t_str));
         string_init(function_var->name);
         string_copy(token->lexeme->inter, function_var->name);
+        function_var->declaration = true;
         in_function = tree_insert(in_function, hashcode(function_var->name->data),function_var);
 
         GET_TOKEN(token);
@@ -1006,7 +864,167 @@ int next_id(t_token *token){
 }
 
 
+void ast_init(t_ast_node* ast){
+    ast->global = NULL;
+    ast->in_function = NULL;
+    ast->local = NULL;
+
+    ast->variable = NULL;
+    ast->type_variable = NULL;
+    ast->count_variable = 0;
+
+    ast->func = NULL;
+    ast->func_param = NULL;
+
+
+    //что то там что то там expression
+
+    ast->it_is_variable_expression = false;
+    ast->it_is_variable_call_function = false;
+    ast->it_is_declaration_variable = false;
+    ast->it_is_loop = false;
+    ast->it_is_if = false;
+    ast->it_is_function_define = false;
+    ast->it_is_call_function = false;
+    ast->if_loop_end = false;
+    ast->if_else = false;
+    ast->it_is_in_function = false;
+    ast->next_node = NULL;
+
+}
+void ast_free(t_ast_node* ast){
+    if(ast->variable)
+        string_param_free(ast->variable);
+    if(ast->type_variable)
+        string_param_free(ast->type_variable);
+    if(ast->func_param)
+        string_param_free(ast->func_param);
+    t_ast_node *ptr = ast->next_node;
+    while(ast->next_node){
+        ast->next_node = ptr->next_node;
+        free(ptr);
+        ptr = ast->next_node;
+    }
+
+    ast_init(ast);
+}
+int add_table_symbols_system_function(char* name){
+    sData *function_var = NULL;
+    t_str* str = NULL;
+    str = malloc(sizeof (t_str));
+    string_init(str);
+
+    function_var = malloc(sizeof (sData));
+    if(!function_var){
+        return ERROR_INTERNAL;
+    }
+    s_data_init(function_var);
+    function_var->name = malloc(sizeof (t_str));
+    if(!function_var->name){
+        return ERROR_INTERNAL;
+    }
+    string_init(function_var->name);
+    function_var->type = malloc(sizeof (t_str));
+    if(!function_var->type){
+        return ERROR_INTERNAL;
+    }
+    string_init(function_var->type);
+    string_wright_arr(function_var->name, name);
+    string_wright_arr(function_var->type, func);
+
+    function_var->declaration = true;
+    function_var->define = true;
+    function_var->system_function = true;
+    function_var->count_returned_params = 1;
+
+
+    function_var->type_returned_params = malloc(sizeof (t_str_param));
+    if(!function_var->type_returned_params){
+        return ERROR_INTERNAL;
+    }
+    string_param_init(function_var->type_returned_params);
+
+
+    if(string_arr_cmp(str,"write")){
+        function_var->count_returned_params = 0;
+        function_var->system_function_infinity_param = true;
+    }else if(string_arr_cmp(str,"reads")){
+        string_wright_arr(str, strin);
+    }else if(string_arr_cmp(str,"readi")){
+        string_wright_arr(str, integ);
+    }else if(string_arr_cmp(str,"readn")){
+        string_wright_arr(str, numb);
+    }else if(string_arr_cmp(str,"tointeger")){
+        function_var->type_params = malloc(sizeof (t_str_param));
+        if(!function_var->type_params){
+            return ERROR_INTERNAL;
+        }
+        string_param_init(function_var->type_params);
+        string_wright_arr(str,numb);
+        string_param_copy_string(function_var->type_params, str);
+        function_var->count_params = 1;
+
+        string_wright_arr(str, integ);
+    }else if(string_arr_cmp(str,"substr")){
+        function_var->type_params = malloc(sizeof (t_str_param));
+        if(!function_var->type_params){
+            return ERROR_INTERNAL;
+        }
+        string_param_init(function_var->type_params);
+        string_wright_arr(str, strin);
+        string_param_copy_string(function_var->type_params, str);
+        string_wright_arr(str, numb);
+        string_param_copy_string(function_var->type_params, str);
+        string_param_copy_string(function_var->type_params, str);
+        function_var->count_params = 3;
+
+        string_wright_arr(str, strin);
+    }else if(string_arr_cmp(str,"ord")){
+        function_var->type_params = malloc(sizeof (t_str_param));
+        if(!function_var->type_params){
+            return ERROR_INTERNAL;
+        }
+        string_param_init(function_var->type_params);
+        string_wright_arr(str, strin);
+        string_param_copy_string(function_var->type_params, str);
+        string_wright_arr(str, integ);
+        string_param_copy_string(function_var->type_params, str);
+        function_var->count_params = 2;
+
+        string_wright_arr(str, integ);
+
+    }else if(string_arr_cmp(str,"chr")){
+        function_var->type_params = malloc(sizeof (t_str_param));
+        if(!function_var->type_params){
+            return ERROR_INTERNAL;
+        }
+        string_param_init(function_var->type_params);
+        string_wright_arr(str, integ);
+        string_param_copy_string(function_var->type_params, str);
+        function_var->count_params = 1;
+
+        string_wright_arr(str, strin);
+    }
+
+    string_param_copy_string(function_var->type_returned_params, str);
+    global_table = tree_insert(global_table, hashcode(function_var->name->data),function_var);
+
+    string_free(str);
+    return IT_IS_OK;
+}
+
 int start_analysis(t_token *token){
+
+    ast_node = malloc(sizeof (t_ast_node));
+    ast_init(ast_node);
+    add_table_symbols_system_function("reads");
+    add_table_symbols_system_function("readi");
+    add_table_symbols_system_function("readn");
+    add_table_symbols_system_function("write");
+    add_table_symbols_system_function("tointeger");
+    add_table_symbols_system_function("substr");
+    add_table_symbols_system_function("ord");
+    add_table_symbols_system_function("chr");
 
     stack_table = malloc(sizeof (s_stack));
     table_init(stack_table);

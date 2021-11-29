@@ -7,30 +7,31 @@
 #include "string_param.h"
 
 typedef unsigned long ul;
-typedef struct s_node_expression{
-    bool expression_variable_function;
-    bool call_function;
-    bool expression;
-
-    // что то там exp
-    t_str *variable;
-    sData function;
-
-}t_node_expression;
 
 typedef struct s_ast_node{
-    node global;
-    node in_function;
-    node local;
+    node* global;
+    node* in_function;
+    node* local;
 
-    sData body;
+    t_str_param* variable;
+    t_str_param* type_variable;
+    int count_variable;
+
+    sData* func;
+    t_str_param* func_param;
+
+
     //что то там что то там expression
-    t_node_expression expression;
-    bool it_is_expression_node;
+
+    bool it_is_variable_expression;
+    bool it_is_variable_call_function;
+    bool it_is_declaration_variable;
     bool it_is_loop;
     bool it_is_if;
-    bool it_is_declaration_variable;
-    bool it_is_function;
+    bool it_is_function_define;
+    bool it_is_call_function;
+    bool if_loop_end;
+    bool if_else;
     bool it_is_in_function;
     struct s_ast_node *next_node;
 }t_ast_node;
@@ -51,7 +52,8 @@ int expression(t_token *token);
 int new_expression(t_token *token);
 int next_id(t_token *token);
 int global_params(t_token *token, ul hash);
-
+void ast_init(t_ast_node* ast);
+void ast_free(t_ast_node* ast);
 
 
 
