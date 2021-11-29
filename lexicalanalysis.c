@@ -562,12 +562,47 @@ int prepar_analysis(t_token* token)
 void hold_token(){
     hold = true;
 }
+void old_token_allocate(){
+    old_token = malloc(sizeof (t_token));
+    old_token->lexeme = malloc(sizeof (t_lexeme));
+    old_token->lexeme->inter = malloc(sizeof (t_str));
+    string_init(old_token->lexeme->inter);
 
+    old_token->token_name = NONE_T;
+    old_token->lexeme->keyword = NONE_K;
+    old_token->lexeme->inter->data[0] = '\0';
+    old_token->lexeme->inter->how_occupied = 0;
+    old_token->lexeme->integer = 0;
+    old_token->lexeme->number = 0.0;
+}
+void get_old_token(t_token* token){
+    token_save = token;
+    token = old_token;
+}
+
+void to_old_token(t_token* token){
+    old_token->token_name = token->token_name;
+    old_token->lexeme->keyword = token->lexeme->keyword;
+    old_token->lexeme->integer = token->lexeme->integer;
+    old_token->lexeme->number = token->lexeme->number;
+    string_copy(token->lexeme->inter,old_token->lexeme->inter);
+
+}
 int get_token(t_token* token)
 {
+    if(token_save){
+        token = token_save;
+        token_save = NULL;
+    }
     if(hold){
         hold = false;
         return IT_IS_OK;
+    }
+
+    if(!old_token){
+        old_token_allocate();
+    }else{
+        to_old_token(token);
     }
 
     if (prepar_analysis(token)){
