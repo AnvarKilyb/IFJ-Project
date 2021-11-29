@@ -138,7 +138,8 @@ int main(int argc, char** argv){
 
 
 
-
+//    get_token(token);
+//    hold_token();
 //    while(token->token_name != TOKEN_EOF){
 ////        token->lexeme->keyword = 100;
 ////        token->lexeme->inter->data[0] = '\0';
@@ -149,6 +150,13 @@ int main(int argc, char** argv){
 //        get_token(token);
 //        printf("...token{ %d }.....data{ %s }.....keyword{ %d }.....number_int{ %d }.....number_double{ %g }...\n",
 //               token->token_name,token->lexeme->inter->data,token->lexeme->keyword,token->lexeme->integer,token->lexeme->number);
+//
+//        get_old_token(token);
+//        printf("...token{ %d }.....data{ %s }.....keyword{ %d }.....number_int{ %d }.....number_double{ %g }...\n",
+//               token->token_name,token->lexeme->inter->data,token->lexeme->keyword,token->lexeme->integer,token->lexeme->number);
+////        get_token(token);
+////        printf("...token{ %d }.....data{ %s }.....keyword{ %d }.....number_int{ %d }.....number_double{ %g }...\n",
+////               token->token_name,token->lexeme->inter->data,token->lexeme->keyword,token->lexeme->integer,token->lexeme->number);
 //    }
 
 
