@@ -64,5 +64,6 @@ bool string_arr_cmp(t_str* str,const char* arr);
 void string_add_string(t_str* str1, t_str* str2);
 
 void string_init_state(t_str* str );
+void string_add_arr(t_str* str1, char* arr);
 
 #endif //IFJ_PROJEKT_STRING_H

@@ -62,6 +62,13 @@ void string_add_string(t_str* str1, t_str* str2){
 
 }
 
+void string_add_arr(t_str* str1, char* arr){
+    for(int slider = 0; arr[slider] != NUL; slider++){
+        string_wright_char(str1,arr[slider]);
+    }
+
+}
+
 //*
 // * Вкладвает символ в начало строки
 // */

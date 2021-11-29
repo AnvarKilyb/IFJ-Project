@@ -32,7 +32,7 @@ typedef struct{
     t_str_param* type_params;
 
     int count_returned_params;
-    t_str_param * type_returned_params; // Возвращаемы параметры
+    t_str_param* type_returned_params; // Возвращаемы параметры
 
     int data_int;
     double data_double;

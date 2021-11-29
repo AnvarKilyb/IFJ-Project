@@ -240,6 +240,7 @@ int function(t_token *token){
         ast_node->global = global_table;
         code_gen(ast_node);
         //////////
+        //TODO ast free ast init ast_node->in_function = true
 
         if(statement(token)){
             return ERROR_SYN_ANALYSIS;
@@ -469,6 +470,25 @@ int function_call(t_token *token){// заходит с чистым аст ст�
     }
 
     ast_node->func = global_function->data;
+    if(ast_node->it_is_variable_){
+        ast_node->it_is_variable_call_function = true;
+        ast_node->it_is_variable_ = false;
+
+        if(ast_node->count_variable > global_function->data->count_returned_params){
+            return ERROR_SEMANTIC_ANALYSIS_PARAM_IN_FUNC;
+            //параметров которыйе принимают возврат с функции больше чем возвращаемых параметров
+        }else{
+            for(int i = 1; i <= ast_node->count_variable; i++){
+                if(!string_param_cmp_string_param(ast_node->type_variable, i,global_function->data->type_returned_params, i)){
+                    return ERROR_SEMANTIC_ANALYSIS_PARAM_IN_FUNC;
+                    //не сходятся типы возвращаемых аргументов
+                }
+            }
+        }
+
+    }else{
+        ast_node->it_is_call_function = true;
+    }
 
     GET_TOKEN(token);
     if(token->token_name != TOKEN_LEFT_BRACKET) {
@@ -476,14 +496,10 @@ int function_call(t_token *token){// заходит с чистым аст ст�
         //TODO обработка ошибок ожидалась скобка
     }
 
-    if(global_function->data->count_params != 0){
+    if(global_function->data->count_params != 0 || global_function->data->system_function_infinity_param){
         if (args(token)) {
             return ERROR_SYN_ANALYSIS;
             //TODO ожидались параметры функции
-        }
-    }else{
-        if(token->token_name == TOKEN_IDENTIFIER || token->token_name == TOKEN_STRING){
-            //дописать типы моджет быть хоть что
         }
     }
 
@@ -496,6 +512,14 @@ int function_call(t_token *token){// заходит с чистым аст ст�
 }
 
 int args(t_token *token){ //TODO предпологаю что функция будет определять параметры есть или нет
+
+
+
+    next_args(token);
+    return IT_IS_OK;
+}
+
+int next_args(t_token* token){
 
     return IT_IS_OK;
 }
@@ -821,7 +845,7 @@ int expression(t_token *token){
     return IT_IS_OK;
 }
 
-int new_expression(t_token *token){
+int next_expression(t_token *token){
     //TODO first write the prec analysis table in code
     GET_TOKEN(token);
     if(token->token_name == TOKEN_COMMA){
@@ -830,7 +854,7 @@ int new_expression(t_token *token){
             //TODO error
         }
 
-        if(new_expression(token)){
+        if(next_expression(token)){
             return ERROR_SYN_ANALYSIS;
             //TODO error
         }
@@ -878,7 +902,7 @@ void ast_init(t_ast_node* ast){
 
 
     //что то там что то там expression
-
+    ast->it_is_variable_ = false;
     ast->it_is_variable_expression = false;
     ast->it_is_variable_call_function = false;
     ast->it_is_declaration_variable = false;
