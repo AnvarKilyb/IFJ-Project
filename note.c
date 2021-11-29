@@ -128,3 +128,165 @@ int next_param(t_token *token, node* function_node, bool ret_param){
     // -> ε
     return IT_IS_OK;
 }
+
+
+
+int function_call(t_token *token){
+    if(token->token_name == TOKEN_IDENTIFIER){
+
+        t_str id_fun; //TODO заглушшка перерписать
+
+        //TODO у каждего ифа долдна происзодить запиись до узла
+        if(string_arr_cmp(&id_fun,"write")){
+            GET_TOKEN(token);
+            if(token->token_name != TOKEN_LEFT_BRACKET) {
+                return ERROR_SYN_ANALYSIS;
+                //TODO обработка ошибок ожидалась скобка
+            }
+
+            if(args(token)){
+                return ERROR_SYN_ANALYSIS;
+                //TODO ожидались параметры функции
+            }
+
+            GET_TOKEN(token);
+            if(token->token_name != TOKEN_RIGHT_BRACKET) {
+                return ERROR_SYN_ANALYSIS;
+                //TODO обработка ошибок ожидалась скобка
+            }
+        }
+        else if(string_arr_cmp(&id_fun,"reads")){
+            GET_TOKEN(token);
+            if(token->token_name != TOKEN_LEFT_BRACKET) {
+                return ERROR_SYN_ANALYSIS;
+                //TODO обработка ошибок ожидалась скобка
+            }
+
+            GET_TOKEN(token);
+            if(token->token_name != TOKEN_RIGHT_BRACKET) {
+                return ERROR_SYN_ANALYSIS;
+                //TODO обработка ошибок ожидалась скобка
+            }
+        }
+        else if(string_arr_cmp(&id_fun,"readi")){
+            GET_TOKEN(token);
+            if(token->token_name != TOKEN_LEFT_BRACKET) {
+                return ERROR_SYN_ANALYSIS;
+                //TODO обработка ошибок ожидалась скобка
+            }
+
+            GET_TOKEN(token);
+            if(token->token_name != TOKEN_RIGHT_BRACKET) {
+                return ERROR_SYN_ANALYSIS;
+                //TODO обработка ошибок ожидалась скобка
+            }
+        }
+        else if(string_arr_cmp(&id_fun,"readn")){
+
+            GET_TOKEN(token);
+            if(token->token_name != TOKEN_LEFT_BRACKET) {
+                return ERROR_SYN_ANALYSIS;
+                //TODO обработка ошибок ожидалась скобка
+            }
+
+            GET_TOKEN(token);
+            if(token->token_name != TOKEN_RIGHT_BRACKET) {
+                return ERROR_SYN_ANALYSIS;
+                //TODO обработка ошибок ожидалась скобка
+            }
+        }
+        else if(string_arr_cmp(&id_fun,"tointager")){
+            GET_TOKEN(token);
+            if(token->token_name != TOKEN_LEFT_BRACKET) {
+                return ERROR_SYN_ANALYSIS;
+                //TODO обработка ошибок ожидалась скобка
+            }
+
+            if(args(token)){
+                return ERROR_SYN_ANALYSIS;
+                //TODO ожидались параметры функции
+            }
+
+            GET_TOKEN(token);
+            if(token->token_name != TOKEN_RIGHT_BRACKET) {
+                return ERROR_SYN_ANALYSIS;
+                //TODO обработка ошибок ожидалась скобка
+            }
+        }
+        else if(string_arr_cmp(&id_fun,"substr")){
+            GET_TOKEN(token);
+            if(token->token_name != TOKEN_LEFT_BRACKET) {
+                return ERROR_SYN_ANALYSIS;
+                //TODO обработка ошибок ожидалась скобка
+            }
+
+            if(args(token)){
+                return ERROR_SYN_ANALYSIS;
+                //TODO ожидались параметры функции
+            }
+
+            GET_TOKEN(token);
+            if(token->token_name != TOKEN_RIGHT_BRACKET) {
+                return ERROR_SYN_ANALYSIS;
+                //TODO обработка ошибок ожидалась скобка
+            }
+        }
+        else if(string_arr_cmp(&id_fun,"ord")){
+            GET_TOKEN(token);
+            if(token->token_name != TOKEN_LEFT_BRACKET) {
+                return ERROR_SYN_ANALYSIS;
+                //TODO обработка ошибок ожидалась скобка
+            }
+
+            if(args(token)){
+                return ERROR_SYN_ANALYSIS;
+                //TODO ожидались параметры функции
+            }
+
+            GET_TOKEN(token);
+            if(token->token_name != TOKEN_RIGHT_BRACKET) {
+                return ERROR_SYN_ANALYSIS;
+                //TODO обработка ошибок ожидалась скобка
+            }
+        }
+        else if(string_arr_cmp(&id_fun,"chr")){
+            GET_TOKEN(token);
+            if(token->token_name != TOKEN_LEFT_BRACKET) {
+                return ERROR_SYN_ANALYSIS;
+                //TODO обработка ошибок ожидалась скобка
+            }
+
+            if(args(token)){
+                return ERROR_SYN_ANALYSIS;
+                //TODO ожидались параметры функции
+            }
+
+            GET_TOKEN(token);
+            if(token->token_name != TOKEN_RIGHT_BRACKET) {
+                return ERROR_SYN_ANALYSIS;
+                //TODO обработка ошибок ожидалась скобка
+            }
+        }
+        else {
+            //TODO спросить у табулке символов а был ли он определен если нет ошибка
+            GET_TOKEN(token);
+            if (token->token_name != TOKEN_LEFT_BRACKET) {
+                return ERROR_SYN_ANALYSIS;
+                //TODO обработка ошибок ожидалась скобка
+            }
+
+            if (args(token)) {
+                return ERROR_SYN_ANALYSIS;
+                //TODO ожидались параметры функции
+            }
+
+            GET_TOKEN(token);
+            if (token->token_name != TOKEN_RIGHT_BRACKET) {
+                return ERROR_SYN_ANALYSIS;
+                //TODO обработка ошибок ожидалась скобка
+            }
+            return IT_IS_OK;
+        }
+    }
+    return IT_IS_OK;
+}
