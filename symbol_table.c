@@ -22,6 +22,7 @@ void s_data_init(sData* node){
     node->data_int = 0;
     node->data_double = 0.0;
     node->data_string = NULL;
+    node->data_valid = false;
     node->system_function = false;
     node->system_function_infinity_param = false;
 

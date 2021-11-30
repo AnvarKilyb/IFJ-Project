@@ -8,6 +8,24 @@
 
 typedef unsigned long ul;
 
+typedef struct s_exp_list{
+
+    bool tree;
+    bool var;
+    //дерево с прецеденчной анализы;
+
+    t_str* variable;
+
+    t_str* type;
+
+    int data_int;
+    double data_double;
+    t_str* data_string;
+
+    struct s_exp_list* first_exp;
+    struct s_exp_list* next_exp;
+}t_exp_list;
+
 typedef struct s_ast_node{
     node* global;
     node* in_function;
@@ -20,11 +38,11 @@ typedef struct s_ast_node{
     sData* func;
     t_str_param* func_param;
     int count_func_param;
-    t_str_param* return_param;
-    int count_return_param;
 
 
-    //что то там что то там expression
+    t_exp_list* expression;
+    int count_expression;
+
     bool it_is_variable_;
     bool it_is_variable_expression;
     bool it_is_variable_call_function;
@@ -36,9 +54,10 @@ typedef struct s_ast_node{
     bool if_loop_end;
     bool if_else;
     bool it_is_in_function;
-    struct s_ast_node *active_node;
+    struct s_ast_node *first_node;
     struct s_ast_node *next_node;
 }t_ast_node;
+
 
 
 int chunk(t_token *token);
@@ -60,6 +79,7 @@ void ast_init(t_ast_node* ast);
 void ast_free(t_ast_node* ast);
 int next_args(t_token* token);
 void send_ast();
+void exp_init(t_exp_list* exp);
 
 /*
  *

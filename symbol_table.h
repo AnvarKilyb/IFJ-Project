@@ -34,6 +34,7 @@ typedef struct{
     int count_returned_params;
     t_str_param* type_returned_params; // Возвращаемы параметры
 
+    bool data_valid;
     int data_int;
     double data_double;
     t_str* data_string;
