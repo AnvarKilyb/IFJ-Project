@@ -20,6 +20,8 @@ typedef struct s_ast_node{
     sData* func;
     t_str_param* func_param;
     int count_func_param;
+    t_str_param* return_param;
+    int count_return_param;
 
 
     //что то там что то там expression
@@ -34,6 +36,7 @@ typedef struct s_ast_node{
     bool if_loop_end;
     bool if_else;
     bool it_is_in_function;
+    struct s_ast_node *active_node;
     struct s_ast_node *next_node;
 }t_ast_node;
 
@@ -56,6 +59,7 @@ int global_params(t_token *token, ul hash);
 void ast_init(t_ast_node* ast);
 void ast_free(t_ast_node* ast);
 int next_args(t_token* token);
+void send_ast();
 
 /*
  *

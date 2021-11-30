@@ -84,6 +84,14 @@ bool sting_param_uncmp_string(t_str_param* str_param, t_str* str){
     return true;
 }
 
+bool string_param_cmp_arr(t_str_param* str_p, ull numb_p, char* arr){
+    if(str_p->how_occupied <= (numb_p-1)){
+        return false;
+    }
+    return string_arr_cmp(str_p->data[numb_p-1],arr);
+}
+
+
 bool string_param_cmp_string(t_str_param* str_p, ull numb_p, t_str* str){
     if(str_p->how_occupied <= (numb_p-1)){
         return false;

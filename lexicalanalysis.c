@@ -18,7 +18,7 @@ void keyword_check(t_token* token)
 {
     int number_keyword = 0;
     for(;number_keyword <= AMOUNT_OF_KEYWORDS - 1;number_keyword++){
-        if(!string_arr_cmp(string, KEYWORDS[number_keyword])){
+        if(string_arr_cmp(string, KEYWORDS[number_keyword])){
             token->lexeme->keyword = number_keyword;
             token->token_name = TOKEN_KEYWORD;
             return;
