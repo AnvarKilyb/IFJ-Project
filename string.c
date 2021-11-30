@@ -98,23 +98,6 @@ void string_wright_char(t_str* str, char symbol){
 
 }
 
-////функция для строки в строке
-//void string_wright_char(t_str* str, t_str* str_in){
-//    if(str->lenght <= str->how_occupied) {
-//        string_expansion(str);
-//    }
-//    if(str->how_occupied == 0){
-//        str->data[str->how_occupied++] = str_in;
-//        str->data[str->how_occupied++] = NUL;
-//    }else {
-//        str->data[--str->how_occupied] = str_in; // str->how_occupied показывает сколько символов влодина считая и конец строки
-//        str->data[++str->how_occupied] = NUL;
-//        str->how_occupied++;
-//    }
-//
-//}
-
-
 /*
  * Переписывает масив в строку
  */
@@ -155,7 +138,10 @@ bool string_cmp(t_str* str1, t_str* str2){
 }
 
 bool string_arr_cmp(t_str* str,const char* arr){
-    return strcmp(str->data,arr);
+    if(strcmp(str->data,arr) == 0)
+        return true;
+    else
+        return false;
 }
 
 void string_init_state(t_str* str ){
