@@ -16,8 +16,10 @@ typedef struct s_exp_list{
 
     t_str* variable;
 
-    t_str* type;
 
+    bool str;
+    bool integer;
+    bool numb;
     int data_int;
     double data_double;
     t_str* data_string;
@@ -80,7 +82,8 @@ void ast_free(t_ast_node* ast);
 int next_args(t_token* token);
 void send_ast();
 void exp_init(t_exp_list* exp);
-
+void exp_next();
+void if_loop_ast_next();
 /*
  *
  *

@@ -67,7 +67,6 @@ int params(t_token *token, ul hash){
     return IT_IS_OK;
 }
 
-
 int next_param(t_token *token, node* function_node, bool ret_param){
     GET_TOKEN(token);
     if(token->token_name == TOKEN_COMMA){
@@ -128,8 +127,6 @@ int next_param(t_token *token, node* function_node, bool ret_param){
     // -> ε
     return IT_IS_OK;
 }
-
-
 
 int function_call(t_token *token){
     if(token->token_name == TOKEN_IDENTIFIER){
@@ -287,6 +284,141 @@ int function_call(t_token *token){
             }
             return IT_IS_OK;
         }
+    }
+    return IT_IS_OK;
+}
+
+
+int value(t_token *token){ //todo равенства чего с чемто
+    //TODO first write the prec analysis table in code
+    ast_node->count_expression++;
+    if(ast_node->count_variable < ast_node->count_expression){
+        return ERROR_SEMANTIC_ANALYSIS_EQ;
+    }
+
+    if(!ast_node->expression){
+        ast_node->expression = malloc(sizeof (t_exp_list));
+        exp_init(ast_node->expression);
+    }
+    GET_TOKEN(token);
+    if(token->token_name == TOKEN_IDENTIFIER){
+        GET_TOKEN(token);
+        if(token->token_name == TOKEN_LEFT_BRACKET){
+            //Есили в присвоение несколько раз вызов функции
+            if(ast_node->count_expression > 1){
+                return ERROR_SEMANTIC_ANALYSIS;
+            }
+            hold_token();
+            get_old_token(token);
+            if(function_call(token)){
+                return ERROR_SYN_ANALYSIS;
+                //TODO error
+            }
+        }else if(token->token_name == TOKEN_COMMA){
+            hold_token();
+            get_old_token(token);
+            node* function_var = NULL;
+            if((ast_node->it_is_loop || ast_node->it_is_if) && ast_node->local){
+                function_var = tree_search(ast_node->local, hashcode(token->lexeme->inter->data));
+                if(!function_var){
+                    function_var = tree_search(ast_node->in_function, hashcode(token->lexeme->inter->data));
+                    if(!function_var){
+                        return ERROR_SEMANTIC_ANALYSIS;
+                    }
+                }
+            }else{
+                function_var = tree_search(ast_node->in_function, hashcode(token->lexeme->inter->data));
+                if(!function_var){
+                    return ERROR_SEMANTIC_ANALYSIS;
+                }
+            }
+            //если переменная идентифицирована то аллакуем под нее все
+            ast_node->expression->var = true;
+            if(string_param_cmp_string(ast_node->type_variable, ast_node->count_expression, function_var->data->type)){
+                ast_node->expression->variable = malloc(sizeof(t_str));
+                string_init(ast_node->expression->variable);
+                string_copy(token->lexeme->inter,ast_node->expression->variable);
+
+                exp_next();
+
+            }else{
+                return ERROR_SEMANTIC_ANALYSIS_EQ;
+                //TODO error
+            }
+        }else{
+            hold_token();
+            get_old_token(token);
+            //TODO прецедечни
+        }
+    }else if(token->token_name == TOKEN_STRING){
+        if(string_param_cmp_arr(ast_node->type_variable, ast_node->count_expression, strin)){
+            ast_node->expression->str = true;
+            ast_node->expression->data_string = malloc(sizeof (t_str));
+            string_init(ast_node->expression->data_string);
+            string_copy(token->lexeme->inter, ast_node->expression->data_string);
+            exp_next();
+        }else{
+            return ERROR_SEMANTIC_ANALYSIS_EQ;
+        }
+    }else if(token->token_name == TOKEN_INTEGER){
+        GET_TOKEN(token);
+        if(token->token_name == TOKEN_COMMA){
+            hold_token();
+            get_old_token(token);
+            if(!string_param_cmp_arr(ast_node->type_variable, ast_node->count_expression, integ)) {
+                if (!string_param_cmp_arr(ast_node->type_variable, ast_node->count_expression, numb)) {
+                    return ERROR_SEMANTIC_ANALYSIS_EQ;
+                }else{
+                    ast_node->expression->numb = true;
+                    ast_node->expression->data_double = token->lexeme->number;
+                }
+            }else{
+                ast_node->expression->integer = true;
+                ast_node->expression->data_int = token->lexeme->integer;
+            }
+            exp_next();
+        }else
+        {
+            hold_token();
+            get_old_token(token);
+            //TODO анализа прецеденчни
+        }
+
+    }else if(token->token_name == TOKEN_NUMBER || token->token_name == TOKEN_NUMBER_EXPONENT){
+        GET_TOKEN(token);
+        if(token->token_name == TOKEN_COMMA){
+            hold_token();
+            get_old_token(token);
+            if(!string_param_cmp_arr(ast_node->type_variable, ast_node->count_expression, numb)) {
+                return ERROR_SEMANTIC_ANALYSIS_EQ;
+            }else{
+                ast_node->expression->numb = true;
+                ast_node->expression->data_double = token->lexeme->number;
+            }
+            exp_next();
+        }else{
+            hold_token();
+            get_old_token(token);
+            //TODO анализа прецеденчни
+        }
+    }
+
+    GET_TOKEN(token);
+    if(token->token_name == TOKEN_COMMA){
+        if(value(token)){
+            return ERROR_SEMANTIC_ANALYSIS;
+            //TODO error
+        }
+    }else
+    {
+        if(ast_node->count_variable > ast_node->count_expression)
+        {
+            if(ast_node->count_expression != 1)
+            {
+                return ERROR_SEMANTIC_ANALYSIS_EQ;
+            }
+        }
+        hold_token();
     }
     return IT_IS_OK;
 }

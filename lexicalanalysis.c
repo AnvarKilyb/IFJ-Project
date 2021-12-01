@@ -193,7 +193,7 @@ int find_token(t_token* token)
                     return IT_IS_OK;
                 }else{
                     ungetc(symbol,code_file);
-                    token->token_name = TOKEN_LESS;
+                    token->token_name = TOKEN_ASSIGNMENT;
                     return IT_IS_OK;
                 }
 
@@ -576,8 +576,11 @@ void old_token_allocate(){
     old_token->lexeme->number = 0.0;
 }
 void get_old_token(t_token* token){
-    token_save = token;
-    token = old_token;
+    token_save = malloc(sizeof (t_token));
+    token_save->token_name = token->token_name;
+    token_save->lexeme = token->lexeme;
+    token->token_name = old_token->token_name;
+    token->lexeme = old_token->lexeme;
 }
 
 void to_old_token(t_token* token){
@@ -591,7 +594,9 @@ void to_old_token(t_token* token){
 int get_token(t_token* token)
 {
     if(token_save){
-        token = token_save;
+        token->token_name = token_save->token_name;
+        token->lexeme = token_save->lexeme;
+        free(token_save);
         token_save = NULL;
     }
     if(hold){
