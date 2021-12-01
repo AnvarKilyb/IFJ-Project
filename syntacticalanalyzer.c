@@ -359,8 +359,16 @@ int statement(t_token *token){
             function_var->name = malloc(sizeof (t_str));
             string_init(function_var->name);
             string_copy(token->lexeme->inter, function_var->name);
-            node* in_function = table_top(stack_table);
-            in_function = tree_insert(in_function, hash, function_var);
+            if(ast_node->it_is_if || ast_node->it_is_loop)
+            {
+                node* in_function = NULL;
+                in_function = tree_insert(in_function, hash, function_var);
+                table_push(stack_table,in_function);
+            }else{
+                node* in_function = table_top(stack_table);
+                in_function = tree_insert(in_function, hash, function_var);
+            }
+
 
             ast_node->it_is_declaration_variable = true;
             ast_node->count_variable++;
@@ -410,6 +418,31 @@ int statement(t_token *token){
 
     }else if(token->token_name == TOKEN_IDENTIFIER){
         //TODO add to symbol table
+        node* function_var = NULL;
+        ul hash = hashcode(token->lexeme->inter->data);
+        if(ast_node->it_is_if || ast_node->it_is_loop){
+            function_var = tree_search(ast_node->local,hash);
+            if(!function_var){
+                function_var = tree_search(ast_node->in_function,hash);
+                if(!function_var){
+                    return ERROR_SEMANTIC_ANALYSIS;
+                }
+            }
+        }else{
+            function_var = tree_search(ast_node->in_function,hash);
+            if(!function_var){
+                return ERROR_SEMANTIC_ANALYSIS;
+            }
+        }
+        ast_node->it_is_variable_ = true;
+        ast_node->count_variable++;
+        ast_node->variable = malloc(sizeof (t_str_param));
+        string_param_init(ast_node->variable);
+        string_param_copy_string(ast_node->variable,token->lexeme->inter);
+        //тип
+        ast_node->type_variable = malloc(sizeof (t_str_param));
+        string_param_init(ast_node->type_variable);
+        string_param_copy_string(ast_node->type_variable,function_var->data->type);
 
         if(next_id(token)){
             return ERROR_SYN_ANALYSIS;
@@ -425,6 +458,11 @@ int statement(t_token *token){
         if(value(token)){
             return ERROR_SYN_ANALYSIS;
             //TODO error
+        }else{
+            if(ast_node->it_is_loop || ast_node->it_is_if)
+                if_loop_ast_next();
+            else
+                send_ast();
         }
 
         if(statement(token)){
@@ -433,6 +471,7 @@ int statement(t_token *token){
         }
 
     }else if(token->token_name == TOKEN_KEYWORD && token->lexeme->keyword == KEYWORD_IF ){
+        ast_node->it_is_if = true;
         if(expression(token)){
             return ERROR_SYN_ANALYSIS;
             //TODO error
@@ -453,6 +492,9 @@ int statement(t_token *token){
         if(token->token_name != TOKEN_KEYWORD && token->lexeme->keyword != KEYWORD_ELSE){
             return ERROR_SYN_ANALYSIS;
             //TODO error
+        } else{
+            ast_node->if_else = true;
+            if_loop_ast_next();
         }
 
         if(!statement(token)){
@@ -464,6 +506,10 @@ int statement(t_token *token){
         if(token->token_name != TOKEN_KEYWORD && token->lexeme->keyword != KEYWORD_END){
             return ERROR_SYN_ANALYSIS;
             //TODO error
+        }else{
+            ast_node->if_loop_end = true;
+            ast_node = ast_node->first_node;
+            send_ast();
         }
 
         if(statement(token)){
@@ -472,6 +518,7 @@ int statement(t_token *token){
         }
 
     }else if(token->token_name == TOKEN_KEYWORD && token->lexeme->keyword == KEYWORD_WHILE){
+        ast_node->it_is_loop = true;
         if(expression(token)){
             return ERROR_SYN_ANALYSIS;
             //TODO error
@@ -492,6 +539,10 @@ int statement(t_token *token){
         if(token->token_name != TOKEN_KEYWORD && token->lexeme->keyword != KEYWORD_END){
             return ERROR_SYN_ANALYSIS;
             //TODO error
+        }{
+            ast_node->if_loop_end = true;
+            ast_node = ast_node->first_node;
+            send_ast();
         }
 
         if(statement(token)){
@@ -1116,37 +1167,58 @@ int value(t_token *token){ //todo равенства чего с чемто
     return IT_IS_OK;
 }
 
-//int expression(t_token *token){
-//    //TODO first write the prec analysis table in code
-//    return IT_IS_OK;
-//}
-//
-//int next_expression(t_token *token){
-//    //TODO first write the prec analysis table in code
-//    GET_TOKEN(token);
-//    if(token->token_name == TOKEN_COMMA){
-//        if(expression(token)){
-//            return ERROR_SYN_ANALYSIS;
-//            //TODO error
-//        }
-//
-//        if(next_expression(token)){
-//            return ERROR_SYN_ANALYSIS;
-//            //TODO error
-//        }
-//
-//    }else{
-//        return IT_IS_OK;
-//    }
-//    return IT_IS_OK;
-//}
+int expression(t_token *token){
+    //TODO first write the prec analysis table in code
+    return IT_IS_OK;
+}
+
+int next_expression(t_token *token){
+    //TODO first write the prec analysis table in code
+    GET_TOKEN(token);
+    if(token->token_name == TOKEN_COMMA){
+        if(expression(token)){
+            return ERROR_SYN_ANALYSIS;
+            //TODO error
+        }
+
+        if(next_expression(token)){
+            return ERROR_SYN_ANALYSIS;
+            //TODO error
+        }
+
+    }else{
+        return IT_IS_OK;
+    }
+    return IT_IS_OK;
+}
 
 
 int next_id(t_token *token){
     GET_TOKEN(token);
     if(token->token_name == TOKEN_COMMA){
+        GET_TOKEN(token);
         if(token->token_name == TOKEN_IDENTIFIER){
-            //TODO add to symbol table
+            node* function_var = NULL;
+            ul hash = hashcode(token->lexeme->inter->data);
+            if(ast_node->it_is_if || ast_node->it_is_loop){
+                function_var = tree_search(ast_node->local,hash);
+                if(!function_var){
+                    function_var = tree_search(ast_node->in_function,hash);
+                    if(!function_var){
+                        return ERROR_SEMANTIC_ANALYSIS;
+                    }
+                }
+            }else{
+                function_var = tree_search(ast_node->in_function,hash);
+                if(!function_var){
+                    return ERROR_SEMANTIC_ANALYSIS;
+                }
+            }
+            ast_node->it_is_variable_ = true;
+            ast_node->count_variable++;
+            string_param_copy_string(ast_node->variable,token->lexeme->inter);
+            //тип
+            string_param_copy_string(ast_node->type_variable,function_var->data->type);
         }else{
             return ERROR_SYN_ANALYSIS;
             //TODO error
@@ -1158,6 +1230,7 @@ int next_id(t_token *token){
         }
 
     }else{
+        hold_token();
         return IT_IS_OK;
     }
     return IT_IS_OK;
