@@ -1111,6 +1111,7 @@ int value(t_token *token){ //todo равенства чего с чемто
             hold_token();
             get_old_token(token);
             //TODO прецеденчни анализа
+            //ТУТ
         }else{
             hold_token();
             get_old_token(token);
