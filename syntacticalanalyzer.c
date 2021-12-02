@@ -238,6 +238,7 @@ int function(t_token *token){
         else
             ast_node->func = tree_search(global_table, hashcode(global_function->name->data))->data;
 
+        ast_node->function_info = ast_node->func;
         ast_node->global = global_table;
         ast_node->in_function = table_top(stack_table);
         send_ast();
@@ -249,6 +250,8 @@ int function(t_token *token){
         }
 
         if(token->token_name == TOKEN_KEYWORD && token->lexeme->keyword == KEYWORD_END){
+            ast_node->it_is_function_end = true;
+            send_ast();
             if(chunk(token)){
                 return ERROR_SYN_ANALYSIS;
                 //TODO обработка ошибок
@@ -550,9 +553,25 @@ int statement(t_token *token){
             //TODO error
         }
     }else if(token->token_name == TOKEN_KEYWORD && token->lexeme->keyword == KEYWORD_RETURN){
-        if(expression(token)){
+        if(return_exp(token)){
             return ERROR_SYN_ANALYSIS;
             //TODO error
+        }else{
+            if(ast_node->count_expression < ast_node->function_info->count_returned_params){
+                ast_node->it_is_return_exp = true;
+                while(ast_node->count_expression < ast_node->function_info->count_returned_params){
+                    exp_next();
+                    ast_node->expression->nil = true;
+                    ast_node->count_expression++;
+                }
+                if(ast_node->expression->first_exp){
+                    ast_node->expression = ast_node->expression->first_exp;
+                }
+            }
+            if(ast_node->it_is_loop || ast_node->it_is_if)
+                if_loop_ast_next();
+            else
+                send_ast();
         }
         if(statement(token)){
             return ERROR_SYN_ANALYSIS;
@@ -564,6 +583,29 @@ int statement(t_token *token){
     }
     return IT_IS_OK;
 }
+
+int return_exp(t_token* token){
+    ast_node->it_is_return = true;
+    ast_node->function_info->was_return = true;
+
+    GET_TOKEN(token);
+    if((token->lexeme->keyword != KEYWORD_END) && (token->lexeme->keyword != KEYWORD_ELSE)){
+        if (ast_node->function_info->count_returned_params) {
+            ast_node->it_is_return_exp = true;
+            hold_token();
+            if(value(token)){
+                return ERROR_SEMANTIC_ANALYSIS_PARAM_IN_FUNC;
+            }
+            return IT_IS_OK;
+        }else{
+            return ERROR_SEMANTIC_ANALYSIS_PARAM_IN_FUNC;
+        }
+    }else{
+        hold_token();
+    }
+    return IT_IS_OK;
+}
+
 
 int function_call(t_token *token){// заходит с чистым аст стромом либо заполненой принемающимим параметрами
     node* global_function = tree_search(global_table, hashcode(token->lexeme->inter->data));
@@ -1020,7 +1062,18 @@ int next_param(t_token *token, node* function_node, bool ret_param){
 int value(t_token *token){ //todo равенства чего с чемто
     //TODO first write the prec analysis table in code
     ast_node->count_expression++;
-    if(ast_node->count_variable < ast_node->count_expression){
+
+    t_str_param* check_type = NULL;
+    int check_count = 0;
+    if(ast_node->it_is_return){
+        check_type = ast_node->function_info->type_returned_params;
+        check_count = ast_node->function_info->count_returned_params;
+    }else{
+        check_type = ast_node->type_variable;
+        check_count = ast_node->count_variable;
+    }
+
+    if(check_count < ast_node->count_expression){
         return ERROR_SEMANTIC_ANALYSIS_EQ;
     }
 
@@ -1028,10 +1081,11 @@ int value(t_token *token){ //todo равенства чего с чемто
         ast_node->expression = malloc(sizeof (t_exp_list));
         exp_init(ast_node->expression);
     }
+
     GET_TOKEN(token);
     if(token->token_name == TOKEN_IDENTIFIER){
         GET_TOKEN(token);
-        if(token->token_name == TOKEN_LEFT_BRACKET) {
+        if((token->token_name == TOKEN_LEFT_BRACKET) && !ast_node->it_is_return){
             //Есили в присвоение несколько раз вызов функции
             if (ast_node->count_expression > 1) {
                 return ERROR_SEMANTIC_ANALYSIS;
@@ -1045,7 +1099,10 @@ int value(t_token *token){ //todo равенства чего с чемто
         }else if(token->token_name == TOKEN_CONCATENATION) {
             hold_token();
             get_old_token(token);
-            if (!string_param_cmp_arr(ast_node->type_variable, ast_node->count_expression, strin)) {
+            if (!string_param_cmp_arr(check_type, ast_node->count_expression, strin)) {
+                if(ast_node->it_is_return)
+                    return ERROR_SEMANTIC_ANALYSIS_PARAM_IN_FUNC;
+
                 return ERROR_SEMANTIC_ANALYSIS_EQ;
                 //TODO error
             }
@@ -1064,6 +1121,7 @@ int value(t_token *token){ //todo равенства чего с чемто
                     function_var = tree_search(ast_node->in_function, hashcode(token->lexeme->inter->data));
                     if(!function_var){
                         return ERROR_SEMANTIC_ANALYSIS;
+
                     }
                 }
             }else{
@@ -1074,14 +1132,18 @@ int value(t_token *token){ //todo равенства чего с чемто
             }
             //если переменная идентифицирована то аллакуем под нее все
             ast_node->expression->var = true;
-            if(string_param_cmp_string(ast_node->type_variable, ast_node->count_expression, function_var->data->type)){
+            // проверяем тип переменной
+            if(string_param_cmp_string(check_type, ast_node->count_expression, function_var->data->type)){
                 ast_node->expression->variable = malloc(sizeof(t_str));
                 string_init(ast_node->expression->variable);
                 string_copy(token->lexeme->inter,ast_node->expression->variable);
 
-                exp_next();
+//                exp_next();
 
             }else{
+                if(ast_node->it_is_return)
+                    return ERROR_SEMANTIC_ANALYSIS_PARAM_IN_FUNC;
+
                 return ERROR_SEMANTIC_ANALYSIS_EQ;
                 //TODO error
             }
@@ -1093,13 +1155,16 @@ int value(t_token *token){ //todo равенства чего с чемто
         }else{
             hold_token();
             get_old_token(token);
-            if (string_param_cmp_arr(ast_node->type_variable, ast_node->count_expression, strin)) {
+            if (string_param_cmp_arr(check_type, ast_node->count_expression, strin)) {
                 ast_node->expression->str = true;
                 ast_node->expression->data_string = malloc(sizeof(t_str));
                 string_init(ast_node->expression->data_string);
                 string_copy(token->lexeme->inter, ast_node->expression->data_string);
-                exp_next();
+//                exp_next();
             } else {
+                if(ast_node->it_is_return)
+                    return ERROR_SEMANTIC_ANALYSIS_PARAM_IN_FUNC;
+
                 return ERROR_SEMANTIC_ANALYSIS_EQ;
             }
         }
@@ -1112,8 +1177,11 @@ int value(t_token *token){ //todo равенства чего с чемто
         }else{
             hold_token();
             get_old_token(token);
-            if(!string_param_cmp_arr(ast_node->type_variable, ast_node->count_expression, integ)) {
-                if (!string_param_cmp_arr(ast_node->type_variable, ast_node->count_expression, numb)) {
+            if(!string_param_cmp_arr(check_type, ast_node->count_expression, integ)) {
+                if (!string_param_cmp_arr(check_type, ast_node->count_expression, numb)) {
+                    if(ast_node->it_is_return)
+                        return ERROR_SEMANTIC_ANALYSIS_PARAM_IN_FUNC;
+
                     return ERROR_SEMANTIC_ANALYSIS_EQ;
                 }else{
                     ast_node->expression->numb = true;
@@ -1123,7 +1191,7 @@ int value(t_token *token){ //todo равенства чего с чемто
                 ast_node->expression->integer = true;
                 ast_node->expression->data_int = token->lexeme->integer;
             }
-            exp_next();
+//            exp_next();
         }
 
     }else if(token->token_name == TOKEN_NUMBER || token->token_name == TOKEN_NUMBER_EXPONENT){
@@ -1135,34 +1203,51 @@ int value(t_token *token){ //todo равенства чего с чемто
         }else{
             hold_token();
             get_old_token(token);
-            if(!string_param_cmp_arr(ast_node->type_variable, ast_node->count_expression, numb)) {
+            if(!string_param_cmp_arr(check_type, ast_node->count_expression, numb)) {
+                if(ast_node->it_is_return)
+                    return ERROR_SEMANTIC_ANALYSIS_PARAM_IN_FUNC;
+
                 return ERROR_SEMANTIC_ANALYSIS_EQ;
             }else{
                 ast_node->expression->numb = true;
                 ast_node->expression->data_double = token->lexeme->number;
             }
-            exp_next();
+//            exp_next();
         }
     }else if(token->token_name == TOKEN_LENGTH){
+        hold_token();
         //TODO прецеденчни
+    }else if(token->token_name == TOKEN_LEFT_BRACKET){
+        hold_token();
+        //TODO анализа прецеденчни
+    }else{
+        return ERROR_SEMANTIC_ANALYSIS_EQ;
     }
 
     GET_TOKEN(token);
     if(token->token_name == TOKEN_COMMA){
+        exp_next();
         if(value(token)){
             return ERROR_SEMANTIC_ANALYSIS;
             //TODO error
         }
     }else
     {
-        if(ast_node->count_variable > ast_node->count_expression)
+        if((check_count > ast_node->count_expression) && !ast_node->it_is_return)
         {
-            if(ast_node->count_expression != 1)
-            {
-                return ERROR_SEMANTIC_ANALYSIS_EQ;
-            }
+            return ERROR_SEMANTIC_ANALYSIS_EQ;
+//            if(ast_node->count_expression != 1)
+//            {
+//                return ERROR_SEMANTIC_ANALYSIS_EQ;
+//            }else{
+//                //todo проверка
+//            }
+        }
+        if(ast_node->expression->first_exp && !ast_node->it_is_return){
+            ast_node->expression = ast_node->expression->first_exp;
         }
         hold_token();
+
     }
     return IT_IS_OK;
 }
@@ -1241,6 +1326,7 @@ void ast_init(t_ast_node* ast){
     ast->global = NULL;
     ast->in_function = NULL;
     ast->local = NULL;
+    ast->function_info = NULL;
 
     ast->variable = NULL;
     ast->type_variable = NULL;
@@ -1255,6 +1341,7 @@ void ast_init(t_ast_node* ast){
     ast->expression = NULL;
     ast->count_expression = 0;
 
+
     ast->it_is_variable_ = false;
     ast->it_is_variable_expression = false;
     ast->it_is_variable_call_function = false;
@@ -1266,9 +1353,11 @@ void ast_init(t_ast_node* ast){
     ast->if_loop_end = false;
     ast->if_else = false;
     ast->it_is_in_function = false;
+    ast->it_is_return = false;
+    ast->it_is_return_exp = false;
+    ast->it_is_function_end = false;
     ast->first_node = NULL;
     ast->next_node = NULL;
-
 }
 void ast_free(t_ast_node* ast){
     if(ast->variable)
@@ -1282,6 +1371,15 @@ void ast_free(t_ast_node* ast){
         ast->next_node = ptr->next_node;
         free(ptr);
         ptr = ast->next_node;
+    }
+    if(ast_node->expression){
+        t_exp_list *p = ast->expression;
+        while (ast->next_node) {
+            ast->expression->next_exp = p->next_exp;
+            free(p);
+            p = ast->expression->next_exp;
+        }
+        free(ast->expression);
     }
 
     ast_init(ast);
@@ -1394,6 +1492,7 @@ int add_table_symbols_system_function(char* name){
 void send_ast(){
     code_gen(ast_node);
     if(ast_node->it_is_in_function || ast_node->it_is_function_define){
+        sData* fn = ast_node->function_info;
         node* gl = ast_node->global;
         node* in_f = ast_node->in_function;
         ast_free(ast_node);
@@ -1401,6 +1500,7 @@ void send_ast(){
         ast_node->it_is_in_function = true;
         ast_node->global = gl;
         ast_node->in_function = in_f;
+        ast_node->function_info = fn;
     }else{
         ast_free(ast_node);
         ast_init(ast_node);
@@ -1415,6 +1515,7 @@ void exp_init(t_exp_list* exp){
     exp->str = false;
     exp->integer = false;
     exp->numb =false;
+    exp->nil = false;
 
     exp->data_int = 0;
     exp->data_double = 0.0;
@@ -1436,6 +1537,7 @@ void if_loop_ast_next(){
     ptr->it_is_if = ast_node->it_is_if;
     ptr->it_is_in_function = ast_node->it_is_in_function;
     ptr->global = ast_node->global;
+    ptr->function_info = ast_node->function_info;
     ptr->in_function = ast_node->in_function;
     ptr->local = ast_node->local;
 

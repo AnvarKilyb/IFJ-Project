@@ -20,6 +20,7 @@ typedef struct s_exp_list{
     bool str;
     bool integer;
     bool numb;
+    bool nil;
     int data_int;
     double data_double;
     t_str* data_string;
@@ -32,6 +33,7 @@ typedef struct s_ast_node{
     node* global;
     node* in_function;
     node* local;
+    sData* function_info;
 
     t_str_param* variable;
     t_str_param* type_variable;
@@ -56,6 +58,10 @@ typedef struct s_ast_node{
     bool if_loop_end;
     bool if_else;
     bool it_is_in_function;
+    bool it_is_return;
+    bool it_is_return_exp;
+    bool it_is_start_if_loop;
+    bool it_is_function_end;
     struct s_ast_node *first_node;
     struct s_ast_node *next_node;
 }t_ast_node;
@@ -84,6 +90,7 @@ void send_ast();
 void exp_init(t_exp_list* exp);
 void exp_next();
 void if_loop_ast_next();
+int return_exp(t_token* token);
 /*
  *
  *

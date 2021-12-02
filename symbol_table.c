@@ -16,6 +16,7 @@ void s_data_init(sData* node){
     node->params = NULL;
     node->type_params = NULL;
 
+    node->was_return = false;
     node->count_returned_params = 0;
     node->type_returned_params = NULL;
 
