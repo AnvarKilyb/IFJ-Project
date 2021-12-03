@@ -125,6 +125,7 @@ typedef struct s_lexeme{
 typedef struct s_token{
     e_token_type token_name;
     t_lexeme* lexeme;
+    int str;
 }t_token;
 
 

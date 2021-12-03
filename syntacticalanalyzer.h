@@ -2,6 +2,9 @@
 #define IFJ_PROJEKT_SYNTACTICALANALYZER_H
 
 #define GET_TOKEN(token) if(get_token(token)) return ERROR_LEX_ANALYSIS
+#define RETURN_ERROR_NUMBER(ERR) ERROR_ALL = ERR; error_processing(); return ERROR_ALL
+#define RETURN_ERROR  return ERROR_ALL
+#define ERROR_TEXT(string_text) if(!error_check) {printf("Ошибка в строке %d \n", token->str); hold_token(); get_old_token(token); printf("после "); printf("%s ",token->lexeme->inter->data); get_token(token); printf("ошибка в "); printf("--> %s <-- ",token->lexeme->inter->data); printf("%s",string_text);} error_check = true
 #include "symbol_table.h"
 #include "lexicalanalysis.h"
 #include "string_param.h"
@@ -67,7 +70,7 @@ typedef struct s_ast_node{
 }t_ast_node;
 
 
-
+int start_analysis(t_token* token);
 int chunk(t_token *token);
 int function(t_token *token);
 int params(t_token *token, ul hash);
@@ -91,6 +94,7 @@ void exp_init(t_exp_list* exp);
 void exp_next();
 void if_loop_ast_next();
 int return_exp(t_token* token);
+void error_processing();
 /*
  *
  *

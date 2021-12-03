@@ -295,6 +295,7 @@ int find_token(t_token* token)
                 break;
 
             case LEXICAL_STATE_EOL:
+                token->str++;
                 if(symbol != ' ' && symbol != EOL){
                     ungetc(symbol,code_file);
                     state = LEXICAL_STATE_START;

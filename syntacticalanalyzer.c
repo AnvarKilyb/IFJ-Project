@@ -6,6 +6,7 @@ char strin[] = "string";
 char integ[] = "integer";
 char numb[] = "number";
 e_error_message ERROR_ALL = IT_IS_OK;
+bool error_check = false;
 
 
 node *global_table;
@@ -19,20 +20,20 @@ int start_program(t_token *token){
     if(token->lexeme->keyword == KEYWORD_REQUIRE) {
         GET_TOKEN(token);
         if (!string_arr_cmp(token->lexeme->inter, "ifj21")){
-            ERROR_ALL = ERROR_SYN_ANALYSIS;
-            return ERROR_ALL;
+            ERROR_TEXT("Ожидалось ifj21");
+            RETURN_ERROR_NUMBER(ERROR_SYN_ANALYSIS);
         }
     }
     else{
-        ERROR_ALL = ERROR_SYN_ANALYSIS;
-        return ERROR_ALL;
+        RETURN_ERROR_NUMBER(ERROR_SYN_ANALYSIS);
     }
 
 
     //TODO добавить переход в функцию в генераторе кода где будет реалтзована запись в строку начала программы
-    code_header();
+//    code_header();
     if(chunk(token)){
         return ERROR_SYN_ANALYSIS;
+//        RETURN_ERROR;
         //TODO ошибки
     }
     return IT_IS_OK;
@@ -196,8 +197,7 @@ int function(t_token *token){
                 global_table = tree_insert(global_table, hashcode(global_function->name->data), global_function);
             }
         }else{
-            return ERROR_SYN_ANALYSIS;
-            //TODO обработка ошибок
+            RETURN_ERROR_NUMBER(ERROR_SYN_ANALYSIS);
         }
 
         GET_TOKEN(token);
@@ -269,16 +269,22 @@ int function(t_token *token){
     }
 
     else{
-        if(function_call(token)){
-            return ERROR_SYN_ANALYSIS;
-            //TODO обработка ошибок
-        }
-        if(chunk(token)){
-            return ERROR_SYN_ANALYSIS;
-            //TODO обработка ошибок
-        }
+        GET_TOKEN(token);
+        if(token->token_name == TOKEN_LEFT_BRACKET){
+            hold_token();
+            if (function_call(token)) {
+                return ERROR_SYN_ANALYSIS;
+                //TODO обработка ошибок
+            }
+            if (chunk(token)) {
+                return ERROR_SYN_ANALYSIS;
+                //TODO обработка ошибок
+            }
 
-        return IT_IS_OK;
+            return IT_IS_OK;
+        }else{
+            RETURN_ERROR_NUMBER(ERROR_SYN_ANALYSIS);
+        }
     }
 
     return IT_IS_OK;
@@ -1639,9 +1645,11 @@ void error_processing(){
         stack_table = NULL;
     }
 
-    ast_free(ast_node);
-    free(ast_node);
-    ast_node = NULL;
+    if(ast_node){
+        ast_free(ast_node);
+        free(ast_node);
+        ast_node = NULL;
+    }
 }
 
 int start_analysis(t_token *token){
