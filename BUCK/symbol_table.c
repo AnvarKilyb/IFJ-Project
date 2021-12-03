@@ -99,24 +99,6 @@ node *tree_delete(node *root){
     // Тут будет освобождение памяти data
 
     // Освобождение памяти узлов
-    if(root->data){
-        if(root->data->name){
-            string_free(root->data->name);
-        }
-        if(root->data->type){
-            string_free(root->data->type);
-        }
-        if(root->data->params){
-            string_param_free(root->data->params);
-        }
-        if(root->data->type_params){
-            string_param_free(root->data->type_params);
-        }
-        if(root->data->data_string){
-            string_free(root->data->data_string);
-        }
-        free(root->data);
-    }
     free(root);
     root = NULL;
     return root;

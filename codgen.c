@@ -29,39 +29,39 @@ int code_header(){
 //    return IT_IS_OK;
 //}
 int code_gen(t_ast_node *ast_tree){
-    printf("-------------------------------------------------------------------------------\n");
-    if(ast_tree->func){
-        printf("%s  ", ast_tree->func->name->data);
-        printf("%s  ", ast_tree->func->type->data);
-        printf("\t");
-        for (int i = 0; i < ast_tree->func->count_params; i++) {
-            printf("%s  ", ast_tree->func->params->data[i]->data);
-        }
-        for (int i = 0; i < ast_tree->func->count_params; i++) {
-            printf("%s  ", ast_tree->func->type_params->data[i]->data);
-        }
-
-        if(ast_tree->func->type_returned_params){
-            printf(":");
-            for (int i = 0; i < ast_tree->func->count_returned_params; i++) {
-                printf("%s  ", ast_tree->func->type_returned_params->data[i]->data);
-            }
-        }
-        printf("\n");
-
-    }
-
-    if(ast_tree->variable) {
-        for (int i = 0; i < ast_tree->count_variable; i++) {
-            printf("%s  ", ast_tree->variable->data[i]->data);
-        }
-        if(ast_tree->type_variable) {
-            for (int i = 0; i < ast_tree->count_variable; i++) {
-                printf("%s  ", ast_tree->type_variable->data[i]->data);
-            }
-            printf("\n");
-        }
-    }
+//    printf("-------------------------------------------------------------------------------\n");
+//    if(ast_tree->func){
+//        printf("%s  ", ast_tree->func->name->data);
+//        printf("%s  ", ast_tree->func->type->data);
+//        printf("\t");
+//        for (int i = 0; i < ast_tree->func->count_params; i++) {
+//            printf("%s  ", ast_tree->func->params->data[i]->data);
+//        }
+//        for (int i = 0; i < ast_tree->func->count_params; i++) {
+//            printf("%s  ", ast_tree->func->type_params->data[i]->data);
+//        }
+//
+//        if(ast_tree->func->type_returned_params){
+//            printf(":");
+//            for (int i = 0; i < ast_tree->func->count_returned_params; i++) {
+//                printf("%s  ", ast_tree->func->type_returned_params->data[i]->data);
+//            }
+//        }
+//        printf("\n");
+//
+//    }
+//
+//    if(ast_tree->variable) {
+//        for (int i = 0; i < ast_tree->count_variable; i++) {
+//            printf("%s  ", ast_tree->variable->data[i]->data);
+//        }
+//        if(ast_tree->type_variable) {
+//            for (int i = 0; i < ast_tree->count_variable; i++) {
+//                printf("%s  ", ast_tree->type_variable->data[i]->data);
+//            }
+//            printf("\n");
+//        }
+//    }
 
 //    if(!program_body){
 //       if(string_init(program_body)){

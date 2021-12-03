@@ -422,3 +422,76 @@
 //    }
 //    return IT_IS_OK;
 //}
+
+
+
+
+//int args(t_token *token){ //TODO предпологаю что функция будет определять параметры есть или нет
+//    GET_TOKEN(token);
+//    if(ast_node->count_func_param >= ast_node->func->count_params){
+//        return ERROR_SEMANTIC_ANALYSIS_PARAM_IN_FUNC;
+//    }else{
+//        ast_node->count_func_param++;
+//    }
+//
+//    if(!ast_node->func_param){
+//        ast_node->func_param = malloc(sizeof (t_str_param));
+//        string_param_init(ast_node->func_param);
+//    }
+//
+//    if(token->token_name == TOKEN_INTEGER){
+//        if(string_param_cmp_arr(ast_node->func->type_params,ast_node->count_func_param,integ) ||
+//           string_param_cmp_arr(ast_node->func->type_params,ast_node->count_func_param,numb)){
+//            //записываем число в параметры;
+//            string_param_copy_string(ast_node->func_param, token->lexeme->inter);
+//        }else{
+//            return ERROR_SEMANTIC_ANALYSIS_PARAM_IN_FUNC;
+//        }
+//    }else if(token->token_name == TOKEN_STRING){
+//        if(string_param_cmp_arr(ast_node->func->type_params,ast_node->count_func_param,strin)){
+//            //записываем строку в параметры;
+//            string_param_copy_string(ast_node->func_param, token->lexeme->inter);
+//        }else{
+//            return ERROR_SEMANTIC_ANALYSIS_PARAM_IN_FUNC;
+//        }
+//    }else if(token->token_name == TOKEN_NUMBER || token->token_name == TOKEN_NUMBER_EXPONENT ){
+//        if(string_param_cmp_arr(ast_node->func->type_params,ast_node->count_func_param,numb)){
+//            //записываем число в параметры;
+//            string_param_copy_string(ast_node->func_param, token->lexeme->inter);
+//        }else{
+//            return ERROR_SEMANTIC_ANALYSIS_PARAM_IN_FUNC;
+//        }
+//    }else if(token->token_name == TOKEN_IDENTIFIER){
+//        if(ast_node->it_is_in_function){
+//            if((ast_node->it_is_loop || ast_node->it_is_if) && ast_node->local){
+//                node* function_var = tree_search(ast_node->local, hashcode(token->lexeme->inter->data));
+//                if(function_var){
+//                    string_param_copy_string(ast_node->func_param, token->lexeme->inter);
+//                }else{
+//                    function_var = tree_search(ast_node->in_function, hashcode(token->lexeme->inter->data));
+//                    if(function_var){
+//                        string_param_copy_string(ast_node->func_param, token->lexeme->inter);
+//                    }else{
+//                        return ERROR_SEMANTIC_ANALYSIS_PARAM_IN_FUNC;
+//                    }
+//                }
+//            }else{
+//                node* function_var = tree_search(ast_node->in_function, hashcode(token->lexeme->inter->data));
+//                if(function_var){
+//                    string_param_copy_string(ast_node->func_param, token->lexeme->inter);
+//                }else{
+//                    return ERROR_SEMANTIC_ANALYSIS_PARAM_IN_FUNC;
+//                }
+//            }
+//        }else{
+//            return ERROR_SEMANTIC_ANALYSIS_PARAM_IN_FUNC;
+//        }
+//    }else{
+//        return ERROR_SYN_ANALYSIS;
+//        // ожидался параметр
+//    }
+//    if(next_args(token)){
+//        return ERROR_SEMANTIC_ANALYSIS_PARAM_IN_FUNC;
+//    }
+//    return IT_IS_OK;
+//}
