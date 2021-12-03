@@ -1233,12 +1233,13 @@ int value(t_token *token){
                 ast_node->expression->data_string = malloc(sizeof(t_str));
                 string_init(ast_node->expression->data_string);
                 string_copy(token->lexeme->inter, ast_node->expression->data_string);
-//                exp_next();
             } else {
-                if(ast_node->it_is_return)
-                    return ERROR_SEMANTIC_ANALYSIS_PARAM_IN_FUNC;
-
-                return ERROR_SEMANTIC_ANALYSIS_EQ;
+                if(ast_node->it_is_return) {
+                    ERROR_TEXT("the function does not return a string");
+                    RETURN_ERROR_NUMBER(ERROR_SEMANTIC_ANALYSIS_PARAM_IN_FUNC);
+                }
+                ERROR_TEXT("the type of the variable and the value assigned to it do not match");
+                RETURN_ERROR_NUMBER(ERROR_SEMANTIC_ANALYSIS_EQ);
             }
         }
     }else if(token->token_name == TOKEN_INTEGER){
