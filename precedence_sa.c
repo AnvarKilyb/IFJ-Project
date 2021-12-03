@@ -450,6 +450,7 @@ AST_leaf *precede_expression(t_token *token){
     while(1);
 
     stack_free(&stack);
+    hold_token();
     return tree;
 }
 
