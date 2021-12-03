@@ -81,7 +81,7 @@ void delete_ast(AST_leaf *leaf);
 static prec_index get_prec_index(prec_symbol symbol);
 static prec_symbol get_symbol_from_token(t_token *token);
 int find_operation(t_token *token, t_stack *stack);
-AST_leaf *reduce_by_rule(t_stack *tmp_stack, t_stack *stack, AST_leaf *tree);
-AST_leaf *get_expression(t_token *token, t_stack *stack, AST_leaf *tree);
-AST_leaf *precede_expression(t_token *token);
+AST_leaf *reduce_by_rule(t_stack *tmp_stack, t_stack *stack, AST_leaf *tree, e_error_message *e_check);
+AST_leaf *get_expression(t_token *token, t_stack *stack, AST_leaf *tree, e_error_message *e_check);
+AST_leaf *precede_expression(t_token *token,t_ast_node *ast_node, e_error_message *e_check);
 #endif
