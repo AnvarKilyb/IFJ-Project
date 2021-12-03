@@ -254,7 +254,7 @@ int find_operation(t_token *token, t_stack *stack){
     return ERROR_INTERNAL;
 }
 
-AST_leaf *reduce_by_rule(t_stack *tmp_stack, t_stack *stack, AST_leaf *tree){
+AST_leaf *reduce_by_rule(t_stack *tmp_stack, t_stack *stack, AST_leaf *tree, e_error_message *e_check){
     AST_leaf *top_item = stack_top(tmp_stack)->root;
     AST_leaf *new_tree;
     prec_symbol check_symbol = stack_top(tmp_stack)->symbol;
@@ -369,7 +369,7 @@ AST_leaf *reduce_by_rule(t_stack *tmp_stack, t_stack *stack, AST_leaf *tree){
 
 }
 
-AST_leaf *get_expression(t_token *token, t_stack *stack, AST_leaf *tree){
+AST_leaf *get_expression(t_token *token, t_stack *stack, AST_leaf *tree, e_error_message *e_check){
     AST_leaf *tmp_item = create_leaf(token);
     AST_leaf *top_item;
     int operation = find_operation(token, stack);
@@ -407,19 +407,19 @@ AST_leaf *get_expression(t_token *token, t_stack *stack, AST_leaf *tree){
             top_symbol = stack_top(stack)->symbol;
         }while(top_symbol != PREC_STOP);
         stack_pop(stack);
-        tree = reduce_by_rule(&tmp_stack, stack, tree);
+        tree = reduce_by_rule(&tmp_stack, stack, tree, e_check);
 
     }
     return tree;
 }
 
-AST_leaf *precede_expression(t_token *token){
+AST_leaf *precede_expression(t_token *token,t_ast_node *ast_node, e_error_message *e_check){
     t_stack stack;
     prec_symbol token_symbol, top_symbol;
     AST_leaf *tree;
     int operation;
-    bool stop = false;
 
+    t_str *check_type = ast_node->in_function->data->type;
     stack_init(&stack);
     stack_push(&stack, NULL, PREC_DOLLAR);
 
@@ -434,21 +434,22 @@ AST_leaf *precede_expression(t_token *token){
         if(operation == 2){ // >
             while(operation == 2){
                 operation = find_operation(token, &stack);
-                tree = get_expression(token, &stack, tree);
+                tree = get_expression(token, &stack, tree, e_check);
             }
         }
         else if(operation == 1 || operation == 0){ // < , =
-            tree = get_expression(token, &stack, tree);
+            tree = get_expression(token, &stack, tree, e_check);
         }
         else{ // empty
-            //TODO ERROR
+            e_check = ERROR_SEMANTIC_ANALYSIS_EXPR;
             return NULL;
         }
         if(get_symbol_from_token(token) != PREC_DOLLAR)
             GET_TOKEN(token);
+        check_type = ast_node->in_function->right_node->data;
     }
     while(1);
-
+    e_check = IT_IS_OK;
     stack_free(&stack);
     hold_token();
     return tree;
