@@ -234,6 +234,7 @@ int find_token(t_token* token)
             case LEXICAL_STATE_COMMENT_LINE_OR_BLOCK:
                 if(symbol == EOL)
                 {
+                    token->str++;
                     state = LEXICAL_STATE_START;
                     break;
                 }else if(symbol == '['){
@@ -247,6 +248,7 @@ int find_token(t_token* token)
             case LEXICAL_STATE_COMMENT_LINE:
                 if(symbol == EOL || symbol == EOF)
                 {
+                    token->str++;
                     state = LEXICAL_STATE_START;
                     break;
                 }else{
@@ -582,6 +584,7 @@ void get_old_token(t_token* token){
     token_save->lexeme = token->lexeme;
     token->token_name = old_token->token_name;
     token->lexeme = old_token->lexeme;
+    token->str = old_token->str;
 }
 
 void to_old_token(t_token* token){
@@ -590,6 +593,7 @@ void to_old_token(t_token* token){
     old_token->lexeme->integer = token->lexeme->integer;
     old_token->lexeme->number = token->lexeme->number;
     string_copy(token->lexeme->inter,old_token->lexeme->inter);
+    old_token->str = token->str;
 
 }
 int get_token(t_token* token)

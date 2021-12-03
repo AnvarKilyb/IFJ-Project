@@ -25,6 +25,7 @@ int start_program(t_token *token){
         }
     }
     else{
+        ERROR_TEXT("require expected");
         RETURN_ERROR_NUMBER(ERROR_SYN_ANALYSIS);
     }
 
@@ -262,7 +263,8 @@ int function(t_token *token){
                 //TODO обработка ошибок
             }
         }else{
-            return ERROR_SYN_ANALYSIS;
+            ERROR_TEXT("expected end");
+            RETURN_ERROR_NUMBER(ERROR_SYN_ANALYSIS);
             //TODO ожидался end
         }
         return IT_IS_OK;
@@ -273,16 +275,16 @@ int function(t_token *token){
         if(token->token_name == TOKEN_LEFT_BRACKET){
             hold_token();
             if (function_call(token)) {
-                return ERROR_SYN_ANALYSIS;
-                //TODO обработка ошибок
+                RETURN_ERROR;
             }
             if (chunk(token)) {
-                return ERROR_SYN_ANALYSIS;
-                //TODO обработка ошибок
+                RETURN_ERROR;
             }
 
             return IT_IS_OK;
         }else{
+            get_old_token(token);
+            ERROR_TEXT("Either a function definition, a function declaration, or a function call was expected");
             RETURN_ERROR_NUMBER(ERROR_SYN_ANALYSIS);
         }
     }
@@ -335,7 +337,7 @@ int return_types(t_token *token, ul hash){
     return IT_IS_OK;
 }
 
-int variable_data_type(t_token* token, ul hash){
+int variable_data_type(t_token* token, ul hash){ ///проверенна
     GET_TOKEN(token);
     if(token->lexeme->keyword == KEYWORD_INTEGER || token->lexeme->keyword == KEYWORD_NUMBER || token->lexeme->keyword == KEYWORD_STRING){
         node* in_function = tree_search(table_top(stack_table),hash);
@@ -348,7 +350,8 @@ int variable_data_type(t_token* token, ul hash){
         string_param_init(ast_node->type_variable);
         string_param_copy_string(ast_node->type_variable, token->lexeme->inter);
     }else{
-        return ERROR_SYN_ANALYSIS;
+        ERROR_TEXT("expected variable type");
+        RETURN_ERROR_NUMBER(ERROR_SYN_ANALYSIS);;
     }
     return IT_IS_OK;
 }
@@ -359,15 +362,16 @@ int statement(t_token *token){
         sData* function_var = NULL;
         GET_TOKEN(token);
         if(token->token_name == TOKEN_IDENTIFIER){
-            //TODO add to symbol table
             ul hash = hashcode(token->lexeme->inter->data);
             node* check_var = tree_search(table_top(stack_table),hash);
             if(check_var){
-                return ERROR_SEMANTIC_ANALYSIS;
+                ERROR_TEXT("a variable with the given name has already been defined in the block");
+                RETURN_ERROR_NUMBER(ERROR_SEMANTIC_ANALYSIS);
             }
             check_var = tree_search(global_table,hash);
             if(check_var){
-                return ERROR_SEMANTIC_ANALYSIS;
+                ERROR_TEXT("the name of the variable being defined is the same as the name of the function");
+                RETURN_ERROR_NUMBER(ERROR_SEMANTIC_ANALYSIS);
             }
             function_var = malloc(sizeof (sData));
             function_var->name = malloc(sizeof (t_str));
@@ -376,14 +380,26 @@ int statement(t_token *token){
             if(ast_node->it_is_if || ast_node->it_is_loop)
             {
                 node* in_function = NULL;
-                in_function = tree_insert(in_function, hash, function_var);
-                table_push(stack_table,in_function);
+                in_function = table_top(stack_table);
+                if(!in_function){
+                    in_function = tree_insert(in_function, hash, function_var);
+                    table_push(stack_table,in_function);
+                }else{
+                    in_function = tree_insert(in_function, hash, function_var);
+                }
             }else{
                 node* in_function = table_top(stack_table);
-                in_function = tree_insert(in_function, hash, function_var);
+                if(!in_function){
+                    in_function = tree_insert(in_function, hash, function_var);
+                    table_push(stack_table,in_function);
+                }else{
+                    in_function = tree_insert(in_function, hash, function_var);
+                }
             }
 
-
+            if(!ast_node->in_function){
+                ast_node->in_function = table_top(stack_table);
+            }
             ast_node->it_is_declaration_variable = true;
             ast_node->count_variable++;
             ast_node->variable = malloc(sizeof (t_str_param));
@@ -391,26 +407,24 @@ int statement(t_token *token){
             string_param_copy_string(ast_node->variable,token->lexeme->inter);
         }else
         {
-            return ERROR_SYN_ANALYSIS;
-            //TODO ошибка
+            ERROR_TEXT("variable name expected");
+            RETURN_ERROR_NUMBER(ERROR_SYN_ANALYSIS);
         }
         GET_TOKEN(token);
         if(token->token_name != TOKEN_ASSIGNMENT_TYPE){
-            return ERROR_SYN_ANALYSIS;
-            //TODO error
+            ERROR_TEXT("colon was expected after variable name");
+            RETURN_ERROR_NUMBER(ERROR_SYN_ANALYSIS);
         }
 
         if(variable_data_type(token, hashcode(function_var->name->data))){
-            return ERROR_SYN_ANALYSIS;;
-            //TODO error
+            RETURN_ERROR;
         }
 
         GET_TOKEN(token);
         if(token->token_name == TOKEN_ASSIGNMENT){
             ast_node->it_is_variable_ = true;
             if(value(token)){
-                return ERROR_SYN_ANALYSIS;
-                //TODO error
+                RETURN_ERROR;
             }else{
                 if(ast_node->it_is_loop || ast_node->it_is_if)
                     if_loop_ast_next();
@@ -1048,6 +1062,8 @@ int params(t_token *token, ul hash){
     }else if(function_node->data->count_params != 0){
         return ERROR_SYN_ANALYSIS;
         //TODO количесво параметров в декларации и дефиниции не совпадает
+    }else if(function_node->data->count_params == 0){
+        hold_token();
     }
     // -> ε
     return IT_IS_OK;
@@ -1110,11 +1126,11 @@ int next_param(t_token *token, node* function_node, bool ret_param){
     return IT_IS_OK;
 }
 
-int value(t_token *token){ //todo равенства чего с чемто
-    //TODO first write the prec analysis table in code
+int value(t_token *token){
     ast_node->count_expression++;
 
     t_str_param* check_type = NULL;
+    // счетчик для проверки равенства переменных и выражения
     int check_count = 0;
     if(ast_node->it_is_return){
         check_type = ast_node->function_info->type_returned_params;
@@ -1125,7 +1141,8 @@ int value(t_token *token){ //todo равенства чего с чемто
     }
 
     if(check_count < ast_node->count_expression){
-        return ERROR_SEMANTIC_ANALYSIS_EQ;
+        ERROR_TEXT("the number of expressions in the assignment is greater than the number of variables");
+        RETURN_ERROR_NUMBER(ERROR_SEMANTIC_ANALYSIS_EQ);
     }
 
     if(!ast_node->expression){
@@ -1139,22 +1156,25 @@ int value(t_token *token){ //todo равенства чего с чемто
         if((token->token_name == TOKEN_LEFT_BRACKET) && !ast_node->it_is_return){
             //Есили в присвоение несколько раз вызов функции
             if (ast_node->count_expression > 1) {
-                return ERROR_SEMANTIC_ANALYSIS;
+                ERROR_TEXT("the function in the assignment can be called at most once");
+                RETURN_ERROR_NUMBER(ERROR_SEMANTIC_ANALYSIS_ALL);
             }
+            check_count = ast_node->count_expression;
             hold_token();
             get_old_token(token);
             if (function_call(token)) {
-                return ERROR_SYN_ANALYSIS;
-                //TODO error
+                RETURN_ERROR;
             }
         }else if(token->token_name == TOKEN_CONCATENATION) {
             hold_token();
             get_old_token(token);
             if (!string_param_cmp_arr(check_type, ast_node->count_expression, strin)) {
-                if(ast_node->it_is_return)
-                    return ERROR_SEMANTIC_ANALYSIS_PARAM_IN_FUNC;
-
-                return ERROR_SEMANTIC_ANALYSIS_EQ;
+                if(ast_node->it_is_return){
+                    ERROR_TEXT("expected string of variable type mismatch");
+                    RETURN_ERROR_NUMBER(ERROR_SEMANTIC_ANALYSIS_PARAM_IN_FUNC);
+                }
+                ERROR_TEXT("expected string of variable type mismatch");
+                RETURN_ERROR_NUMBER(ERROR_SEMANTIC_ANALYSIS_EXPR);
                 //TODO error
             }
             //TODO прецеденчни анализа
@@ -1171,14 +1191,15 @@ int value(t_token *token){ //todo равенства чего с чемто
                 if(!function_var){
                     function_var = tree_search(ast_node->in_function, hashcode(token->lexeme->inter->data));
                     if(!function_var){
-                        return ERROR_SEMANTIC_ANALYSIS;
-
+                        ERROR_TEXT("the variable being assigned was not defined");
+                        RETURN_ERROR_NUMBER(ERROR_SEMANTIC_ANALYSIS);
                     }
                 }
             }else{
                 function_var = tree_search(ast_node->in_function, hashcode(token->lexeme->inter->data));
                 if(!function_var){
-                    return ERROR_SEMANTIC_ANALYSIS;
+                    ERROR_TEXT("the variable being assigned was not defined");
+                    RETURN_ERROR_NUMBER(ERROR_SEMANTIC_ANALYSIS);
                 }
             }
             //если переменная идентифицирована то аллакуем под нее все
@@ -1188,13 +1209,14 @@ int value(t_token *token){ //todo равенства чего с чемто
                 ast_node->expression->variable = malloc(sizeof(t_str));
                 string_init(ast_node->expression->variable);
                 string_copy(token->lexeme->inter,ast_node->expression->variable);
-
-//                exp_next();
-
             }else{
-                if(ast_node->it_is_return)
-                    return ERROR_SEMANTIC_ANALYSIS_PARAM_IN_FUNC;
+                if(ast_node->it_is_return){
+                    ERROR_TEXT("the type of the variable returned by the function does not match the definition");
+                    RETURN_ERROR_NUMBER(ERROR_SEMANTIC_ANALYSIS_PARAM_IN_FUNC);
+                }
 
+                ERROR_TEXT("the type of the variable and the value assigned to it do not match");
+                RETURN_ERROR_NUMBER(ERROR_SEMANTIC_ANALYSIS_EQ);
                 return ERROR_SEMANTIC_ANALYSIS_EQ;
                 //TODO error
             }

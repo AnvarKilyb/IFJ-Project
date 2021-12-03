@@ -4,7 +4,7 @@
 #define GET_TOKEN(token) if(get_token(token)) return ERROR_LEX_ANALYSIS
 #define RETURN_ERROR_NUMBER(ERR) ERROR_ALL = ERR; error_processing(); return ERROR_ALL
 #define RETURN_ERROR  return ERROR_ALL
-#define ERROR_TEXT(string_text) if(!error_check) {printf("Ошибка в строке %d \n", token->str); hold_token(); get_old_token(token); printf("после "); printf("%s ",token->lexeme->inter->data); get_token(token); printf("ошибка в "); printf("--> %s <-- ",token->lexeme->inter->data); printf("%s",string_text);} error_check = true
+#define ERROR_TEXT(string_text) if(!error_check) {printf("ERROR: in string #%d ", token->str); printf("[in "); printf("--> %s <-- ",token->lexeme->inter->data); printf("%s]",string_text);} error_check = true
 #include "symbol_table.h"
 #include "lexicalanalysis.h"
 #include "string_param.h"
