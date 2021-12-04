@@ -1490,6 +1490,7 @@ int value(t_token *token){ ///проверенна
             if(ERROR_ALL != IT_IS_OK){
                 error_check = true;//TODO
             }
+            ast_node->expression->preced_expression_tree = tree;
         }else{
             hold_token();
             get_old_token(token);

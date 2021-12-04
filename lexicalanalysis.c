@@ -403,7 +403,14 @@ int find_token(t_token* token)
                     break;
                 }
                 else{
-                    string_wright_char(string, symbol);
+                    if(symbol == ' '){
+                        string_wright_char(string,'\\');
+                        string_wright_char(string,'0');
+                        string_wright_char(string,'3');
+                        string_wright_char(string,'2');
+                    }else{
+                        string_wright_char(string, symbol);
+                    }
                     break;
                 }
 

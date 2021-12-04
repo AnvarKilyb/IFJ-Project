@@ -46,11 +46,11 @@ typedef struct s_ast_node{
 
     sData* func;
 //    t_str_param* func_param;
-    int count_func_param;
 
 
     t_exp_list* expression;
     int count_expression;
+    int count_func_param;
 
     bool it_is_variable_;
     bool it_is_variable_expression;
