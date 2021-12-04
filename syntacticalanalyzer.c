@@ -1400,7 +1400,10 @@ int value(t_token *token){ ///проверенна
             hold_token();
             get_old_token(token);
             AST_leaf *tree;
-            tree = precede_expression(token);
+            tree = precede_expression(token, ast_node, &ERROR_ALL);
+            if(ERROR_ALL != IT_IS_OK){
+                error_check = true;//TODO
+            }
         }else{
             hold_token();
             get_old_token(token);
