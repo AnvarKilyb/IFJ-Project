@@ -90,10 +90,10 @@ int global_params(t_token *token, ul hash);
 void ast_init(t_ast_node* ast);
 void ast_free(t_ast_node* ast);
 int next_args(t_token* token);
-void send_ast();
+int send_ast();
 void exp_init(t_exp_list* exp);
-void exp_next();
-void if_loop_ast_next();
+int exp_next();
+int if_loop_ast_next();
 int return_exp(t_token* token);
 void error_processing();
 /*

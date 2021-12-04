@@ -34,9 +34,8 @@ int start_program(t_token *token){
     //TODO добавить переход в функцию в генераторе кода где будет реалтзована запись в строку начала программы
 //    code_header();
     if(chunk(token)){
-        return ERROR_SYN_ANALYSIS;
-//        RETURN_ERROR;
-        //TODO ошибки
+//        return ERROR_SYN_ANALYSIS;
+        RETURN_ERROR;
     }
     return IT_IS_OK;
 
@@ -49,8 +48,7 @@ int chunk(t_token *token){
         return IT_IS_OK;
     }
     if(function(token)){
-        return ERROR_SYN_ANALYSIS;
-//        RETURN_ERROR;
+       RETURN_ERROR;
     }
     return IT_IS_OK;
 }
@@ -305,6 +303,7 @@ int function(t_token *token){
         if(token->token_name == TOKEN_KEYWORD && token->lexeme->keyword == KEYWORD_END){
             ast_node->it_is_function_end = true;
             send_ast();
+            ast_node->it_is_in_function = false;
             if(chunk(token)){
                 RETURN_ERROR;
             }
@@ -320,6 +319,7 @@ int function(t_token *token){
         GET_TOKEN(token);
         if(token->token_name == TOKEN_LEFT_BRACKET){
             hold_token();
+            get_old_token(token);
             if (function_call(token)) {
                 RETURN_ERROR;
             }
@@ -535,17 +535,27 @@ int statement(t_token *token){ ///проверенная кроме if и while
             if(value(token)){
                 RETURN_ERROR;
             }else{
-                if(ast_node->it_is_loop || ast_node->it_is_if)
-                    if_loop_ast_next();
-                else
-                    send_ast();
+                if(ast_node->it_is_loop || ast_node->it_is_if) {
+                    if (if_loop_ast_next()) {
+                        RETURN_ERROR_NUMBER(ERROR_INTERNAL);
+                    }
+                }else{
+                    if(send_ast()){
+                        RETURN_ERROR;
+                    }
+                }
             }
         }else{ //если не равно то мы должны либо отправить узел, либо продолжить лист если это while или if
             hold_token();
-            if(ast_node->it_is_loop || ast_node->it_is_if)
-               if_loop_ast_next();
-            else
-                send_ast();
+            if(ast_node->it_is_loop || ast_node->it_is_if) {
+                if (if_loop_ast_next()) {
+                    RETURN_ERROR_NUMBER(ERROR_INTERNAL);
+                }
+            }else{
+                if(send_ast()){
+                    RETURN_ERROR;
+                }
+            }
         }
 
         if(statement(token)){
@@ -619,10 +629,15 @@ int statement(t_token *token){ ///проверенная кроме if и while
             if (value(token)) {
                 RETURN_ERROR;
             } else {
-                if (ast_node->it_is_loop || ast_node->it_is_if)
-                    if_loop_ast_next();
-                else
-                    send_ast();
+                if(ast_node->it_is_loop || ast_node->it_is_if) {
+                    if (if_loop_ast_next()) {
+                        RETURN_ERROR_NUMBER(ERROR_INTERNAL);
+                    }
+                }else{
+                    if(send_ast()){
+                        RETURN_ERROR;
+                    }
+                }
             }
 
             if (statement(token)) {
@@ -654,7 +669,9 @@ int statement(t_token *token){ ///проверенная кроме if и while
             //TODO error
         } else{
             ast_node->if_else = true;
-            if_loop_ast_next();
+            if(if_loop_ast_next()){
+                RETURN_ERROR_NUMBER(ERROR_INTERNAL);
+            }
         }
 
         if(!statement(token)){
@@ -716,7 +733,9 @@ int statement(t_token *token){ ///проверенная кроме if и while
             if(ast_node->count_expression < ast_node->function_info->count_returned_params){
                 ast_node->it_is_return_exp = true;
                 while(ast_node->count_expression < ast_node->function_info->count_returned_params){
-                    exp_next();
+                    if(exp_next()){
+                        RETURN_ERROR_NUMBER(ERROR_INTERNAL);
+                    }
                     ast_node->expression->nil = true;
                     ast_node->count_expression++;
                 }
@@ -724,10 +743,15 @@ int statement(t_token *token){ ///проверенная кроме if и while
                     ast_node->expression = ast_node->expression->first_exp;
                 }
             }
-            if(ast_node->it_is_loop || ast_node->it_is_if)
-                if_loop_ast_next();
-            else
-                send_ast();
+            if(ast_node->it_is_loop || ast_node->it_is_if) {
+                if (if_loop_ast_next()) {
+                    RETURN_ERROR_NUMBER(ERROR_INTERNAL);
+                }
+            }else{
+                if(send_ast()){
+                    RETURN_ERROR;
+                }
+            }
         }
         if(statement(token)){
             RETURN_ERROR;
@@ -819,10 +843,11 @@ int function_call(t_token *token){ /// проверенная
     return IT_IS_OK;
 }
 
-int args(t_token *token){ //TODO предпологаю что функция будет определять параметры есть или нет
+int args(t_token *token){ /// проверенная
     GET_TOKEN(token);
     if(ast_node->count_func_param >= ast_node->func->count_params){
-        return ERROR_SEMANTIC_ANALYSIS_PARAM_IN_FUNC;
+        ERROR_TEXT("the number of function parameters received does not match the declaration or definition");
+        RETURN_ERROR_NUMBER(ERROR_SEMANTIC_ANALYSIS_PARAM_IN_FUNC);
     }else{
         ast_node->count_func_param++;
     }
@@ -833,6 +858,9 @@ int args(t_token *token){ //TODO предпологаю что функция б
 //    }
     if(!ast_node->expression){
         ast_node->expression = malloc(sizeof (t_exp_list));
+        if(!ast_node->expression){
+            RETURN_ERROR_NUMBER(ERROR_INTERNAL);
+        }
         exp_init(ast_node->expression);
     }
 
@@ -843,17 +871,26 @@ int args(t_token *token){ //TODO предпологаю что функция б
             ast_node->expression->integer = true;
             ast_node->expression->data_int = token->lexeme->integer;
         }else{
-            return ERROR_SEMANTIC_ANALYSIS_PARAM_IN_FUNC;
+            ERROR_TEXT("the function does not take an integer parameter as the given parameter");
+            RETURN_ERROR_NUMBER(ERROR_SEMANTIC_ANALYSIS_PARAM_IN_FUNC);
         }
     }else if(token->token_name == TOKEN_STRING){
         if(string_param_cmp_arr(ast_node->func->type_params,ast_node->count_func_param,strin)){
             //записываем строку в параметры;
             ast_node->expression->str = true;
             ast_node->expression->data_string = malloc(sizeof(t_str));
-            string_init(ast_node->expression->data_string);
-            string_copy(token->lexeme->inter,ast_node->expression->data_string);
+            if(!ast_node->expression->data_string){
+                RETURN_ERROR_NUMBER(ERROR_INTERNAL);
+            }
+            if(string_init(ast_node->expression->data_string)){
+                RETURN_ERROR_NUMBER(ERROR_INTERNAL);
+            }
+            if(string_copy(token->lexeme->inter,ast_node->expression->data_string)){
+                RETURN_ERROR_NUMBER(ERROR_INTERNAL);
+            }
         }else{
-            return ERROR_SEMANTIC_ANALYSIS_PARAM_IN_FUNC;
+            ERROR_TEXT("the function does not take a string parameter as the given parameter");
+            RETURN_ERROR_NUMBER(ERROR_SEMANTIC_ANALYSIS_PARAM_IN_FUNC);
         }
     }else if(token->token_name == TOKEN_NUMBER || token->token_name == TOKEN_NUMBER_EXPONENT){
         if(string_param_cmp_arr(ast_node->func->type_params,ast_node->count_func_param,numb)){
@@ -861,7 +898,8 @@ int args(t_token *token){ //TODO предпологаю что функция б
             ast_node->expression->numb = true;
             ast_node->expression->data_double = token->lexeme->number;
         }else{
-            return ERROR_SEMANTIC_ANALYSIS_PARAM_IN_FUNC;
+            ERROR_TEXT("the function does not take a number parameter as the given parameter");
+            RETURN_ERROR_NUMBER(ERROR_SEMANTIC_ANALYSIS_PARAM_IN_FUNC);
         }
     }else if(token->token_name == TOKEN_IDENTIFIER){
         if(ast_node->it_is_in_function){
@@ -873,10 +911,18 @@ int args(t_token *token){ //TODO предпологаю что функция б
                         //записываем
                         ast_node->expression->var = true;
                         ast_node->expression->variable = malloc(sizeof (t_str));
-                        string_init(ast_node->expression->variable);
-                        string_copy(token->lexeme->inter,ast_node->expression->variable);
+                        if(!ast_node->expression->variable){
+                            RETURN_ERROR_NUMBER(ERROR_INTERNAL);
+                        }
+                        if(string_init(ast_node->expression->variable)){
+                            RETURN_ERROR_NUMBER(ERROR_INTERNAL);
+                        }
+                        if(string_copy(token->lexeme->inter,ast_node->expression->variable)){
+                            RETURN_ERROR_NUMBER(ERROR_INTERNAL);
+                        }
                     }else{
-                        return ERROR_SEMANTIC_ANALYSIS_PARAM_IN_FUNC;
+                        ERROR_TEXT("the function does not accept parameters of this type as the given parameter");
+                        RETURN_ERROR_NUMBER(ERROR_SEMANTIC_ANALYSIS_PARAM_IN_FUNC);
                     }
                 }else{
                     function_var = tree_search(ast_node->in_function, hashcode(token->lexeme->inter->data));
@@ -886,13 +932,22 @@ int args(t_token *token){ //TODO предпологаю что функция б
                             //записываем
                             ast_node->expression->var = true;
                             ast_node->expression->variable = malloc(sizeof (t_str));
-                            string_init(ast_node->expression->variable);
-                            string_copy(token->lexeme->inter,ast_node->expression->variable);
+                            if(!ast_node->expression->variable){
+                                RETURN_ERROR_NUMBER(ERROR_INTERNAL);
+                            }
+                            if(string_init(ast_node->expression->variable)){
+                                RETURN_ERROR_NUMBER(ERROR_INTERNAL);
+                            }
+                            if(string_copy(token->lexeme->inter,ast_node->expression->variable)){
+                                RETURN_ERROR_NUMBER(ERROR_INTERNAL);
+                            }
                         }else{
-                            return ERROR_SEMANTIC_ANALYSIS_PARAM_IN_FUNC;
+                            ERROR_TEXT("the function does not accept parameters of this type as the given parameter");
+                            RETURN_ERROR_NUMBER(ERROR_SEMANTIC_ANALYSIS_PARAM_IN_FUNC);
                         }
                     }else{
-                        return ERROR_SEMANTIC_ANALYSIS_PARAM_IN_FUNC;
+                        ERROR_TEXT("variable is used before definition");
+                        RETURN_ERROR_NUMBER(ERROR_SEMANTIC_ANALYSIS);
                     }
                 }
             }else{
@@ -903,39 +958,49 @@ int args(t_token *token){ //TODO предпологаю что функция б
                         //записываем
                         ast_node->expression->var = true;
                         ast_node->expression->variable = malloc(sizeof (t_str));
-                        string_init(ast_node->expression->variable);
-                        string_copy(token->lexeme->inter,ast_node->expression->variable);
+                        if(!ast_node->expression->variable){
+                            RETURN_ERROR_NUMBER(ERROR_INTERNAL);
+                        }
+                        if(string_init(ast_node->expression->variable)){
+                            RETURN_ERROR_NUMBER(ERROR_INTERNAL);
+                        }
+                        if(string_copy(token->lexeme->inter,ast_node->expression->variable)){
+                            RETURN_ERROR_NUMBER(ERROR_INTERNAL);
+                        }
                     }else{
-                        return ERROR_SEMANTIC_ANALYSIS_PARAM_IN_FUNC;
+                        ERROR_TEXT("the function does not accept parameters of this type as the given parameter");
+                        RETURN_ERROR_NUMBER(ERROR_SEMANTIC_ANALYSIS_PARAM_IN_FUNC);
                     }
                 }else{
-                    return ERROR_SEMANTIC_ANALYSIS_PARAM_IN_FUNC;
+                    ERROR_TEXT("variable is used before definition");
+                    RETURN_ERROR_NUMBER(ERROR_SEMANTIC_ANALYSIS);
                 }
             }
         }else{
-            return ERROR_SEMANTIC_ANALYSIS_PARAM_IN_FUNC;
+            ERROR_TEXT("passing a parameter to a function, a variable in the main part of the program");
+            RETURN_ERROR_NUMBER(ERROR_SEMANTIC_ANALYSIS);
         }
     }else{
-        return ERROR_SYN_ANALYSIS;
         // ожидался параметр
+        ERROR_TEXT("expected function parameter");
+        RETURN_ERROR_NUMBER(ERROR_SYN_ANALYSIS);
     }
     if(next_args(token)){
-        return ERROR_SEMANTIC_ANALYSIS_PARAM_IN_FUNC;
+        RETURN_ERROR;
     }
     return IT_IS_OK;
 }
 
-int next_args(t_token* token){
+int next_args(t_token* token){ /// проверенная
     GET_TOKEN(token);
     if(token->token_name == TOKEN_COMMA){
-        exp_next();
+        if(exp_next()){
+            RETURN_ERROR_NUMBER(ERROR_INTERNAL);
+        }
         if(args(token)){
-            return ERROR_SEMANTIC_ANALYSIS_PARAM_IN_FUNC;
+            RETURN_ERROR;
         }
 
-//        if(next_args(token)){
-//            return ERROR_SEMANTIC_ANALYSIS_PARAM_IN_FUNC;
-//        }
     }else{
         if(ast_node->count_func_param == ast_node->func->count_params){
             if(ast_node->expression->first_exp){
@@ -944,7 +1009,8 @@ int next_args(t_token* token){
             hold_token();
             return IT_IS_OK;
         }
-        return ERROR_SEMANTIC_ANALYSIS_PARAM_IN_FUNC;
+        ERROR_TEXT("the number of parameters of the function call and in its declarations or definitions do not match");
+        RETURN_ERROR_NUMBER(ERROR_SEMANTIC_ANALYSIS_PARAM_IN_FUNC);
     }
     return IT_IS_OK;
 }
@@ -987,7 +1053,9 @@ int data_type(t_token *token, node* function_node, bool ret_param){ /// пров
         if (!ret_param) {//если функция только декларовна
             if (function_node->data->declaration && !(function_node->data->define)) {
                 //копируем тип глобальную таблицу
-                string_param_copy_string(function_node->data->type_params, token->lexeme->inter);
+                if(string_param_copy_string(function_node->data->type_params, token->lexeme->inter)){
+                    RETURN_ERROR_NUMBER(ERROR_INTERNAL);
+                }
                 //увеличиваем счетчик переменных
                 function_node->data->count_params++;
 
@@ -1014,12 +1082,18 @@ int data_type(t_token *token, node* function_node, bool ret_param){ /// пров
                         RETURN_ERROR_NUMBER(ERROR_INTERNAL);
                     }
 
-                    string_init(in_function->data->type);
-                    string_copy(token->lexeme->inter,in_function->data->type);
+                    if(string_init(in_function->data->type)){
+                        RETURN_ERROR_NUMBER(ERROR_INTERNAL);
+                    }
+                    if(string_copy(token->lexeme->inter,in_function->data->type)){
+                        RETURN_ERROR_NUMBER(ERROR_INTERNAL);
+                    }
                 }
             }else if (!(function_node->data->declaration) && function_node->data->define){
                 //записываем до глобальной таблицы
-                string_param_copy_string(function_node->data->type_params, token->lexeme->inter);
+                if(string_param_copy_string(function_node->data->type_params, token->lexeme->inter)){
+                    RETURN_ERROR_NUMBER(ERROR_INTERNAL);
+                }
                 function_node->data->count_params++; // увеличиваем число параметров потомучто они уже записаны
                 //забираем таблицу функции со стека
                 node *in_function = tree_search(table_top(stack_table),hashcode(function_node->data->params->data[function_node->data->count_params - 1]->data));
@@ -1029,8 +1103,13 @@ int data_type(t_token *token, node* function_node, bool ret_param){ /// пров
                     RETURN_ERROR_NUMBER(ERROR_INTERNAL);
                 }
 
-                string_init(in_function->data->type);
-                string_copy(token->lexeme->inter,in_function->data->type);//копируем тип переменой в таблицу функции
+                if(string_init(in_function->data->type)){
+                    RETURN_ERROR_NUMBER(ERROR_INTERNAL);
+                }
+                //копируем тип переменой в таблицу функции
+                if(string_copy(token->lexeme->inter,in_function->data->type)){
+                    RETURN_ERROR_NUMBER(ERROR_INTERNAL);
+                }
            }
 
         }else{// если это возвращаемые парамеры то
@@ -1038,7 +1117,9 @@ int data_type(t_token *token, node* function_node, bool ret_param){ /// пров
             if (function_node->data->declaration && !(function_node->data->define) ||
                 (!(function_node->data->declaration) && function_node->data->define)) {
                 //копируем параметры до главной таблицы
-                string_param_copy_string(function_node->data->type_returned_params, token->lexeme->inter);
+               if(string_param_copy_string(function_node->data->type_returned_params, token->lexeme->inter)){
+                   RETURN_ERROR_NUMBER(ERROR_INTERNAL);
+               }
                 function_node->data->count_returned_params++; //увенличиваем счетчик
 
             //если функция была либо дикларована или дифинована
@@ -1366,6 +1447,9 @@ int value(t_token *token){ ///проверенна
 
     if(!ast_node->expression){
         ast_node->expression = malloc(sizeof (t_exp_list));
+        if(!ast_node->expression){
+            RETURN_ERROR_NUMBER(ERROR_INTERNAL);
+        }
         exp_init(ast_node->expression);
     }
 
@@ -1429,8 +1513,15 @@ int value(t_token *token){ ///проверенна
             // проверяем тип переменной
             if(string_param_cmp_string(check_type, ast_node->count_expression, function_var->data->type)){
                 ast_node->expression->variable = malloc(sizeof(t_str));
-                string_init(ast_node->expression->variable);
-                string_copy(token->lexeme->inter,ast_node->expression->variable);
+                if(!ast_node->expression->variable){
+                    RETURN_ERROR_NUMBER(ERROR_INTERNAL);
+                }
+                if(string_init(ast_node->expression->variable)){
+                    RETURN_ERROR_NUMBER(ERROR_INTERNAL);
+                }
+                if(string_copy(token->lexeme->inter,ast_node->expression->variable)){
+                    RETURN_ERROR_NUMBER(ERROR_INTERNAL);
+                }
             }else{
                 if(ast_node->it_is_return){
                     ERROR_TEXT("the type of the variable returned by the function does not match the definition");
@@ -1451,8 +1542,15 @@ int value(t_token *token){ ///проверенна
             if (string_param_cmp_arr(check_type, ast_node->count_expression, strin)) {
                 ast_node->expression->str = true;
                 ast_node->expression->data_string = malloc(sizeof(t_str));
-                string_init(ast_node->expression->data_string);
-                string_copy(token->lexeme->inter, ast_node->expression->data_string);
+                if(!ast_node->expression->data_string){
+                    RETURN_ERROR_NUMBER(ERROR_INTERNAL);
+                }
+                if(string_init(ast_node->expression->data_string)){
+                    RETURN_ERROR_NUMBER(ERROR_INTERNAL);
+                }
+                if(string_copy(token->lexeme->inter, ast_node->expression->data_string)){
+                    RETURN_ERROR_NUMBER(ERROR_INTERNAL);
+                }
             } else {
                 if(ast_node->it_is_return) {
                     ERROR_TEXT("the function does not return a string");
@@ -1526,7 +1624,9 @@ int value(t_token *token){ ///проверенна
 
     GET_TOKEN(token);
     if(token->token_name == TOKEN_COMMA){
-        exp_next();
+        if(exp_next()){
+            RETURN_ERROR_NUMBER(ERROR_INTERNAL);
+        }
         if(value(token)){
             RETURN_ERROR;
         }
@@ -1597,9 +1697,13 @@ int next_id(t_token *token){ ///проверенна
             }
             ast_node->it_is_variable_ = true;
             ast_node->count_variable++;
-            string_param_copy_string(ast_node->variable,token->lexeme->inter);
+            if(string_param_copy_string(ast_node->variable,token->lexeme->inter)){
+                RETURN_ERROR_NUMBER(ERROR_INTERNAL);
+            }
             //тип
-            string_param_copy_string(ast_node->type_variable,function_var->data->type);
+            if(string_param_copy_string(ast_node->type_variable,function_var->data->type)){
+                RETURN_ERROR_NUMBER(ERROR_INTERNAL);
+            }
         }else{
             ERROR_TEXT("after the comma, a variable was expected");
             RETURN_ERROR_NUMBER(ERROR_SYN_ANALYSIS);
@@ -1705,25 +1809,60 @@ int add_table_symbols_system_function(char* name){
     sData *function_var = NULL;
     t_str* str = NULL;
     str = malloc(sizeof (t_str));
-    string_init(str);
+    if(!str){
+        return ERROR_INTERNAL;
+    }
+    if(string_init(str)){
+        free(str);
+        return ERROR_INTERNAL;
+    }
 
     function_var = malloc(sizeof (sData));
     if(!function_var){
+        string_free(str);
         return ERROR_INTERNAL;
     }
     s_data_init(function_var);
     function_var->name = malloc(sizeof (t_str));
     if(!function_var->name){
+        string_free(str);
+        free(function_var);
         return ERROR_INTERNAL;
     }
-    string_init(function_var->name);
+    if(string_init(function_var->name)){
+        string_free(str);
+        free(function_var->name);
+        free(function_var);
+        return ERROR_INTERNAL;
+    }
     function_var->type = malloc(sizeof (t_str));
     if(!function_var->type){
+        string_free(str);
+        string_free(function_var->name);
+        free(function_var);
         return ERROR_INTERNAL;
     }
-    string_init(function_var->type);
-    string_wright_arr(function_var->name, name);
-    string_wright_arr(function_var->type, func);
+    if(string_init(function_var->type)){
+        string_free(str);
+        string_free(function_var->name);
+        free(function_var->type);
+        free(function_var);
+        return ERROR_INTERNAL;
+    }
+    if(string_wright_arr(function_var->name, name)){
+        string_free(str);
+        string_free(function_var->name);
+        string_free(function_var->type);
+        free(function_var);
+        return ERROR_INTERNAL;
+    }
+    if(string_wright_arr(function_var->type, func)){
+        string_free(str);
+        string_free(function_var->name);
+        string_free(function_var->type);
+        free(function_var);
+        return ERROR_INTERNAL;
+    }
 
     function_var->declaration = true;
     function_var->define = true;
@@ -1733,81 +1872,335 @@ int add_table_symbols_system_function(char* name){
 
     function_var->type_returned_params = malloc(sizeof (t_str_param));
     if(!function_var->type_returned_params){
+        string_free(str);
+        string_free(function_var->name);
+        string_free(function_var->type);
+        free(function_var);
         return ERROR_INTERNAL;
     }
-    string_param_init(function_var->type_returned_params);
-    string_wright_arr(str,name);
+    if(string_param_init(function_var->type_returned_params)){
+        string_free(str);
+        free(function_var->type_returned_params);
+        string_free(function_var->name);
+        string_free(function_var->type);
+        free(function_var);
+        return ERROR_INTERNAL;
+    }
+    if(string_wright_arr(str,name)){
+        string_free(str);
+        string_param_free(function_var->type_returned_params);
+        string_free(function_var->name);
+        string_free(function_var->type);
+        free(function_var);
+        return ERROR_INTERNAL;
+    }
 
     if(string_arr_cmp(str,"write")){
         function_var->count_returned_params = 0;
         function_var->system_function_infinity_param = true;
     }else if(string_arr_cmp(str,"reads")){
-        string_wright_arr(str, strin);
+        if(string_wright_arr(str, strin)){
+            string_free(str);
+            string_param_free(function_var->type_returned_params);
+            string_free(function_var->name);
+            string_free(function_var->type);
+            free(function_var);
+            return ERROR_INTERNAL;
+        }
     }else if(string_arr_cmp(str,"readi")){
-        string_wright_arr(str, integ);
+        if(string_wright_arr(str, integ)){
+            string_free(str);
+            string_param_free(function_var->type_returned_params);
+            string_free(function_var->name);
+            string_free(function_var->type);
+            free(function_var);
+            return ERROR_INTERNAL;
+        }
     }else if(string_arr_cmp(str,"readn")){
-        string_wright_arr(str, numb);
+        if(string_wright_arr(str, numb)){
+            string_free(str);
+            string_param_free(function_var->type_returned_params);
+            string_free(function_var->name);
+            string_free(function_var->type);
+            free(function_var);
+            return ERROR_INTERNAL;
+        }
     }else if(string_arr_cmp(str,"tointeger")){
         function_var->type_params = malloc(sizeof (t_str_param));
         if(!function_var->type_params){
+            string_free(str);
+            string_param_free(function_var->type_returned_params);
+            string_free(function_var->name);
+            string_free(function_var->type);
+            free(function_var);
             return ERROR_INTERNAL;
         }
-        string_param_init(function_var->type_params);
-        string_wright_arr(str,numb);
-        string_param_copy_string(function_var->type_params, str);
+        if(string_param_init(function_var->type_params)){
+            string_free(str);
+            free(function_var->type_params);
+            string_param_free(function_var->type_returned_params);
+            string_free(function_var->name);
+            string_free(function_var->type);
+            free(function_var);
+            return ERROR_INTERNAL;
+        }
+        if(string_wright_arr(str,numb)){
+            string_free(str);
+            string_param_free(function_var->type_params);
+            string_param_free(function_var->type_returned_params);
+            string_free(function_var->name);
+            string_free(function_var->type);
+            free(function_var);
+            return ERROR_INTERNAL;
+        }
+        if(string_param_copy_string(function_var->type_params, str)){
+            string_free(str);
+            string_param_free(function_var->type_params);
+            string_param_free(function_var->type_returned_params);
+            string_free(function_var->name);
+            string_free(function_var->type);
+            free(function_var);
+            return ERROR_INTERNAL;
+        }
         function_var->count_params = 1;
 
-        string_wright_arr(str, integ);
+        if(string_wright_arr(str, integ)){
+            string_free(str);
+            string_param_free(function_var->type_params);
+            string_param_free(function_var->type_returned_params);
+            string_free(function_var->name);
+            string_free(function_var->type);
+            free(function_var);
+            return ERROR_INTERNAL;
+        }
     }else if(string_arr_cmp(str,"substr")){
         function_var->type_params = malloc(sizeof (t_str_param));
         if(!function_var->type_params){
+            string_free(str);
+            string_param_free(function_var->type_returned_params);
+            string_free(function_var->name);
+            string_free(function_var->type);
+            free(function_var);
             return ERROR_INTERNAL;
         }
-        string_param_init(function_var->type_params);
-        string_wright_arr(str, strin);
-        string_param_copy_string(function_var->type_params, str);
-        string_wright_arr(str, numb);
-        string_param_copy_string(function_var->type_params, str);
-        string_param_copy_string(function_var->type_params, str);
+        if(string_param_init(function_var->type_params)){
+            string_free(str);
+            free(function_var->type_params);
+            string_param_free(function_var->type_returned_params);
+            string_free(function_var->name);
+            string_free(function_var->type);
+            free(function_var);
+            return ERROR_INTERNAL;
+        }
+        if(string_wright_arr(str, strin)){
+            string_free(str);
+            string_param_free(function_var->type_params);
+            string_param_free(function_var->type_returned_params);
+            string_free(function_var->name);
+            string_free(function_var->type);
+            free(function_var);
+            return ERROR_INTERNAL;
+        }
+        if(string_param_copy_string(function_var->type_params, str)){
+            string_free(str);
+            string_param_free(function_var->type_params);
+            string_param_free(function_var->type_returned_params);
+            string_free(function_var->name);
+            string_free(function_var->type);
+            free(function_var);
+            return ERROR_INTERNAL;
+        }
+        if(string_wright_arr(str, numb)){
+            string_free(str);
+            string_param_free(function_var->type_params);
+            string_param_free(function_var->type_returned_params);
+            string_free(function_var->name);
+            string_free(function_var->type);
+            free(function_var);
+            return ERROR_INTERNAL;
+        }
+        if(string_param_copy_string(function_var->type_params, str)){
+            string_free(str);
+            string_param_free(function_var->type_params);
+            string_param_free(function_var->type_returned_params);
+            string_free(function_var->name);
+            string_free(function_var->type);
+            free(function_var);
+            return ERROR_INTERNAL;
+        }
+        if(string_param_copy_string(function_var->type_params, str)){
+            string_free(str);
+            string_param_free(function_var->type_params);
+            string_param_free(function_var->type_returned_params);
+            string_free(function_var->name);
+            string_free(function_var->type);
+            free(function_var);
+            return ERROR_INTERNAL;
+        }
         function_var->count_params = 3;
 
-        string_wright_arr(str, strin);
+        if(string_wright_arr(str, strin)){
+            string_free(str);
+            string_param_free(function_var->type_params);
+            string_param_free(function_var->type_returned_params);
+            string_free(function_var->name);
+            string_free(function_var->type);
+            free(function_var);
+            return ERROR_INTERNAL;
+        }
     }else if(string_arr_cmp(str,"ord")){
         function_var->type_params = malloc(sizeof (t_str_param));
         if(!function_var->type_params){
+            string_free(str);
+            string_param_free(function_var->type_returned_params);
+            string_free(function_var->name);
+            string_free(function_var->type);
+            free(function_var);
             return ERROR_INTERNAL;
         }
-        string_param_init(function_var->type_params);
-        string_wright_arr(str, strin);
-        string_param_copy_string(function_var->type_params, str);
-        string_wright_arr(str, integ);
-        string_param_copy_string(function_var->type_params, str);
+        if(string_param_init(function_var->type_params)){
+            string_free(str);
+            free(function_var->type_params);
+            string_param_free(function_var->type_returned_params);
+            string_free(function_var->name);
+            string_free(function_var->type);
+            free(function_var);
+            return ERROR_INTERNAL;
+        }
+        if(string_wright_arr(str, strin)){
+            string_free(str);
+            string_param_free(function_var->type_params);
+            string_param_free(function_var->type_returned_params);
+            string_free(function_var->name);
+            string_free(function_var->type);
+            free(function_var);
+            return ERROR_INTERNAL;
+        }
+        if(string_param_copy_string(function_var->type_params, str)){
+            string_free(str);
+            string_param_free(function_var->type_params);
+            string_param_free(function_var->type_returned_params);
+            string_free(function_var->name);
+            string_free(function_var->type);
+            free(function_var);
+            return ERROR_INTERNAL;
+        }
+        if(string_wright_arr(str, integ)){
+            string_free(str);
+            string_param_free(function_var->type_params);
+            string_param_free(function_var->type_returned_params);
+            string_free(function_var->name);
+            string_free(function_var->type);
+            free(function_var);
+            return ERROR_INTERNAL;
+        }
+        if(string_param_copy_string(function_var->type_params, str)){
+            string_free(str);
+            string_param_free(function_var->type_params);
+            string_param_free(function_var->type_returned_params);
+            string_free(function_var->name);
+            string_free(function_var->type);
+            free(function_var);
+            return ERROR_INTERNAL;
+        }
         function_var->count_params = 2;
 
-        string_wright_arr(str, integ);
+        if(string_wright_arr(str, integ)){
+            string_free(str);
+            string_param_free(function_var->type_params);
+            string_param_free(function_var->type_returned_params);
+            string_free(function_var->name);
+            string_free(function_var->type);
+            free(function_var);
+            return ERROR_INTERNAL;
+        }
 
     }else if(string_arr_cmp(str,"chr")){
         function_var->type_params = malloc(sizeof (t_str_param));
         if(!function_var->type_params){
+            string_free(str);
+            string_param_free(function_var->type_returned_params);
+            string_free(function_var->name);
+            string_free(function_var->type);
+            free(function_var);
             return ERROR_INTERNAL;
         }
-        string_param_init(function_var->type_params);
-        string_wright_arr(str, integ);
-        string_param_copy_string(function_var->type_params, str);
+        if(string_param_init(function_var->type_params)){
+            string_free(str);
+            free(function_var->type_params);
+            string_param_free(function_var->type_returned_params);
+            string_free(function_var->name);
+            string_free(function_var->type);
+            free(function_var);
+            return ERROR_INTERNAL;
+        }
+        if(string_wright_arr(str, integ)){
+            string_free(str);
+            string_param_free(function_var->type_params);
+            string_param_free(function_var->type_returned_params);
+            string_free(function_var->name);
+            string_free(function_var->type);
+            free(function_var);
+            return ERROR_INTERNAL;
+        }
+        if(string_param_copy_string(function_var->type_params, str)){
+            string_free(str);
+            string_param_free(function_var->type_params);
+            string_param_free(function_var->type_returned_params);
+            string_free(function_var->name);
+            string_free(function_var->type);
+            free(function_var);
+            return ERROR_INTERNAL;
+        }
         function_var->count_params = 1;
 
-        string_wright_arr(str, strin);
+        if(string_wright_arr(str, strin)){
+            string_free(str);
+            string_param_free(function_var->type_params);
+            string_param_free(function_var->type_returned_params);
+            string_free(function_var->name);
+            string_free(function_var->type);
+            free(function_var);
+            return ERROR_INTERNAL;
+        }
     }
 
-    string_param_copy_string(function_var->type_returned_params, str);
+    if(string_param_copy_string(function_var->type_returned_params, str)){
+        string_free(str);
+        if(function_var->type_params)
+            string_param_free(function_var->type_params);
+        if(function_var->type_returned_params)
+            string_param_free(function_var->type_returned_params);
+        if(function_var->name)
+            string_free(function_var->name);
+        if(function_var->type)
+            string_free(function_var->type);
+        free(function_var);
+        return ERROR_INTERNAL;
+    }
     global_table = tree_insert(global_table, hashcode(function_var->name->data),function_var);
+    if(!global_table){
+        string_free(str);
+        if(function_var->type_params)
+            string_param_free(function_var->type_params);
+        if(function_var->type_returned_params)
+            string_param_free(function_var->type_returned_params);
+        if(function_var->name)
+            string_free(function_var->name);
+        if(function_var->type)
+            string_free(function_var->type);
+        free(function_var);
+        return ERROR_INTERNAL;
+    }
 
     string_free(str);
     return IT_IS_OK;
 }
 
-void send_ast(){
-    code_gen(ast_node);
+int send_ast(){
+    if(code_gen(ast_node)){
+        RETURN_ERROR;
+    }
     if(ast_node->it_is_in_function || ast_node->it_is_function_define){
         sData* fn = ast_node->function_info;
         node* gl = ast_node->global;
@@ -1822,6 +2215,7 @@ void send_ast(){
         ast_free(ast_node);
         ast_init(ast_node);
     }
+    return IT_IS_OK;
 }
 
 void exp_init(t_exp_list* exp){
@@ -1842,8 +2236,11 @@ void exp_init(t_exp_list* exp){
     exp->next_exp = NULL;
 
 }
-void if_loop_ast_next(){
+int if_loop_ast_next(){
     ast_node->next_node = malloc(sizeof(t_ast_node));
+    if(!ast_node->next_node){
+        return ERROR_INTERNAL;
+    }
     t_ast_node* ptr = ast_node->next_node;
     ast_init(ptr);
     if(!ast_node->first_node){
@@ -1859,22 +2256,27 @@ void if_loop_ast_next(){
     ptr->local = ast_node->local;
 
     ast_node = ast_node->next_node;
+    return IT_IS_OK;
 }
 
-void exp_next(){
+int exp_next(){
     if(!ast_node->expression->first_exp){
         ast_node->expression->first_exp = ast_node->expression;
     }
     //пересобираем для следующего вырожения
     ast_node->expression->next_exp = malloc(sizeof (t_exp_list));
+    if(!ast_node->expression->next_exp){
+        return ERROR_INTERNAL;
+    }
     t_exp_list* ptr = ast_node->expression->next_exp;
     exp_init(ptr);
     ptr->first_exp = ast_node->expression->first_exp;
     ast_node->expression = ast_node->expression->next_exp;
+    return IT_IS_OK;
 }
 
 void error_processing(){
-    //todo free all
+    //free all
      if(global_table){
          global_table = tree_delete(global_table);
          global_table = NULL;
@@ -1903,18 +2305,42 @@ void error_processing(){
 int start_analysis(t_token *token){
 
     ast_node = malloc(sizeof (t_ast_node));
+    if(!ast_node){
+        RETURN_ERROR_NUMBER(ERROR_INTERNAL);
+    }
     ast_init(ast_node);
-    add_table_symbols_system_function("reads");
-    add_table_symbols_system_function("readi");
-    add_table_symbols_system_function("readn");
-    add_table_symbols_system_function("write");
-    add_table_symbols_system_function("tointeger");
-    add_table_symbols_system_function("substr");
-    add_table_symbols_system_function("ord");
-    add_table_symbols_system_function("chr");
-
     stack_table = malloc(sizeof (s_stack));
+    if(!stack_table){
+        free(ast_node);
+        RETURN_ERROR_NUMBER(ERROR_INTERNAL);
+    }
     table_init(stack_table);
+
+    if(add_table_symbols_system_function("reads")){
+        RETURN_ERROR_NUMBER(ERROR_INTERNAL);
+    }
+    if(add_table_symbols_system_function("readi")){
+        RETURN_ERROR_NUMBER(ERROR_INTERNAL);
+    }
+    if(add_table_symbols_system_function("readn")){
+        RETURN_ERROR_NUMBER(ERROR_INTERNAL);
+    }
+    if(add_table_symbols_system_function("write")){
+        RETURN_ERROR_NUMBER(ERROR_INTERNAL);
+    }
+    if(add_table_symbols_system_function("tointeger")){
+        RETURN_ERROR_NUMBER(ERROR_INTERNAL);
+    }
+    if(add_table_symbols_system_function("substr")){
+        RETURN_ERROR_NUMBER(ERROR_INTERNAL);
+    }
+    if(add_table_symbols_system_function("ord")){
+        RETURN_ERROR_NUMBER(ERROR_INTERNAL);
+    }
+    if(add_table_symbols_system_function("chr")){
+        RETURN_ERROR_NUMBER(ERROR_INTERNAL);
+    }
+
 
     return (start_program(token));
 

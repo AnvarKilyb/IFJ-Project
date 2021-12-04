@@ -71,6 +71,7 @@ int find_token(t_token* token)
             case LEXICAL_STATE_START:
                 if(symbol == '+') {
                     token->token_name = TOKEN_PLUS;
+                    string_wright_char(string, symbol);
                     return IT_IS_OK;
                 }else if(symbol == '*'){
                     token->token_name = TOKEN_MULTIPLICATION;
