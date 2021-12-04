@@ -574,6 +574,8 @@ int statement(t_token *token){ ///проверенная кроме if и while
                 RETURN_ERROR;
             }
         }else{
+            hold_token();
+            get_old_token(token);
             node *function_var = NULL;
             ul hash = hashcode(token->lexeme->inter->data);
             if (ast_node->it_is_if || ast_node->it_is_loop) {
