@@ -1,4 +1,5 @@
 #include "string.h"
+#include "error.h"
 
 /*
  * Создание строки
@@ -8,21 +9,21 @@ int string_init(t_str* str)
 //    t_str* str = malloc(sizeof (t_str));
     str->data = malloc(STRING_LEN * sizeof (char));
     if(!str->data){
-        //TODO вызов функции ошибки
-        return 99;
+        return ERROR_INTERNAL;
     }
 
     str->data[STRING_START] = NUL;
     str->lenght = STRING_LEN;
     str->how_occupied = 0;
-    return 0;
+    return IT_IS_OK;
 }
 
 /*
  * Очишение строки
  */
 void string_free(t_str* str){
-    free(str->data);
+    if(str->data)
+        free(str->data);
     free(str);
 }
 
@@ -34,7 +35,7 @@ int string_expansion(t_str* str){
     t_str string;
     string.data = realloc(str->data, (str->lenght * 2) * sizeof(char));
     if(!string.data){
-        //TODO добавить вывод ошибки
+        return 99;
     }
 
     str->data = string.data;
@@ -42,9 +43,11 @@ int string_expansion(t_str* str){
     return 0;
 }
 /*str1 - откуда str2 - куда копируется*/
-void string_copy(t_str* str1, t_str* str2){
+int string_copy(t_str* str1, t_str* str2){
     while(str1->how_occupied > str2->lenght){
-        string_expansion(str2);
+        if(string_expansion(str2)){
+            return ERROR_INTERNAL;
+        }
     }
     str2->how_occupied = STRING_START;
     for(ull slider = 0; str1->data[slider] != NUL; slider++){
@@ -53,6 +56,7 @@ void string_copy(t_str* str1, t_str* str2){
     }
 
     str2->data[str2->how_occupied++] = NUL;
+    return IT_IS_OK;
 }
 
 void string_add_string(t_str* str1, t_str* str2){
@@ -101,9 +105,13 @@ void string_wright_char(t_str* str, char symbol){
 /*
  * Переписывает масив в строку
  */
-void string_wright_arr(t_str* str, char* arr){
-    while (str->lenght <= strlen(arr)+1)
-        string_expansion(str);   //увеличения буфера строки
+int string_wright_arr(t_str* str, char* arr){
+    while (str->lenght <= strlen(arr)+1) {
+        if (string_expansion(str))
+        {
+            return ERROR_INTERNAL;
+        }
+    }   //увеличения буфера строки
 
     str->how_occupied = STRING_START;
     for(ull slider = 0; arr[slider] != NUL; slider++){
@@ -112,6 +120,8 @@ void string_wright_arr(t_str* str, char* arr){
     }
 
     str->data[str->how_occupied++] = NUL; // сначало вкладываем 0 потом приболяем
+
+    return IT_IS_OK;
 
 }
 

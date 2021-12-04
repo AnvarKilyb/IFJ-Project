@@ -68,6 +68,9 @@ node *tree_min(node *root){
 static node *tree_init(unsigned long  key, sData *data){
     node *root;
     root = malloc(sizeof(node));
+    if(!root){
+        return NULL;
+    }
 
     root->key = key;
     root->left_node = NULL;
@@ -129,17 +132,20 @@ void table_init(s_stack *stack){
     stack->size = 0;
 }
 
-void table_push(s_stack *stack, node *tree){
-    if(stack == NULL) return;
+int table_push(s_stack *stack, node *tree){
+    if(stack == NULL) return IT_IS_OK;
 
     stack->top_index++;
     if((stack->size - 1) <= stack->top_index){
         stack->size += STACK_CHUNK;
         stack->ptr = realloc(stack->ptr, sizeof(node *) * stack->size);
+        if(!stack->ptr){
+            return ERROR_INTERNAL;
+        }
     }
 
     stack->ptr[stack->top_index] = tree;
-
+    return IT_IS_OK;
 }
 
 node* table_pop(s_stack *stack){

@@ -1,5 +1,6 @@
 
 #include "string_param.h"
+#include "error.h"
 
 
 int string_param_init(t_str_param* str)
@@ -28,8 +29,11 @@ int string_param_init(t_str_param* str)
 void string_param_free(t_str_param* str){
 
     for(int i = 0; i < str->lenght; i++){
-        free(str->data[i]->data);
-        free(str->data[i]);
+        if(str->data[i]) {
+            if(str->data[i]->data)
+                free(str->data[i]->data);
+            free(str->data[i]);
+        }
     }
     free(str);
 }
@@ -42,7 +46,7 @@ int string_param_expansion(t_str_param* str){
     t_str_param string;
     string.data = realloc(str->data, (str->lenght * 2) * sizeof(t_str*));
     if(!string.data){
-        //TODO добавить вывод ошибки
+        return ERROR_INTERNAL;
     }
 
     str->data = string.data;
@@ -51,19 +55,26 @@ int string_param_expansion(t_str_param* str){
     for(ull i = str->how_occupied; i < str->lenght; i++){
         str->data[i] = malloc(sizeof (t_str));
         if(!str->data[i]){
-            //TODO error
+            return ERROR_INTERNAL;
         }
-        string_init(str->data[i]);
+        if(string_init(str->data[i])){
+            return ERROR_INTERNAL;
+        }
     }
-    return 0;
+    return IT_IS_OK;
 }
 
-void string_param_copy_string(t_str_param* str_par, t_str* str){
+int string_param_copy_string(t_str_param* str_par, t_str* str){
     if((str_par->lenght) <= str_par->how_occupied){
-        string_param_expansion(str_par);
+        if(string_param_expansion(str_par)){
+            return ERROR_INTERNAL;
+        }
     }
-    string_copy(str, str_par->data[str_par->how_occupied]);
+    if(string_copy(str, str_par->data[str_par->how_occupied])){
+        return ERROR_INTERNAL;
+    }
     str_par->how_occupied++;
+    return IT_IS_OK;
 }
 /*
  * Узнает соответсвует ли первая строка второй строке

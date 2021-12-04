@@ -36,7 +36,7 @@ void string_free(t_str* str);
  */
 int string_expansion(t_str* str);
 
-void string_copy(t_str* str1, t_str* str2);
+int string_copy(t_str* str1, t_str* str2);
 
 
 
@@ -48,7 +48,7 @@ void string_wright_char(t_str* str, char symbol);
 /*
  * Переписывает масив в строку
  */
-void string_wright_arr(t_str* str, char* arr);
+int string_wright_arr(t_str* str, char* arr);
 
 
 /*

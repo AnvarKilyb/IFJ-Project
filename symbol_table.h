@@ -75,7 +75,7 @@ void tree_inOrder(node *root);
 //Инициализация стэка табулки
 void table_init(s_stack *stack);
 //Пушит дерево до стэка
-void table_push(s_stack *stack, node *tree);
+int table_push(s_stack *stack, node *tree);
 //Вытаскивает дерево из стэка
 node* table_pop(s_stack *stack);
 //Выписывает все дерево с помощью preOrder: 

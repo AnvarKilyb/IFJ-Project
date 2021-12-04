@@ -2,6 +2,7 @@
 #define IFJ_PROJEKT_SYNTACTICALANALYZER_H
 
 #define GET_TOKEN(token) if(get_token(token)) return ERROR_LEX_ANALYSIS
+
 #define RETURN_ERROR_NUMBER(ERR) ERROR_ALL = ERR; error_processing(); return ERROR_ALL
 #define RETURN_ERROR  return ERROR_ALL
 #define ERROR_TEXT(string_text) if(!error_check) {printf("ERROR: in string #%d ", token->str); printf("[in "); printf("--> %s <-- ",token->lexeme->inter->data); printf("%s]",string_text);} error_check = true

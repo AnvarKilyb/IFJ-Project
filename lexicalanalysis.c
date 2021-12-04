@@ -409,19 +409,35 @@ int find_token(t_token* token)
 
             case LEXICAL_STATE_STRING_ESCAPE:
                 if(symbol == '\\'){
+//                    string_wright_char(string, '\\');
                     string_wright_char(string, '\\');
+                    string_wright_char(string, '0');
+                    string_wright_char(string, '9');
+                    string_wright_char(string, '2');
                     state = LEXICAL_STATE_STRING_START;
                     break;
                 }else if(symbol == '\"'){
-                    string_wright_char(string, '\"');
+//                    string_wright_char(string, '\"');
+                    string_wright_char(string, '\\');
+                    string_wright_char(string, '0');
+                    string_wright_char(string, '3');
+                    string_wright_char(string, '4');
                     state = LEXICAL_STATE_STRING_START;
                     break;
                 }else if(symbol == 'n'){
-                    string_wright_char(string, '\n');
+//                    string_wright_char(string, '\n');
+                    string_wright_char(string, '\\');
+                    string_wright_char(string, '0');
+                    string_wright_char(string, '1');
+                    string_wright_char(string, '0');
                     state = LEXICAL_STATE_STRING_START;
                     break;
                 }else if(symbol == 't'){
-                    string_wright_char(string, '\t');
+//                    string_wright_char(string, '\t');
+                    string_wright_char(string, '\\');
+                    string_wright_char(string, '0');
+                    string_wright_char(string, '0');
+                    string_wright_char(string, '9');
                     state = LEXICAL_STATE_STRING_START;
                     break;
                 }else if(symbol == '0')
