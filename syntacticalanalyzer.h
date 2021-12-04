@@ -44,7 +44,7 @@ typedef struct s_ast_node{
     int count_variable;
 
     sData* func;
-    t_str_param* func_param;
+//    t_str_param* func_param;
     int count_func_param;
 
 

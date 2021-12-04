@@ -1647,12 +1647,10 @@ int value(t_token *token){ ///проверенна
 }
 
 int expression(t_token *token){
-    //TODO first write the prec analysis table in code
     return IT_IS_OK;
 }
 
 int next_expression(t_token *token){
-    //TODO first write the prec analysis table in code
     GET_TOKEN(token);
     if(token->token_name == TOKEN_COMMA){
         if(expression(token)){
@@ -1732,7 +1730,7 @@ void ast_init(t_ast_node* ast){
     ast->count_variable = 0;
 
     ast->func = NULL;
-    ast->func_param = NULL;
+//    ast->func_param = NULL;
     ast->count_func_param = 0;
 
 
@@ -1765,8 +1763,8 @@ void ast_free(t_ast_node* ast){
 
     if(ast->type_variable)
         string_param_free(ast->type_variable);
-    if(ast->func_param)
-        string_param_free(ast->func_param);
+//    if(ast->func_param)
+//        string_param_free(ast->func_param);
 
     t_ast_node *ptr = ast->next_node;
     while(ast->next_node){
