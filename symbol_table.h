@@ -10,12 +10,12 @@
 
 #define STACK_CHUNK 100 // Размер стэка, если перевалит то выделит доп. память
 
-typedef enum{
-    STRING,
-    INTEGER,
-    NUMBER,
-    FUNC,
-} sType;
+//typedef enum{
+//    STRING,
+//    INTEGER,
+//    NUMBER,
+//    FUNC,
+//} sType;
 
 
 typedef struct{

@@ -9,6 +9,7 @@
 #include "symbol_table.h"
 #include "lexicalanalysis.h"
 #include "string_param.h"
+#include "precefence_tree.h"
 
 typedef unsigned long ul;
 
@@ -16,7 +17,7 @@ typedef struct s_exp_list{
 
     bool tree;
     bool var;
-    //дерево с прецеденчной анализы;
+    AST_leaf* preced_expression_tree;
 
     t_str* variable;
 

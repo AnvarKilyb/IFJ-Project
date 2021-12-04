@@ -231,7 +231,7 @@ static prec_symbol get_symbol_from_token(t_token *token){
         case TOKEN_NUMBER:
             return PREC_DOUBLE_NUMBER;
         case TOKEN_STRING:
-            return STRING;
+            return PREC_STRING;
         default:
             return PREC_DOLLAR;
     }
