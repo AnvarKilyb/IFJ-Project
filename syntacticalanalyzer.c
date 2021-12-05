@@ -1507,11 +1507,16 @@ int value(t_token *token){ ///проверенна
             hold_token();
             get_old_token(token);
             AST_leaf *tree;
+
             tree = precede_expression(token, ast_node, &ERROR_ALL);
-            if(ERROR_ALL != IT_IS_OK){
-                error_check = true;//TODO
+            if(ERROR_ALL == ERROR_SEMANTIC_ANALYSIS){
+                ERROR_TEXT("invalid expression");
+                RETURN_ERROR_NUMBER(ERROR_ALL);
             }
-            ast_node->expression->preced_expression_tree = tree;
+            else if(ERROR_ALL == ERROR_SEMANTIC_ANALYSIS_EXPR){
+                ERROR_TEXT("incompatible type");
+                RETURN_ERROR_NUMBER(ERROR_ALL);
+            }
         }else{
             hold_token();
             get_old_token(token);
