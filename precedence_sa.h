@@ -78,8 +78,8 @@ AST_leaf *create_tree(AST_leaf *leaf_1, AST_leaf *leaf_2, t_token *token);
 void delete_ast(AST_leaf *leaf);
 
 #define TABLE_SIZE 15
-static prec_index get_prec_index(prec_symbol symbol);
-static prec_symbol get_symbol_from_token(t_token *token);
+//static prec_index get_prec_index(prec_symbol symbol);
+//static prec_symbol get_symbol_from_token(t_token *token);
 int find_operation(t_token *token, t_stack *stack);
 AST_leaf *reduce_by_rule(t_stack *tmp_stack, t_stack *stack, AST_leaf *tree, e_error_message *e_check);
 AST_leaf *get_expression(t_token *token, t_stack *stack, AST_leaf *tree, e_error_message *e_check);
