@@ -11,6 +11,7 @@ AST_leaf *create_leaf(t_token *token){
     new_leaf->token = malloc(sizeof (t_token));
     new_leaf->token->lexeme = malloc((sizeof (t_lexeme)));
     new_leaf->token->lexeme->inter = malloc(sizeof (t_str));
+    new_leaf->token->str = token->str;
     string_init(new_leaf->token->lexeme->inter);
 
     new_leaf->token->token_name = token->token_name;
@@ -32,6 +33,7 @@ AST_leaf *create_tree(AST_leaf *leaf_1, AST_leaf *leaf_2, t_token *token){
     new_leaf->token = malloc(sizeof (t_token));
     new_leaf->token->lexeme = malloc((sizeof (t_lexeme)));
     new_leaf->token->lexeme->inter = malloc(sizeof (t_str));
+    new_leaf->token->str = token->str;
     string_init(new_leaf->token->lexeme->inter);
 
     new_leaf->token->token_name = token->token_name;
@@ -268,27 +270,39 @@ AST_leaf *reduce_by_rule(t_stack *tmp_stack, t_stack *stack, AST_leaf *tree, e_e
     else if(check_symbol == PREC_LEFT_BRACKET){
         stack_pop(tmp_stack);
         top_item = stack_top(tmp_stack)->root;
-        AST_leaf *tmp_top_item;
+//        AST_leaf *tmp_top_item;
         if(stack_top(tmp_stack)->symbol == PREC_NON_TERM){
             stack_pop(tmp_stack);
-            tmp_top_item = stack_top(tmp_stack)->root;
+//            tmp_top_item = stack_top(tmp_stack)->root;
             if(stack_top(tmp_stack)->symbol == PREC_RIGHT_BRACKET){
                 stack_pop(tmp_stack);
                 stack_push(stack, top_item, PREC_NON_TERM);
-                return top_item;
+                new_tree = top_item;
             }
             else{
                 stack_free(tmp_stack);
-                return NULL;
+                *e_check = ERROR_SEMANTIC_ANALYSIS;
+                new_tree = NULL;
             }
         }
+        else{
+            *e_check = ERROR_SEMANTIC_ANALYSIS;
+            new_tree = NULL;
+        }
+        return new_tree;
     }
         // E -> #E
     else if(check_symbol == PREC_LENGTH){
         new_tree = create_tree(NULL, tree, top_item->token);
         stack_push(stack, new_tree, PREC_NON_TERM);
     }
-    else if(check_symbol == PREC_NON_TERM){
+    else if(check_symbol == PREC_NON_TERM && tmp_stack->amount_of_elements == 3){
+        if(stack_top(tmp_stack)->down_element->down_element->symbol != PREC_NON_TERM){
+            *e_check = ERROR_SEMANTIC_ANALYSIS;
+            delete_ast(tree);
+            new_tree = NULL;
+            return new_tree;
+        }
         AST_leaf *op_item;
         op_item = stack_top(tmp_stack)->down_element->root;
         AST_leaf *left_leaf;
@@ -364,6 +378,16 @@ AST_leaf *reduce_by_rule(t_stack *tmp_stack, t_stack *stack, AST_leaf *tree, e_e
             new_tree = create_tree(left_leaf, tree, op_item->token);
             stack_push(stack, new_tree, PREC_NON_TERM);
         }
+        else{
+            *e_check = ERROR_SEMANTIC_ANALYSIS;
+            delete_ast(tree);
+            new_tree = NULL;
+        }
+    }
+    else{
+        *e_check = ERROR_SEMANTIC_ANALYSIS;
+        delete_ast(tree);
+        new_tree = NULL;
     }
     return new_tree;
 
@@ -414,16 +438,57 @@ AST_leaf *get_expression(t_token *token, t_stack *stack, AST_leaf *tree, e_error
 }
 
 AST_leaf *precede_expression(t_token *token,t_ast_node *ast_node, e_error_message *e_check){
+    char *var_type;
+    char *token_type;
     t_stack stack;
     prec_symbol token_symbol, top_symbol;
     AST_leaf *tree;
     int operation;
-
-    t_str *check_type = ast_node->in_function->data->type;
+    *e_check = IT_IS_OK;
     stack_init(&stack);
     stack_push(&stack, NULL, PREC_DOLLAR);
 
     do{
+        //Проверка типов переменных
+        if (token->token_name == TOKEN_IDENTIFIER) {
+            node *function_var = NULL;
+            ul hash = hashcode(token->lexeme->inter->data);
+            if (ast_node->it_is_if || ast_node->it_is_loop) {
+                function_var = tree_search(ast_node->local, hash);
+                if (!function_var) {
+                    function_var = tree_search(ast_node->in_function, hash);
+                    if (!function_var) {
+                        *e_check = ERROR_SEMANTIC_ANALYSIS;
+                    }
+                }
+            } else {
+                function_var = tree_search(ast_node->in_function, hash);
+                if (!function_var) {
+                    *e_check = ERROR_SEMANTIC_ANALYSIS;
+                }
+            }
+            var_type = ast_node->type_variable->data[0]->data;
+            token_type = function_var->data->type->data;
+            if(strcmp(var_type,"integer") == 0){
+                if(strcmp(var_type,token_type) != 0){
+                    *e_check = ERROR_SEMANTIC_ANALYSIS_EXPR;
+                }
+            }
+            else if(strcmp(var_type,"string") == 0){
+                if(strcmp(var_type,token_type) != 0){
+                    *e_check = ERROR_SEMANTIC_ANALYSIS_EXPR;
+                }
+            }
+            else if(strcmp(var_type,"number") == 0){
+                if(strcmp("string",token_type) == 0){
+                    *e_check = ERROR_SEMANTIC_ANALYSIS_EXPR;
+                }
+            }
+        }
+        if(*e_check != IT_IS_OK){
+            return  NULL;
+        }
+        //Основная
         token_symbol = get_symbol_from_token(token);
         top_symbol = stack_top(&stack)->symbol;
         if(top_symbol == PREC_NON_TERM)
@@ -441,17 +506,18 @@ AST_leaf *precede_expression(t_token *token,t_ast_node *ast_node, e_error_messag
             tree = get_expression(token, &stack, tree, e_check);
         }
         else{ // empty
-            e_check = ERROR_SEMANTIC_ANALYSIS_EXPR;
+            *e_check = ERROR_SEMANTIC_ANALYSIS;
             return NULL;
         }
         if(get_symbol_from_token(token) != PREC_DOLLAR)
-            GET_TOKEN(token);
-        check_type = ast_node->in_function->right_node->data;
+            if(get_token(token)) *e_check = ERROR_LEX_ANALYSIS;
     }
     while(1);
-    e_check = IT_IS_OK;
+
     stack_free(&stack);
     hold_token();
     return tree;
 }
+
+
 
