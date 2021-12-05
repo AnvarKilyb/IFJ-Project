@@ -135,24 +135,24 @@ int main(int argc, char** argv){
     token->lexeme->number = 0.0;
     token->str = 1;
 
-//    return start_analysis(token);
+    return start_analysis(token);
 
 
 
-    while(token->token_name != TOKEN_EOF){
+//    while(token->token_name != TOKEN_EOF){
 //        token->lexeme->keyword = 100;
 //        token->lexeme->inter->data[0] = '\0';
 //        token->lexeme->inter->how_occupied = 0;
 //        token->lexeme->integer = 0;
 //        token->lexeme->number = 0.0;
 
-        if(get_token(token))
-        {
-            return 222;
-        }
-        printf("string = %d",token->str);
-        printf("...token{ %d }.....data{ %s }.....keyword{ %d }.....number_int{ %d }.....number_double{ %g }...\n",
-               token->token_name,token->lexeme->inter->data,token->lexeme->keyword,token->lexeme->integer,token->lexeme->number);
+//        if(get_token(token))
+//        {
+//            return 222;
+//        }
+//        printf("string = %d",token->str);
+//        printf("...token{ %d }.....data{ %s }.....keyword{ %d }.....number_int{ %d }.....number_double{ %g }...\n",
+//               token->token_name,token->lexeme->inter->data,token->lexeme->keyword,token->lexeme->integer,token->lexeme->number);
 
 //        get_old_token(token);
 //        printf("...token{ %d }.....data{ %s }.....keyword{ %d }.....number_int{ %d }.....number_double{ %g }...\n",
@@ -160,7 +160,7 @@ int main(int argc, char** argv){
 //        get_token(token);
 //        printf("...token{ %d }.....data{ %s }.....keyword{ %d }.....number_int{ %d }.....number_double{ %g }...\n",
 //               token->token_name,token->lexeme->inter->data,token->lexeme->keyword,token->lexeme->integer,token->lexeme->number);
-    }
+//    }
 
 
 

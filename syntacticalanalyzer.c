@@ -649,20 +649,40 @@ int statement(t_token *token){ ///проверенная кроме if и while
 
     }else if(token->token_name == TOKEN_KEYWORD && token->lexeme->keyword == KEYWORD_IF ){
         ast_node->it_is_if = true;
-        if(expression(token)){
-            return ERROR_SYN_ANALYSIS;
-            //TODO error
+        ast_node->it_is_start_if_loop = true;
+
+        if(!ast_node->expression){
+            ast_node->expression = malloc(sizeof (t_exp_list));
+            if(!ast_node->expression){
+                RETURN_ERROR_NUMBER(ERROR_INTERNAL);
+            }
+            exp_init(ast_node->expression);
         }
 
         GET_TOKEN(token);
+        AST_leaf *tree;
+        tree = precede_expression(token, ast_node, &ERROR_ALL);
+        if(ERROR_ALL != IT_IS_OK){
+            error_check = true;//TODO
+        }
+
+        ast_node->expression->preced_expression_tree = tree;
+        if_loop_ast_next();
+//        if(expression(token)){
+//            return ERROR_SYN_ANALYSIS;
+//
+//        }
+
+
+
+
         if(token->token_name != TOKEN_KEYWORD && token->lexeme->keyword != KEYWORD_THEN){
-            return ERROR_SYN_ANALYSIS;
-            //TODO error
+            ERROR_TEXT("expected then");
+            RETURN_ERROR_NUMBER(ERROR_SYN_ANALYSIS);
         }
 
         if(statement(token)){
-            return ERROR_SYN_ANALYSIS;
-            //TODO error
+            RETURN_ERROR;
         }
 
         GET_TOKEN(token);
@@ -676,12 +696,11 @@ int statement(t_token *token){ ///проверенная кроме if и while
             }
         }
 
-        if(!statement(token)){
+        if(statement(token)){
             return ERROR_SYN_ANALYSIS;
             //TODO error
         }
 
-        GET_TOKEN(token);
         if(token->token_name != TOKEN_KEYWORD && token->lexeme->keyword != KEYWORD_END){
             return ERROR_SYN_ANALYSIS;
             //TODO error
@@ -718,7 +737,7 @@ int statement(t_token *token){ ///проверенная кроме if и while
         if(token->token_name != TOKEN_KEYWORD && token->lexeme->keyword != KEYWORD_END){
             return ERROR_SYN_ANALYSIS;
             //TODO error
-        }{
+        }else{
             ast_node->if_loop_end = true;
             ast_node = ast_node->first_node;
             send_ast();
@@ -1454,7 +1473,9 @@ int value(t_token *token){ ///проверенна
         }
         exp_init(ast_node->expression);
     }
-
+    if(ast_node->it_is_variable_){
+        ast_node->it_is_variable_expression = true;
+    }
     GET_TOKEN(token);
     if(token->token_name == TOKEN_IDENTIFIER){
         GET_TOKEN(token);
