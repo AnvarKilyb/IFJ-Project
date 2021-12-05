@@ -453,22 +453,26 @@ AST_leaf *get_expression(t_token *token, t_stack *stack, AST_leaf *tree, e_error
     return tree;
 }
 
-AST_leaf *precede_expression(t_token *token,t_ast_node *ast_node, e_error_message *e_check){
-    char *var_type;
-    char *token_type;
+AST_leaf *precede_expression(t_token *token, e_error_message *e_check){
     t_stack stack;
     prec_symbol token_symbol, top_symbol;
     AST_leaf *tree = init_leaf();
     int operation;
+    bool id_to_id = false;
     *e_check = IT_IS_OK;
     stack_init(&stack);
     stack_push(&stack, NULL, PREC_DOLLAR);
 
     do{
-
         //Основная
-        token_symbol = get_symbol_from_token(token);
         top_symbol = stack_top(&stack)->symbol;
+        token_symbol = get_symbol_from_token(token);
+
+        if(token_symbol == PREC_IDENTIFIER && top_symbol == PREC_IDENTIFIER) {
+            token->token_name = TOKEN_KEYWORD;
+            id_to_id = true;
+        }
+
         if(top_symbol == PREC_NON_TERM)
             top_symbol = stack_top(&stack)->down_element->symbol;
         operation = find_operation(token, &stack);
@@ -492,6 +496,9 @@ AST_leaf *precede_expression(t_token *token,t_ast_node *ast_node, e_error_messag
             if(get_token(token)) *e_check = ERROR_LEX_ANALYSIS;
     }
     while(1);
+    if(id_to_id) {
+        token->token_name = TOKEN_IDENTIFIER;
+    }
 
     stack_free(&stack);
     hold_token();
