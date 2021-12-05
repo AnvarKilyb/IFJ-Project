@@ -468,7 +468,7 @@ AST_leaf *precede_expression(t_token *token, e_error_message *e_check){
         top_symbol = stack_top(&stack)->symbol;
         token_symbol = get_symbol_from_token(token);
 
-        if(token_symbol == PREC_IDENTIFIER && top_symbol == PREC_IDENTIFIER) {
+        if((token_symbol == PREC_IDENTIFIER && top_symbol == PREC_IDENTIFIER) || (token_symbol == PREC_IDENTIFIER && top_symbol == PREC_RIGHT_BRACKET)) {
             token->token_name = TOKEN_KEYWORD;
             id_to_id = true;
         }
