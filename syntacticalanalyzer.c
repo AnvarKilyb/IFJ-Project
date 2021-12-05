@@ -1590,7 +1590,7 @@ int value(t_token *token){ ///проверенна
             get_old_token(token);
             AST_leaf *tree;
 
-            tree = precede_expression(token, ast_node, &ERROR_ALL);
+            tree = precede_expression(token, &ERROR_ALL);
             if(ERROR_ALL == ERROR_SEMANTIC_ANALYSIS){
                 ERROR_TEXT("invalid expression");
                 RETURN_ERROR_NUMBER(ERROR_ALL);
