@@ -495,3 +495,45 @@
 //    }
 //    return IT_IS_OK;
 //}
+
+
+
+
+
+//
+//node *function_var = NULL;
+//ul hash = hashcode(token->lexeme->inter->data);
+//if (ast_node->it_is_if || ast_node->it_is_loop) {
+//function_var = tree_search(ast_node->local, hash);
+//if (!function_var) {
+//function_var = tree_search(ast_node->in_function, hash);
+//if (!function_var) {
+//*e_check = ERROR_SEMANTIC_ANALYSIS;
+//}
+//}
+//} else {
+//function_var = tree_search(ast_node->in_function, hash);
+//if (!function_var) {
+//*e_check = ERROR_SEMANTIC_ANALYSIS;
+//return  NULL;
+//
+//}
+//}
+//var_type = ast_node->type_variable->data[0]->data;
+//
+//token_type = function_var->data->type->data;
+//if(strcmp(var_type,"integer") == 0){
+//    if(strcmp(var_type,token_type) != 0){
+//    *e_check = ERROR_SEMANTIC_ANALYSIS_EXPR;
+//    }
+//}
+//else if(strcmp(var_type,"string") == 0){
+//if(strcmp(var_type,token_type) != 0){
+//*e_check = ERROR_SEMANTIC_ANALYSIS_EXPR;
+//}
+//}
+//else if(strcmp(var_type,"number") == 0){
+//if(strcmp("string",token_type) == 0){
+//*e_check = ERROR_SEMANTIC_ANALYSIS_EXPR;
+//}
+//}

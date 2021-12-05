@@ -81,10 +81,10 @@ int find_token(t_token* token)
                     token->token_name = TOKEN_LENGTH;
                     string_wright_char(string, symbol);
                     return IT_IS_OK;
-                }else if(symbol == '%'){
-                    token->token_name = TOKEN_WRIGHT;
-                    string_wright_char(string, symbol);
-                    return IT_IS_OK;
+//                }else if(symbol == '%'){
+//                    token->token_name = TOKEN_WRIGHT;
+//                    string_wright_char(string, symbol);
+//                    return IT_IS_OK;
                 }else if(symbol == ':'){
                     token->token_name = TOKEN_ASSIGNMENT_TYPE;
                     string_wright_char(string, symbol);
@@ -587,7 +587,7 @@ int prepar_analysis(t_token* token)
 }
 
 void hold_token(){
-    hold = true;
+    hold++;
 }
 void old_token_allocate(){
     old_token = malloc(sizeof (t_token));
@@ -603,12 +603,14 @@ void old_token_allocate(){
     old_token->lexeme->number = 0.0;
 }
 void get_old_token(t_token* token){
-    token_save = malloc(sizeof (t_token));
-    token_save->token_name = token->token_name;
-    token_save->lexeme = token->lexeme;
-    token->token_name = old_token->token_name;
-    token->lexeme = old_token->lexeme;
-    token->str = old_token->str;
+    if(!token_save) {
+        token_save = malloc(sizeof(t_token));
+        token_save->token_name = token->token_name;
+        token_save->lexeme = token->lexeme;
+        token->token_name = old_token->token_name;
+        token->lexeme = old_token->lexeme;
+        token->str = old_token->str;
+    }
 }
 
 void to_old_token(t_token* token){
@@ -629,7 +631,7 @@ int get_token(t_token* token)
         token_save = NULL;
     }
     if(hold){
-        hold = false;
+        hold--;
         return IT_IS_OK;
     }
 

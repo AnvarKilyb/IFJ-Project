@@ -17,7 +17,7 @@
 #define SCALE_OF_NOTATION 10;
 static FILE *code_file = NULL;
 static t_str *string = NULL;
-static  bool hold = false;
+static  int hold = 0;
 
 
 typedef enum {

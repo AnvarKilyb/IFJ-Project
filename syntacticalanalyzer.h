@@ -52,6 +52,7 @@ typedef struct s_ast_node{
     int count_expression;
     int count_func_param;
 
+    int count_nesting;
     bool it_is_variable_;
     bool it_is_variable_expression;
     bool it_is_variable_call_function;

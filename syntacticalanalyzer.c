@@ -423,6 +423,11 @@ int variable_data_type(t_token* token, ul hash){ ///проверенна
 int statement(t_token *token){ ///проверенная кроме if и while
     GET_TOKEN(token);
     if(token->token_name == TOKEN_KEYWORD && token->lexeme->keyword == KEYWORD_LOCAL){
+        if(ast_node->it_is_loop || ast_node->it_is_if){
+            if (if_loop_ast_next()) {
+                RETURN_ERROR_NUMBER(ERROR_INTERNAL);
+            }
+        }
         sData* function_var = NULL;
         GET_TOKEN(token);
         if(token->token_name == TOKEN_IDENTIFIER){
@@ -447,8 +452,12 @@ int statement(t_token *token){ ///проверенная кроме if и while
                 function_var = NULL;
                 RETURN_ERROR_NUMBER(ERROR_INTERNAL);
             }
-            string_init(function_var->name);
-            string_copy(token->lexeme->inter, function_var->name);
+            if(string_init(function_var->name)){
+                RETURN_ERROR_NUMBER(ERROR_INTERNAL);
+            }
+            if(string_copy(token->lexeme->inter, function_var->name)){
+                RETURN_ERROR_NUMBER(ERROR_INTERNAL);
+            }
             if(ast_node->it_is_if || ast_node->it_is_loop)
             {
                 node* in_function = NULL;
@@ -474,6 +483,9 @@ int statement(t_token *token){ ///проверенная кроме if и while
                         RETURN_ERROR_NUMBER(ERROR_INTERNAL);
                     }
                 }
+                if(!ast_node->local){
+                    ast_node->local = table_top(stack_table);
+                }
             }else{
                 node* in_function = table_top(stack_table);
                 if(!in_function){
@@ -497,11 +509,14 @@ int statement(t_token *token){ ///проверенная кроме if и while
                         RETURN_ERROR_NUMBER(ERROR_INTERNAL);
                     }
                 }
+                if(!ast_node->in_function){
+                    ast_node->in_function = table_top(stack_table);
+                }
             }
 
-            if(!ast_node->in_function){
-                ast_node->in_function = table_top(stack_table);
-            }
+//            if(!ast_node->in_function){
+//                ast_node->in_function = table_top(stack_table);
+//            }
             ast_node->it_is_declaration_variable = true;
             ast_node->count_variable++;
             ast_node->variable = malloc(sizeof (t_str_param));
@@ -535,11 +550,7 @@ int statement(t_token *token){ ///проверенная кроме if и while
             if(value(token)){
                 RETURN_ERROR;
             }else{
-                if(ast_node->it_is_loop || ast_node->it_is_if) {
-                    if (if_loop_ast_next()) {
-                        RETURN_ERROR_NUMBER(ERROR_INTERNAL);
-                    }
-                }else{
+                if(!ast_node->it_is_loop && !ast_node->it_is_if) {
                     if(send_ast()){
                         RETURN_ERROR;
                     }
@@ -547,11 +558,7 @@ int statement(t_token *token){ ///проверенная кроме if и while
             }
         }else{ //если не равно то мы должны либо отправить узел, либо продолжить лист если это while или if
             hold_token();
-            if(ast_node->it_is_loop || ast_node->it_is_if) {
-                if (if_loop_ast_next()) {
-                    RETURN_ERROR_NUMBER(ERROR_INTERNAL);
-                }
-            }else{
+            if(!ast_node->it_is_loop && !ast_node->it_is_if) {
                 if(send_ast()){
                     RETURN_ERROR;
                 }
@@ -563,12 +570,23 @@ int statement(t_token *token){ ///проверенная кроме if и while
         }
 
     }else if(token->token_name == TOKEN_IDENTIFIER){
+        if(ast_node->it_is_loop || ast_node->it_is_if){
+            if (if_loop_ast_next()) {
+                RETURN_ERROR_NUMBER(ERROR_INTERNAL);
+            }
+        }
         GET_TOKEN(token);
         if(token->token_name == TOKEN_LEFT_BRACKET) {
             hold_token();
             get_old_token(token);
             if(function_call(token)){
                 RETURN_ERROR;
+            }else{
+                if(!ast_node->it_is_loop && !ast_node->it_is_if){
+                    if(send_ast()){
+                        RETURN_ERROR_NUMBER(ERROR_INTERNAL);
+                    }
+                }
             }
             if(statement(token)){
                 RETURN_ERROR;
@@ -631,11 +649,7 @@ int statement(t_token *token){ ///проверенная кроме if и while
             if (value(token)) {
                 RETURN_ERROR;
             } else {
-                if(ast_node->it_is_loop || ast_node->it_is_if) {
-                    if (if_loop_ast_next()) {
-                        RETURN_ERROR_NUMBER(ERROR_INTERNAL);
-                    }
-                }else{
+                if(!ast_node->it_is_loop && !ast_node->it_is_if) {
                     if(send_ast()){
                         RETURN_ERROR;
                     }
@@ -648,6 +662,12 @@ int statement(t_token *token){ ///проверенная кроме if и while
         }
 
     }else if(token->token_name == TOKEN_KEYWORD && token->lexeme->keyword == KEYWORD_IF ){
+        if(ast_node->it_is_loop || ast_node->it_is_if){
+            if (if_loop_ast_next()) {
+                RETURN_ERROR_NUMBER(ERROR_INTERNAL);
+            }
+        }
+        ast_node->count_nesting++;
         ast_node->it_is_if = true;
         ast_node->it_is_start_if_loop = true;
 
@@ -660,24 +680,24 @@ int statement(t_token *token){ ///проверенная кроме if и while
         }
 
         GET_TOKEN(token);
+
         AST_leaf *tree;
         tree = precede_expression(token, ast_node, &ERROR_ALL);
-        if(ERROR_ALL != IT_IS_OK){
-            error_check = true;//TODO
+        if(ERROR_ALL == ERROR_SEMANTIC_ANALYSIS){
+            ERROR_TEXT("invalid expression");
+            RETURN_ERROR_NUMBER(ERROR_ALL);
         }
-
+        else if(ERROR_ALL == ERROR_SEMANTIC_ANALYSIS_EXPR){
+            ERROR_TEXT("incompatible type");
+            RETURN_ERROR_NUMBER(ERROR_ALL);
+        }
         ast_node->expression->preced_expression_tree = tree;
-        if_loop_ast_next();
-//        if(expression(token)){
-//            return ERROR_SYN_ANALYSIS;
-//
-//        }
+//        if_loop_ast_next();
 
 
-
-
+        GET_TOKEN(token);
         if(token->token_name != TOKEN_KEYWORD && token->lexeme->keyword != KEYWORD_THEN){
-            ERROR_TEXT("expected then");
+            ERROR_TEXT("expected THEN");
             RETURN_ERROR_NUMBER(ERROR_SYN_ANALYSIS);
         }
 
@@ -685,69 +705,122 @@ int statement(t_token *token){ ///проверенная кроме if и while
             RETURN_ERROR;
         }
 
-        GET_TOKEN(token);
+//        GET_TOKEN(token);
+        if(if_loop_ast_next()){
+                RETURN_ERROR_NUMBER(ERROR_INTERNAL);
+            }
         if(token->token_name != TOKEN_KEYWORD && token->lexeme->keyword != KEYWORD_ELSE){
-            return ERROR_SYN_ANALYSIS;
-            //TODO error
+            ERROR_TEXT("expected ELSE");
+            RETURN_ERROR_NUMBER(ERROR_SYN_ANALYSIS);
         } else{
             ast_node->if_else = true;
-            if(if_loop_ast_next()){
-                RETURN_ERROR_NUMBER(ERROR_INTERNAL);
+//            if(if_loop_ast_next()){
+//                RETURN_ERROR_NUMBER(ERROR_INTERNAL);
+//            }
+        }
+
+        if(statement(token)){
+            RETURN_ERROR;
+        }
+        if(if_loop_ast_next()){
+            RETURN_ERROR_NUMBER(ERROR_INTERNAL);
+        }
+        if(token->token_name != TOKEN_KEYWORD && token->lexeme->keyword != KEYWORD_END){
+            ERROR_TEXT("expected END");
+            RETURN_ERROR_NUMBER(ERROR_SYN_ANALYSIS);
+        }else{
+            if(ast_node->count_nesting == 1) {
+                ast_node->if_loop_end = true;
+                ast_node = ast_node->first_node;
+                ast_node->count_nesting--;
+                send_ast();
+            }else if(ast_node->count_nesting > 1){
+                ast_node->if_loop_end = true;
+                ast_node->count_nesting--;
+            }else{
+                ERROR_TEXT("structure nesting error");
+                RETURN_ERROR_NUMBER(ERROR_SYN_ANALYSIS);
             }
         }
 
         if(statement(token)){
-            return ERROR_SYN_ANALYSIS;
-            //TODO error
-        }
-
-        if(token->token_name != TOKEN_KEYWORD && token->lexeme->keyword != KEYWORD_END){
-            return ERROR_SYN_ANALYSIS;
-            //TODO error
-        }else{
-            ast_node->if_loop_end = true;
-            ast_node = ast_node->first_node;
-            send_ast();
-        }
-
-        if(statement(token)){
-            return ERROR_SYN_ANALYSIS;
-            //TODO error
+           RETURN_ERROR;
         }
 
     }else if(token->token_name == TOKEN_KEYWORD && token->lexeme->keyword == KEYWORD_WHILE){
-        ast_node->it_is_loop = true;
-        if(expression(token)){
-            return ERROR_SYN_ANALYSIS;
-            //TODO error
+        if(ast_node->it_is_loop || ast_node->it_is_if){
+            if (if_loop_ast_next()) {
+                RETURN_ERROR_NUMBER(ERROR_INTERNAL);
+            }
         }
+        ast_node->count_nesting++;
+        ast_node->it_is_loop = true;
+        ast_node->it_is_start_if_loop = true;
+
+        if(!ast_node->expression){
+            ast_node->expression = malloc(sizeof (t_exp_list));
+            if(!ast_node->expression){
+                RETURN_ERROR_NUMBER(ERROR_INTERNAL);
+            }
+            exp_init(ast_node->expression);
+        }
+
+        GET_TOKEN(token);
+
+        AST_leaf *tree;
+        tree = precede_expression(token, ast_node, &ERROR_ALL);
+        if(ERROR_ALL == ERROR_SEMANTIC_ANALYSIS){
+            ERROR_TEXT("invalid expression");
+            RETURN_ERROR_NUMBER(ERROR_ALL);
+        }
+        else if(ERROR_ALL == ERROR_SEMANTIC_ANALYSIS_EXPR){
+            ERROR_TEXT("incompatible type");
+            RETURN_ERROR_NUMBER(ERROR_ALL);
+        }
+        ast_node->expression->preced_expression_tree = tree;
+
 
         GET_TOKEN(token);
         if(token->token_name != TOKEN_KEYWORD && token->lexeme->keyword != KEYWORD_DO){
-            return ERROR_SYN_ANALYSIS;
-            //TODO error
+            ERROR_TEXT("expected DO");
+            RETURN_ERROR_NUMBER(ERROR_SYN_ANALYSIS);
         }
 
         if(statement(token)){
-            return ERROR_SYN_ANALYSIS;
-            //TODO error
+            RETURN_ERROR;
         }
 
-        GET_TOKEN(token);
+//        GET_TOKEN(token);
+        if(if_loop_ast_next()){
+            RETURN_ERROR_NUMBER(ERROR_INTERNAL);
+        }
         if(token->token_name != TOKEN_KEYWORD && token->lexeme->keyword != KEYWORD_END){
-            return ERROR_SYN_ANALYSIS;
-            //TODO error
+            ERROR_TEXT("expected END");
+            RETURN_ERROR_NUMBER(ERROR_SYN_ANALYSIS);
         }else{
-            ast_node->if_loop_end = true;
-            ast_node = ast_node->first_node;
-            send_ast();
+            if(ast_node->count_nesting == 1) {
+                ast_node->if_loop_end = true;
+                ast_node = ast_node->first_node;
+                send_ast();
+            }else if(ast_node->count_nesting > 1){
+                ast_node->if_loop_end = true;
+                ast_node->count_nesting--;
+            }else{
+                ERROR_TEXT("structure nesting error");
+                RETURN_ERROR_NUMBER(ERROR_SYN_ANALYSIS);
+            }
         }
 
         if(statement(token)){
-            return ERROR_SYN_ANALYSIS;
-            //TODO error
+           RETURN_ERROR;
         }
+
     }else if(token->token_name == TOKEN_KEYWORD && token->lexeme->keyword == KEYWORD_RETURN){
+        if(ast_node->it_is_loop || ast_node->it_is_if){
+            if (if_loop_ast_next()) {
+                RETURN_ERROR_NUMBER(ERROR_INTERNAL);
+            }
+        }
         if(return_exp(token)){
             RETURN_ERROR;
         }else{
@@ -764,11 +837,7 @@ int statement(t_token *token){ ///проверенная кроме if и while
                     ast_node->expression = ast_node->expression->first_exp;
                 }
             }
-            if(ast_node->it_is_loop || ast_node->it_is_if) {
-                if (if_loop_ast_next()) {
-                    RETURN_ERROR_NUMBER(ERROR_INTERNAL);
-                }
-            }else{
+            if(!ast_node->it_is_loop && !ast_node->it_is_if) {
                 if(send_ast()){
                     RETURN_ERROR;
                 }
@@ -866,7 +935,7 @@ int function_call(t_token *token){ /// проверенная
 
 int args(t_token *token){ /// проверенная
     GET_TOKEN(token);
-    if(ast_node->count_func_param >= ast_node->func->count_params){
+    if((ast_node->count_func_param >= ast_node->func->count_params) && !ast_node->func->system_function_infinity_param){
         ERROR_TEXT("the number of function parameters received does not match the declaration or definition");
         RETURN_ERROR_NUMBER(ERROR_SEMANTIC_ANALYSIS_PARAM_IN_FUNC);
     }else{
@@ -885,7 +954,20 @@ int args(t_token *token){ /// проверенная
         exp_init(ast_node->expression);
     }
 
-    if(token->token_name == TOKEN_INTEGER){
+    if(string_arr_cmp(ast_node->func->name,"write")){
+        ast_node->expression->str = true;
+        ast_node->expression->data_string = malloc(sizeof(t_str));
+        if(!ast_node->expression->data_string){
+            RETURN_ERROR_NUMBER(ERROR_INTERNAL);
+        }
+        if(string_init(ast_node->expression->data_string)){
+            RETURN_ERROR_NUMBER(ERROR_INTERNAL);
+        }
+        if(string_copy(token->lexeme->inter,ast_node->expression->data_string)){
+            RETURN_ERROR_NUMBER(ERROR_INTERNAL);
+        }
+        ast_node->func->count_params =  ast_node->count_func_param;
+    }else if(token->token_name == TOKEN_INTEGER){
         if(string_param_cmp_arr(ast_node->func->type_params,ast_node->count_func_param,integ) ||
                 string_param_cmp_arr(ast_node->func->type_params,ast_node->count_func_param,numb)){
             //записываем число в параметры;
@@ -1517,6 +1599,7 @@ int value(t_token *token){ ///проверенна
                 ERROR_TEXT("incompatible type");
                 RETURN_ERROR_NUMBER(ERROR_ALL);
             }
+            ast_node->expression->preced_expression_tree = tree;
         }else{
             hold_token();
             get_old_token(token);
@@ -1640,9 +1723,19 @@ int value(t_token *token){ ///проверенна
             }
         }
     }else if(token->token_name == TOKEN_LENGTH){
-        hold_token();
-        int a = 2;
-        //TODO прецеденчни
+//        hold_token();
+        AST_leaf *tree;
+
+        tree = precede_expression(token, ast_node, &ERROR_ALL);
+        if(ERROR_ALL == ERROR_SEMANTIC_ANALYSIS){
+            ERROR_TEXT("invalid expression");
+            RETURN_ERROR_NUMBER(ERROR_ALL);
+        }
+        else if(ERROR_ALL == ERROR_SEMANTIC_ANALYSIS_EXPR){
+            ERROR_TEXT("incompatible type");
+            RETURN_ERROR_NUMBER(ERROR_ALL);
+        }
+        ast_node->expression->preced_expression_tree = tree;
     }else if(token->token_name == TOKEN_LEFT_BRACKET){
         hold_token();
         //TODO анализа прецеденчни
@@ -1767,7 +1860,7 @@ void ast_init(t_ast_node* ast){
     ast->expression = NULL;
     ast->count_expression = 0;
 
-
+    ast->count_nesting = 0;
     ast->it_is_variable_ = false;
     ast->it_is_variable_expression = false;
     ast->it_is_variable_call_function = false;
@@ -1798,6 +1891,42 @@ void ast_free(t_ast_node* ast){
     t_ast_node *ptr = ast->next_node;
     while(ast->next_node){
         ast->next_node = ptr->next_node;
+
+        if(ptr->expression){
+            if(ptr->expression->first_exp){
+                ptr->expression = ptr->expression->first_exp;
+            }
+
+            t_exp_list *p = ptr->expression->next_exp;
+            while (ptr->expression->next_exp) {
+                ptr->expression->next_exp = p->next_exp;
+                if(p->variable){
+                    string_free(p->variable);
+                    p->variable = NULL;
+                }
+                if(p->data_string){
+                    string_free(p->data_string);
+                }
+                if(p->preced_expression_tree){
+                    delete_ast(p->preced_expression_tree);
+                }
+                free(p);
+                p = ptr->expression->next_exp;
+            }
+            if(ptr->expression->variable){
+                string_free(ptr->expression->variable);
+                ptr->variable = NULL;
+            }
+            if(ptr->expression->data_string){
+                string_free(ptr->expression->data_string);
+            }
+            if(ptr->expression->preced_expression_tree){
+                delete_ast(ptr->expression->preced_expression_tree);
+            }
+            free(ptr->expression);
+        }
+
+
         free(ptr);
         ptr = ast->next_node;
     }
@@ -1817,16 +1946,22 @@ void ast_free(t_ast_node* ast){
             if(p->data_string){
                 string_free(p->data_string);
             }
+            if(p->preced_expression_tree){
+                delete_ast(p->preced_expression_tree);
+            }
             free(p);
             p = ast->expression->next_exp;
         }
         if(ast->expression->variable){
-                string_free(ast->expression->variable);
-                ast->variable = NULL;
-            }
-            if(ast->expression->data_string){
-                string_free(ast->expression->data_string);
-            }
+            string_free(ast->expression->variable);
+            ast->variable = NULL;
+        }
+        if(ast->expression->data_string){
+            string_free(ast->expression->data_string);
+        }
+        if(ast->expression->preced_expression_tree){
+            delete_ast(ast->expression->preced_expression_tree);
+        }
         free(ast->expression);
     }
 
@@ -1925,6 +2060,8 @@ int add_table_symbols_system_function(char* name){
     if(string_arr_cmp(str,"write")){
         function_var->count_returned_params = 0;
         function_var->system_function_infinity_param = true;
+        string_param_free(function_var->type_returned_params);
+        function_var->type_returned_params = NULL;
     }else if(string_arr_cmp(str,"reads")){
         if(string_wright_arr(str, strin)){
             string_free(str);
@@ -2191,19 +2328,20 @@ int add_table_symbols_system_function(char* name){
             return ERROR_INTERNAL;
         }
     }
-
-    if(string_param_copy_string(function_var->type_returned_params, str)){
-        string_free(str);
-        if(function_var->type_params)
-            string_param_free(function_var->type_params);
-        if(function_var->type_returned_params)
-            string_param_free(function_var->type_returned_params);
-        if(function_var->name)
-            string_free(function_var->name);
-        if(function_var->type)
-            string_free(function_var->type);
-        free(function_var);
-        return ERROR_INTERNAL;
+    if(function_var->type_returned_params) {
+        if (string_param_copy_string(function_var->type_returned_params, str)) {
+            string_free(str);
+            if (function_var->type_params)
+                string_param_free(function_var->type_params);
+            if (function_var->type_returned_params)
+                string_param_free(function_var->type_returned_params);
+            if (function_var->name)
+                string_free(function_var->name);
+            if (function_var->type)
+                string_free(function_var->type);
+            free(function_var);
+            return ERROR_INTERNAL;
+        }
     }
     global_table = tree_insert(global_table, hashcode(function_var->name->data),function_var);
     if(!global_table){
@@ -2268,12 +2406,14 @@ int if_loop_ast_next(){
     if(!ast_node->next_node){
         return ERROR_INTERNAL;
     }
+    ast_init(ast_node->next_node);
     t_ast_node* ptr = ast_node->next_node;
-    ast_init(ptr);
+//    ast_init(ptr);
     if(!ast_node->first_node){
         ast_node->first_node = ast_node;
     }
     ptr->first_node = ast_node->first_node;
+    ptr->count_nesting = ast_node->count_nesting;
     ptr->it_is_loop = ast_node->it_is_loop;
     ptr->it_is_if = ast_node->it_is_if;
     ptr->it_is_in_function = ast_node->it_is_in_function;
