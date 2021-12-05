@@ -222,7 +222,7 @@ static prec_symbol get_symbol_from_token(t_token *token){
             return PREC_DIV;
         case TOKEN_INT_DIVISION:
             return PREC_IDIV;
-        case TOKEN_ASSIGNMENT:
+        case TOKEN_EQUALS:
             return PREC_EQ;
         case TOKEN_CONCATENATION:
             return PREC_CON;
