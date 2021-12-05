@@ -207,7 +207,7 @@ int find_token(t_token* token)
                     return ERROR_LEX_ANALYSIS;
                 }
             case LEXICAL_STATE_IDENTIFIER:
-                if((symbol >= 'A' && symbol <= 'Z' )||( symbol >= 'a' && symbol <= 'z')|| symbol == '_'){
+                if((symbol >= 'A' && symbol <= 'Z' )||( symbol >= 'a' && symbol <= 'z')|| (symbol == '_') || ( symbol >= '0' && symbol <= '9')){
                     string_wright_char(string, symbol);
                     break;
                 }else if(symbol == EOF){

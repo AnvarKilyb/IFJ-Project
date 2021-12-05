@@ -39,130 +39,134 @@ int code_header(){
 //    return IT_IS_OK;
 //}
 int code_gen(t_ast_node *ast_tree){
-    t_ast_node* p = ast_tree;
-    printf("***********************************************************************************\n");
-    while(p){
-        printf("-------------------------------------------------------------------------------\n");
-        if (p->variable || p->type_variable) {
-            printf("variable: ");
-            if (p->type_variable) {
-                for (int i = 0; i < p->count_variable; i++) {
-                    printf("%s  ", p->variable->data[i]->data);
-                }
-            }
-            if (p->type_variable) {
-                if (p->type_variable) {
-                    for (int i = 0; i < p->count_variable; i++) {
-                        printf("%s  ", p->type_variable->data[i]->data);
-                    }
-                    printf("\n");
-                }
-            }
-        }
-        if (p->count_variable != 0) {
-            printf("count_variable: %d\n", p->count_variable);
-        }
-        if (p->func) {
-            printf("%s  ", p->func->name->data);
-            printf("%s  ", p->func->type->data);
-            printf("\t");
-            if(p->func->params) {
-                for (int i = 0; i < p->func->count_params; i++) {
-                    printf("%s  ", p->func->params->data[i]->data);
-                }
-            }
-            if(p->func->type_params) {
-                for (int i = 0; i < p->func->count_params; i++) {
-                    printf("%s  ", p->func->type_params->data[i]->data);
-                }
-            }
-
-            if (p->func->type_returned_params) {
-                printf(":");
-                for (int i = 0; i < p->func->count_returned_params; i++) {
-                    printf("%s  ", p->func->type_returned_params->data[i]->data);
-                }
-            }
-            printf("\n");
-        }
-        printf("count_expression: %d\n",p->count_expression);
-        printf("count_func_param: %d\n",p->count_func_param);
-        if (p->expression) {
-            printf("IN EXP:\n");
-            t_exp_list *ptr = p->expression;
-            while (ptr) {
-                if (ptr->preced_expression_tree) {
-                    print_tree(ptr->preced_expression_tree);
-                    printf("\n");
-                }
-                if (ptr->variable) {
-                    printf("variable: %s\n", ptr->variable->data);
-                }
-                if (ptr->str) {
-                    printf("str: %s\n", ptr->data_string->data);
-                }
-                if (ptr->integer) {
-                    printf("integer: %d\n", ptr->data_int);
-                }
-                if (ptr->numb) {
-                    printf("double: %f\n", ptr->data_double);
-                }
-                if (ptr->nil) {
-                    printf("NIL\n");
-                }
-
-                ptr = ptr->next_exp;
-            }
-        }
-
-
-        if (p->it_is_variable_) {
-            printf("it_is_variable_\n");
-        }
-        if (p->it_is_variable_expression) {
-            printf("it_is_variable_expression\n");
-        }
-        if (p->it_is_variable_call_function) {
-            printf("it_is_variable_call_function\n");
-        }
-        if (p->it_is_declaration_variable) {
-            printf("it_is_declaration_variable\n");
-        }
-        if (p->it_is_loop) {
-            printf("it_is_loop\n");
-        }
-        if (p->it_is_if) {
-            printf("it_is_if\n");
-        }
-        if (p->it_is_function_define) {
-            printf("it_is_function_define\n");
-        }
-        if (p->it_is_call_function) {
-            printf("it_is_call_function\n");
-        }
-        if (p->if_loop_end) {
-            printf("if_loop_end\n");
-        }
-        if (p->if_else) {
-            printf("if_else\n");
-        }
-        if (p->it_is_in_function) {
-            printf("it_is_in_function\n");
-        }
-        if (p->it_is_return) {
-            printf("it_is_return\n");
-        }
-        if (p->it_is_return_exp) {
-            printf("it_is_return_exp\n");
-        }
-        if (p->it_is_start_if_loop) {
-            printf("it_is_start_if_loop\n");
-        }
-        if (p->it_is_function_end) {
-            printf("it_is_function_end\n");
-        }
-        p = p->next_node;
-    }
+//    t_ast_node* p = ast_tree;
+//    printf("***********************************************************************************\n");
+//    while(p){
+//        printf("-------------------------------------------------------------------------------\n");
+//        if (p->variable || p->type_variable) {
+//            printf("variable: ");
+//            if (p->type_variable) {
+//                for (int i = 0; i < p->count_variable; i++) {
+//                    printf("%s  ", p->variable->data[i]->data);
+//                }
+//            }
+//            if (p->type_variable) {
+//                if (p->type_variable) {
+//                    for (int i = 0; i < p->count_variable; i++) {
+//                        printf("%s  ", p->type_variable->data[i]->data);
+//                    }
+//                    printf("\n");
+//                }
+//            }
+//        }
+//        if (p->count_variable != 0) {
+//            printf("count_variable: %d\n", p->count_variable);
+//        }
+//        if (p->func) {
+//            printf("%s  ", p->func->name->data);
+//            printf("%s  ", p->func->type->data);
+//            printf("\t");
+//            if(p->func->params) {
+//                for (int i = 0; i < p->func->count_params; i++) {
+//                    printf("%s  ", p->func->params->data[i]->data);
+//                }
+//            }
+//            if(p->func->type_params) {
+//                for (int i = 0; i < p->func->count_params; i++) {
+//                    printf("%s  ", p->func->type_params->data[i]->data);
+//                }
+//            }
+//
+//            if (p->func->type_returned_params) {
+//                printf(":");
+//                for (int i = 0; i < p->func->count_returned_params; i++) {
+//                    printf("%s  ", p->func->type_returned_params->data[i]->data);
+//                }
+//            }
+//            printf("\n");
+//        }
+//        printf("count_expression: %d\n",p->count_expression);
+//        printf("count_func_param: %d\n",p->count_func_param);
+//        if(p->func) {
+//            printf("type1: %s \n", p->func->type_params->data[0]->data);
+//            printf("type1: %s \n", p->func->type_params->data[1]->data);
+//        }
+//        if (p->expression) {
+//            printf("IN EXP:\n");
+//            t_exp_list *ptr = p->expression;
+//            while (ptr) {
+//                if (ptr->preced_expression_tree) {
+//                    print_tree(ptr->preced_expression_tree);
+//                    printf("\n");
+//                }
+//                if (ptr->var) {
+//                    printf("variable: %s\n", ptr->data->data);
+//                }
+//                if (ptr->str) {
+//                    printf("str: %s\n", ptr->data->data);
+//                }
+//                if (ptr->integer) {
+//                    printf("integer: %s\n", ptr->data->data);
+//                }
+//                if (ptr->numb) {
+//                    printf("double: %s\n", ptr->data->data);
+//                }
+//                if (ptr->nil) {
+//                    printf("NIL\n");
+//                }
+//
+//                ptr = ptr->next_exp;
+//            }
+//        }
+//
+//
+//        if (p->it_is_variable_) {
+//            printf("it_is_variable_\n");
+//        }
+//        if (p->it_is_variable_expression) {
+//            printf("it_is_variable_expression\n");
+//        }
+//        if (p->it_is_variable_call_function) {
+//            printf("it_is_variable_call_function\n");
+//        }
+//        if (p->it_is_declaration_variable) {
+//            printf("it_is_declaration_variable\n");
+//        }
+//        if (p->it_is_loop) {
+//            printf("it_is_loop\n");
+//        }
+//        if (p->it_is_if) {
+//            printf("it_is_if\n");
+//        }
+//        if (p->it_is_function_define) {
+//            printf("it_is_function_define\n");
+//        }
+//        if (p->it_is_call_function) {
+//            printf("it_is_call_function\n");
+//        }
+//        if (p->if_loop_end) {
+//            printf("if_loop_end\n");
+//        }
+//        if (p->if_else) {
+//            printf("if_else\n");
+//        }
+//        if (p->it_is_in_function) {
+//            printf("it_is_in_function\n");
+//        }
+//        if (p->it_is_return) {
+//            printf("it_is_return\n");
+//        }
+//        if (p->it_is_return_exp) {
+//            printf("it_is_return_exp\n");
+//        }
+//        if (p->it_is_start_if_loop) {
+//            printf("it_is_start_if_loop\n");
+//        }
+//        if (p->it_is_function_end) {
+//            printf("it_is_function_end\n");
+//        }
+//        p = p->next_node;
+//    }
 
 
 

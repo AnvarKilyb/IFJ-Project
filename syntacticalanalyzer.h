@@ -19,16 +19,17 @@ typedef struct s_exp_list{
     bool var;
     AST_leaf* preced_expression_tree;
 
-    t_str* variable;
+//    t_str* variable;
+    t_str* data;
 
 
     bool str;
     bool integer;
     bool numb;
     bool nil;
-    int data_int;
-    double data_double;
-    t_str* data_string;
+//    int data_int;
+//    double data_double;
+//    t_str* data_string;
 
     struct s_exp_list* first_exp;
     struct s_exp_list* next_exp;

@@ -322,6 +322,12 @@ int function(t_token *token){
             get_old_token(token);
             if (function_call(token)) {
                 RETURN_ERROR;
+            }else{
+                if(!ast_node->it_is_loop && !ast_node->it_is_if) {
+                    if (send_ast()) {
+                        RETURN_ERROR;
+                    }
+                }
             }
             if (chunk(token)) {
                 RETURN_ERROR;
@@ -648,7 +654,7 @@ int statement(t_token *token){ ///проверенная кроме if и while
 
             if (value(token)) {
                 RETURN_ERROR;
-            } else {
+            }else {
                 if(!ast_node->it_is_loop && !ast_node->it_is_if) {
                     if(send_ast()){
                         RETURN_ERROR;
@@ -682,7 +688,7 @@ int statement(t_token *token){ ///проверенная кроме if и while
         GET_TOKEN(token);
 
         AST_leaf *tree;
-        tree = precede_expression(token, ast_node, &ERROR_ALL);
+        tree = precede_expression(token, &ERROR_ALL);
         if(ERROR_ALL == ERROR_SEMANTIC_ANALYSIS){
             ERROR_TEXT("invalid expression");
             RETURN_ERROR_NUMBER(ERROR_ALL);
@@ -768,7 +774,7 @@ int statement(t_token *token){ ///проверенная кроме if и while
         GET_TOKEN(token);
 
         AST_leaf *tree;
-        tree = precede_expression(token, ast_node, &ERROR_ALL);
+        tree = precede_expression(token, &ERROR_ALL);
         if(ERROR_ALL == ERROR_SEMANTIC_ANALYSIS){
             ERROR_TEXT("invalid expression");
             RETURN_ERROR_NUMBER(ERROR_ALL);
@@ -956,14 +962,14 @@ int args(t_token *token){ /// проверенная
 
     if(string_arr_cmp(ast_node->func->name,"write")){
         ast_node->expression->str = true;
-        ast_node->expression->data_string = malloc(sizeof(t_str));
-        if(!ast_node->expression->data_string){
+        ast_node->expression->data = malloc(sizeof(t_str));
+        if(!ast_node->expression->data){
             RETURN_ERROR_NUMBER(ERROR_INTERNAL);
         }
-        if(string_init(ast_node->expression->data_string)){
+        if(string_init(ast_node->expression->data)){
             RETURN_ERROR_NUMBER(ERROR_INTERNAL);
         }
-        if(string_copy(token->lexeme->inter,ast_node->expression->data_string)){
+        if(string_copy(token->lexeme->inter,ast_node->expression->data)){
             RETURN_ERROR_NUMBER(ERROR_INTERNAL);
         }
         ast_node->func->count_params =  ast_node->count_func_param;
@@ -972,7 +978,16 @@ int args(t_token *token){ /// проверенная
                 string_param_cmp_arr(ast_node->func->type_params,ast_node->count_func_param,numb)){
             //записываем число в параметры;
             ast_node->expression->integer = true;
-            ast_node->expression->data_int = token->lexeme->integer;
+            ast_node->expression->data = malloc(sizeof(t_str));
+            if(!ast_node->expression->data){
+                RETURN_ERROR_NUMBER(ERROR_INTERNAL);
+            }
+            if(string_init(ast_node->expression->data)){
+                RETURN_ERROR_NUMBER(ERROR_INTERNAL);
+            }
+            if(string_copy(token->lexeme->inter,ast_node->expression->data)){
+                RETURN_ERROR_NUMBER(ERROR_INTERNAL);
+            }
         }else{
             ERROR_TEXT("the function does not take an integer parameter as the given parameter");
             RETURN_ERROR_NUMBER(ERROR_SEMANTIC_ANALYSIS_PARAM_IN_FUNC);
@@ -981,14 +996,14 @@ int args(t_token *token){ /// проверенная
         if(string_param_cmp_arr(ast_node->func->type_params,ast_node->count_func_param,strin)){
             //записываем строку в параметры;
             ast_node->expression->str = true;
-            ast_node->expression->data_string = malloc(sizeof(t_str));
-            if(!ast_node->expression->data_string){
+            ast_node->expression->data = malloc(sizeof(t_str));
+            if(!ast_node->expression->data){
                 RETURN_ERROR_NUMBER(ERROR_INTERNAL);
             }
-            if(string_init(ast_node->expression->data_string)){
+            if(string_init(ast_node->expression->data)){
                 RETURN_ERROR_NUMBER(ERROR_INTERNAL);
             }
-            if(string_copy(token->lexeme->inter,ast_node->expression->data_string)){
+            if(string_copy(token->lexeme->inter,ast_node->expression->data)){
                 RETURN_ERROR_NUMBER(ERROR_INTERNAL);
             }
         }else{
@@ -999,7 +1014,16 @@ int args(t_token *token){ /// проверенная
         if(string_param_cmp_arr(ast_node->func->type_params,ast_node->count_func_param,numb)){
             //записываем число в параметры;
             ast_node->expression->numb = true;
-            ast_node->expression->data_double = token->lexeme->number;
+            ast_node->expression->data = malloc(sizeof(t_str));
+            if(!ast_node->expression->data){
+                RETURN_ERROR_NUMBER(ERROR_INTERNAL);
+            }
+            if(string_init(ast_node->expression->data)){
+                RETURN_ERROR_NUMBER(ERROR_INTERNAL);
+            }
+            if(string_copy(token->lexeme->inter,ast_node->expression->data)){
+                RETURN_ERROR_NUMBER(ERROR_INTERNAL);
+            }
         }else{
             ERROR_TEXT("the function does not take a number parameter as the given parameter");
             RETURN_ERROR_NUMBER(ERROR_SEMANTIC_ANALYSIS_PARAM_IN_FUNC);
@@ -1013,14 +1037,14 @@ int args(t_token *token){ /// проверенная
                     if(string_param_cmp_string(ast_node->func->type_params,ast_node->count_func_param,function_var->data->type)){
                         //записываем
                         ast_node->expression->var = true;
-                        ast_node->expression->variable = malloc(sizeof (t_str));
-                        if(!ast_node->expression->variable){
+                        ast_node->expression->data = malloc(sizeof(t_str));
+                        if(!ast_node->expression->data){
                             RETURN_ERROR_NUMBER(ERROR_INTERNAL);
                         }
-                        if(string_init(ast_node->expression->variable)){
+                        if(string_init(ast_node->expression->data)){
                             RETURN_ERROR_NUMBER(ERROR_INTERNAL);
                         }
-                        if(string_copy(token->lexeme->inter,ast_node->expression->variable)){
+                        if(string_copy(token->lexeme->inter,ast_node->expression->data)){
                             RETURN_ERROR_NUMBER(ERROR_INTERNAL);
                         }
                     }else{
@@ -1034,14 +1058,14 @@ int args(t_token *token){ /// проверенная
                         if(string_param_cmp_string(ast_node->func->type_params,ast_node->count_func_param,function_var->data->type)){
                             //записываем
                             ast_node->expression->var = true;
-                            ast_node->expression->variable = malloc(sizeof (t_str));
-                            if(!ast_node->expression->variable){
+                            ast_node->expression->data = malloc(sizeof(t_str));
+                            if(!ast_node->expression->data){
                                 RETURN_ERROR_NUMBER(ERROR_INTERNAL);
                             }
-                            if(string_init(ast_node->expression->variable)){
+                            if(string_init(ast_node->expression->data)){
                                 RETURN_ERROR_NUMBER(ERROR_INTERNAL);
                             }
-                            if(string_copy(token->lexeme->inter,ast_node->expression->variable)){
+                            if(string_copy(token->lexeme->inter,ast_node->expression->data)){
                                 RETURN_ERROR_NUMBER(ERROR_INTERNAL);
                             }
                         }else{
@@ -1060,14 +1084,14 @@ int args(t_token *token){ /// проверенная
                     if(string_param_cmp_string(ast_node->func->type_params,ast_node->count_func_param,function_var->data->type)){
                         //записываем
                         ast_node->expression->var = true;
-                        ast_node->expression->variable = malloc(sizeof (t_str));
-                        if(!ast_node->expression->variable){
+                        ast_node->expression->data = malloc(sizeof(t_str));
+                        if(!ast_node->expression->data){
                             RETURN_ERROR_NUMBER(ERROR_INTERNAL);
                         }
-                        if(string_init(ast_node->expression->variable)){
+                        if(string_init(ast_node->expression->data)){
                             RETURN_ERROR_NUMBER(ERROR_INTERNAL);
                         }
-                        if(string_copy(token->lexeme->inter,ast_node->expression->variable)){
+                        if(string_copy(token->lexeme->inter,ast_node->expression->data)){
                             RETURN_ERROR_NUMBER(ERROR_INTERNAL);
                         }
                     }else{
@@ -1083,6 +1107,8 @@ int args(t_token *token){ /// проверенная
             ERROR_TEXT("passing a parameter to a function, a variable in the main part of the program");
             RETURN_ERROR_NUMBER(ERROR_SEMANTIC_ANALYSIS);
         }
+    }else if(token->token_name == TOKEN_KEYWORD && token->lexeme->keyword == KEYWORD_NIL){
+        ast_node->expression->nil = true;
     }else{
         // ожидался параметр
         ERROR_TEXT("expected function parameter");
@@ -1624,14 +1650,14 @@ int value(t_token *token){ ///проверенна
             ast_node->expression->var = true;
             // проверяем тип переменной
             if(string_param_cmp_string(check_type, ast_node->count_expression, function_var->data->type)){
-                ast_node->expression->variable = malloc(sizeof(t_str));
-                if(!ast_node->expression->variable){
+                ast_node->expression->data = malloc(sizeof(t_str));
+                if(!ast_node->expression->data){
                     RETURN_ERROR_NUMBER(ERROR_INTERNAL);
                 }
-                if(string_init(ast_node->expression->variable)){
+                if(string_init(ast_node->expression->data)){
                     RETURN_ERROR_NUMBER(ERROR_INTERNAL);
                 }
-                if(string_copy(token->lexeme->inter,ast_node->expression->variable)){
+                if(string_copy(token->lexeme->inter,ast_node->expression->data)){
                     RETURN_ERROR_NUMBER(ERROR_INTERNAL);
                 }
             }else{
@@ -1652,15 +1678,14 @@ int value(t_token *token){ ///проверенна
             hold_token();
             get_old_token(token);
             if (string_param_cmp_arr(check_type, ast_node->count_expression, strin)) {
-                ast_node->expression->str = true;
-                ast_node->expression->data_string = malloc(sizeof(t_str));
-                if(!ast_node->expression->data_string){
+                ast_node->expression->data = malloc(sizeof(t_str));
+                if(!ast_node->expression->data){
                     RETURN_ERROR_NUMBER(ERROR_INTERNAL);
                 }
-                if(string_init(ast_node->expression->data_string)){
+                if(string_init(ast_node->expression->data)){
                     RETURN_ERROR_NUMBER(ERROR_INTERNAL);
                 }
-                if(string_copy(token->lexeme->inter, ast_node->expression->data_string)){
+                if(string_copy(token->lexeme->inter,ast_node->expression->data)){
                     RETURN_ERROR_NUMBER(ERROR_INTERNAL);
                 }
             } else {
@@ -1692,11 +1717,29 @@ int value(t_token *token){ ///проверенна
                     RETURN_ERROR_NUMBER(ERROR_SEMANTIC_ANALYSIS_EQ);
                 }else{
                     ast_node->expression->numb = true;
-                    ast_node->expression->data_double = token->lexeme->number;
+                    ast_node->expression->data = malloc(sizeof(t_str));
+                    if(!ast_node->expression->data){
+                        RETURN_ERROR_NUMBER(ERROR_INTERNAL);
+                    }
+                    if(string_init(ast_node->expression->data)){
+                        RETURN_ERROR_NUMBER(ERROR_INTERNAL);
+                    }
+                    if(string_copy(token->lexeme->inter,ast_node->expression->data)){
+                        RETURN_ERROR_NUMBER(ERROR_INTERNAL);
+                    }
                 }
             }else{
                 ast_node->expression->integer = true;
-                ast_node->expression->data_int = token->lexeme->integer;
+                ast_node->expression->data = malloc(sizeof(t_str));
+                if(!ast_node->expression->data){
+                    RETURN_ERROR_NUMBER(ERROR_INTERNAL);
+                }
+                if(string_init(ast_node->expression->data)){
+                    RETURN_ERROR_NUMBER(ERROR_INTERNAL);
+                }
+                if(string_copy(token->lexeme->inter,ast_node->expression->data)){
+                    RETURN_ERROR_NUMBER(ERROR_INTERNAL);
+                }
             }
         }
 
@@ -1719,14 +1762,23 @@ int value(t_token *token){ ///проверенна
                 RETURN_ERROR_NUMBER(ERROR_SEMANTIC_ANALYSIS_EQ);
             }else{
                 ast_node->expression->numb = true;
-                ast_node->expression->data_double = token->lexeme->number;
+                ast_node->expression->data = malloc(sizeof(t_str));
+                if(!ast_node->expression->data){
+                    RETURN_ERROR_NUMBER(ERROR_INTERNAL);
+                }
+                if(string_init(ast_node->expression->data)){
+                    RETURN_ERROR_NUMBER(ERROR_INTERNAL);
+                }
+                if(string_copy(token->lexeme->inter,ast_node->expression->data)){
+                    RETURN_ERROR_NUMBER(ERROR_INTERNAL);
+                }
             }
         }
     }else if(token->token_name == TOKEN_LENGTH){
 //        hold_token();
         AST_leaf *tree;
 
-        tree = precede_expression(token, ast_node, &ERROR_ALL);
+        tree = precede_expression(token, &ERROR_ALL);
         if(ERROR_ALL == ERROR_SEMANTIC_ANALYSIS){
             ERROR_TEXT("invalid expression");
             RETURN_ERROR_NUMBER(ERROR_ALL);
@@ -1768,28 +1820,26 @@ int value(t_token *token){ ///проверенна
     return IT_IS_OK;
 }
 
-int expression(t_token *token){
-    return IT_IS_OK;
-}
-
-int next_expression(t_token *token){
-    GET_TOKEN(token);
-    if(token->token_name == TOKEN_COMMA){
-        if(expression(token)){
-            return ERROR_SYN_ANALYSIS;
-            //TODO error
-        }
-
-        if(next_expression(token)){
-            return ERROR_SYN_ANALYSIS;
-            //TODO error
-        }
-
-    }else{
-        return IT_IS_OK;
-    }
-    return IT_IS_OK;
-}
+//int expression(t_token *token){
+//    return IT_IS_OK;
+//}
+//
+//int next_expression(t_token *token){
+//    GET_TOKEN(token);
+//    if(token->token_name == TOKEN_COMMA){
+//        if(expression(token)){
+//            return ERROR_SYN_ANALYSIS;
+//        }
+//
+//        if(next_expression(token)){
+//            return ERROR_SYN_ANALYSIS;
+//        }
+//
+//    }else{
+//        return IT_IS_OK;
+//    }
+//    return IT_IS_OK;
+//}
 
 
 int next_id(t_token *token){ ///проверенна
@@ -1870,6 +1920,7 @@ void ast_init(t_ast_node* ast){
     ast->it_is_function_define = false;
     ast->it_is_call_function = false;
     ast->if_loop_end = false;
+    ast->it_is_start_if_loop = false;
     ast->if_else = false;
     ast->it_is_in_function = false;
     ast->it_is_return = false;
@@ -1900,12 +1951,9 @@ void ast_free(t_ast_node* ast){
             t_exp_list *p = ptr->expression->next_exp;
             while (ptr->expression->next_exp) {
                 ptr->expression->next_exp = p->next_exp;
-                if(p->variable){
-                    string_free(p->variable);
-                    p->variable = NULL;
-                }
-                if(p->data_string){
-                    string_free(p->data_string);
+                if(p->data){
+                    string_free(p->data);
+                    p->data = NULL;
                 }
                 if(p->preced_expression_tree){
                     delete_ast(p->preced_expression_tree);
@@ -1913,12 +1961,9 @@ void ast_free(t_ast_node* ast){
                 free(p);
                 p = ptr->expression->next_exp;
             }
-            if(ptr->expression->variable){
-                string_free(ptr->expression->variable);
+            if(ptr->expression->data){
+                string_free(ptr->expression->data);
                 ptr->variable = NULL;
-            }
-            if(ptr->expression->data_string){
-                string_free(ptr->expression->data_string);
             }
             if(ptr->expression->preced_expression_tree){
                 delete_ast(ptr->expression->preced_expression_tree);
@@ -1939,12 +1984,9 @@ void ast_free(t_ast_node* ast){
         t_exp_list *p = ast->expression->next_exp;
         while (ast->expression->next_exp) {
             ast->expression->next_exp = p->next_exp;
-            if(p->variable){
-                string_free(p->variable);
-                p->variable = NULL;
-            }
-            if(p->data_string){
-                string_free(p->data_string);
+            if(p->data){
+                string_free(p->data);
+                p->data = NULL;
             }
             if(p->preced_expression_tree){
                 delete_ast(p->preced_expression_tree);
@@ -1952,12 +1994,9 @@ void ast_free(t_ast_node* ast){
             free(p);
             p = ast->expression->next_exp;
         }
-        if(ast->expression->variable){
-            string_free(ast->expression->variable);
+        if(ast->expression->data){
+            string_free(ast->expression->data);
             ast->variable = NULL;
-        }
-        if(ast->expression->data_string){
-            string_free(ast->expression->data_string);
         }
         if(ast->expression->preced_expression_tree){
             delete_ast(ast->expression->preced_expression_tree);
@@ -2387,15 +2426,12 @@ void exp_init(t_exp_list* exp){
     exp->tree = false;
     exp->var = false;
 
-    exp->variable = NULL;
+
     exp->str = false;
     exp->integer = false;
     exp->numb =false;
     exp->nil = false;
 
-    exp->data_int = 0;
-    exp->data_double = 0.0;
-    exp->data_string = NULL;
 
     exp->first_exp = NULL;
     exp->next_exp = NULL;
