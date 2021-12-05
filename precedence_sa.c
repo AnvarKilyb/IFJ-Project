@@ -2,11 +2,15 @@
 #include <stdlib.h>
 
 #include "precedence_sa.h"
-
-static bool inte = false;
-static bool stri = false;
-static bool numbe = false;
-
+AST_leaf *init_leaf(){
+    AST_leaf *new_leaf = (AST_leaf *) malloc(sizeof(struct A_leaf));
+    if(new_leaf == NULL)
+        return NULL;
+    new_leaf->token = NULL;
+    new_leaf->left = NULL;
+    new_leaf->right = NULL;
+    return new_leaf;
+}
 AST_leaf *create_leaf(t_token *token){
     AST_leaf *new_leaf = (AST_leaf *) malloc(sizeof(struct A_leaf));
     if(new_leaf == NULL){
@@ -454,7 +458,7 @@ AST_leaf *precede_expression(t_token *token,t_ast_node *ast_node, e_error_messag
     char *token_type;
     t_stack stack;
     prec_symbol token_symbol, top_symbol;
-    AST_leaf *tree;
+    AST_leaf *tree = init_leaf();
     int operation;
     *e_check = IT_IS_OK;
     stack_init(&stack);
@@ -480,6 +484,7 @@ AST_leaf *precede_expression(t_token *token,t_ast_node *ast_node, e_error_messag
             tree = get_expression(token, &stack, tree, e_check);
         }
         else{ // empty
+            delete_ast(tree);
             *e_check = ERROR_SEMANTIC_ANALYSIS;
             return NULL;
         }
