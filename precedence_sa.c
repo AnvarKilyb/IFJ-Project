@@ -591,8 +591,10 @@ int check_expression(AST_leaf *tree, t_ast_node *ast_node){
                     if(!string_arr_cmp(function_var->data->type, "string"))
                         return ERROR_SEMANTIC_ANALYSIS_EXPR;
                     else{
-                        if(stack_top(&stack)->down_element->root->token->token_name == TOKEN_LENGTH){
-                            return ERROR_SEMANTIC_ANALYSIS_EXPR;
+                        if(stack.amount_of_elements > 1){
+                            if(stack_top(&stack)->down_element->root->token->token_name == TOKEN_LENGTH){
+                                return ERROR_SEMANTIC_ANALYSIS_EXPR;
+                            }
                         }
                     }
                 }
