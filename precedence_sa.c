@@ -477,6 +477,7 @@ AST_leaf *precede_expression(t_token *token, e_error_message *e_check){
         if(token->token_name == TOKEN_KEYWORD){
             if(token->lexeme->keyword == KEYWORD_NIL){
                 token->token_name = TOKEN_IDENTIFIER;
+                token_symbol = PREC_IDENTIFIER;
                 id_to_nil = true;
             }
         }
@@ -503,9 +504,6 @@ AST_leaf *precede_expression(t_token *token, e_error_message *e_check){
             delete_ast(tree);
             *e_check = ERROR_SEMANTIC_ANALYSIS;
             return NULL;
-        }
-        if(id_to_nil){
-            token->token_name = TOKEN_KEYWORD;
         }
         if(get_symbol_from_token(token) != PREC_DOLLAR || id_to_nil){
             if(get_token(token)) *e_check = ERROR_LEX_ANALYSIS;
