@@ -1687,6 +1687,10 @@ int value(t_token *token){ ///проверенна
                 RETURN_ERROR_NUMBER(ERROR_ALL);
             }
             ast_node->expression->preced_expression_tree = tree;
+            if(check_expression(ast_node->expression->preced_expression_tree, ast_node)){
+                ERROR_TEXT("dadasfdas");
+                RETURN_ERROR_NUMBER(ERROR_SEMANTIC_ANALYSIS_EXPR);
+            }
         }else{
             hold_token();
             get_old_token(token);

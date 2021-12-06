@@ -550,20 +550,23 @@ int check_expression(AST_leaf *tree, t_ast_node *ast_node){
             if(token->token_name == TOKEN_IDENTIFIER){
                 node *function_var = NULL;
                 ul hash = hashcode(token->lexeme->inter->data);
-                if(ast_node->it_is_if || ast_node->it_is_loop){
-                    function_var = tree_search(ast_node->local,hash);
-                    if(!function_var){
-                        function_var = tree_search(ast_node->in_function,hash);
-                        if(!function_var){
-                            return ERROR_SEMANTIC_ANALYSIS;
-                        }
-                    }
-                }else{
-                    function_var = tree_search(ast_node->in_function,hash);
-                    if(!function_var){
-                        return ERROR_SEMANTIC_ANALYSIS;
-                    }
-                }
+                bool error_null = false;
+                function_var = check_type_stack(error_null,hash);
+
+//                if(ast_node->it_is_if || ast_node->it_is_loop){
+//                    function_var = tree_search(ast_node->local,hash);
+//                    if(!function_var){
+//                        function_var = tree_search(ast_node->in_function,hash);
+//                        if(!function_var){
+//                            return ERROR_SEMANTIC_ANALYSIS;
+//                        }
+//                    }
+//                }else{
+//                    function_var = tree_search(ast_node->in_function,hash);
+//                    if(!function_var){
+//                        return ERROR_SEMANTIC_ANALYSIS;
+//                    }
+//                }
                 if(string_param_cmp_arr(ast_node->type_variable, ast_node->count_expression,"integer")){
                     if(string_arr_cmp(function_var->data->type, "string")){
                         if(stack.amount_of_elements > 1){
