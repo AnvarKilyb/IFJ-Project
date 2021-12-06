@@ -1086,6 +1086,7 @@ int args(t_token *token){ /// проверенная
         if(string_param_cmp_arr(ast_node->func->type_params,ast_node->count_func_param,numb)){
             //записываем число в параметры;
             ast_node->expression->numb = true;
+            ast_node->expression->data_double = token->lexeme->number;
             ast_node->expression->data = malloc(sizeof(t_str));
             if(!ast_node->expression->data){
                 RETURN_ERROR_NUMBER(ERROR_INTERNAL);
@@ -1889,6 +1890,7 @@ int value(t_token *token){ ///проверенна
                 RETURN_ERROR_NUMBER(ERROR_SEMANTIC_ANALYSIS_EQ);
             }else{
                 ast_node->expression->numb = true;
+                ast_node->expression->data_double = token->lexeme->number;
                 ast_node->expression->data = malloc(sizeof(t_str));
                 if(!ast_node->expression->data){
                     RETURN_ERROR_NUMBER(ERROR_INTERNAL);
