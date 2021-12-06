@@ -76,7 +76,7 @@ int stack_free(t_stack* stack);
 AST_leaf *create_leaf(t_token *token);
 AST_leaf *create_tree(AST_leaf *leaf_1, AST_leaf *leaf_2, t_token *token);
 void delete_ast(AST_leaf *leaf);
-
+AST_leaf *convert_id_to_nil(AST_leaf *tree);
 #define TABLE_SIZE 15
 //static prec_index get_prec_index(prec_symbol symbol);
 //static prec_symbol get_symbol_from_token(t_token *token);

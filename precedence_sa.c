@@ -61,12 +61,18 @@ void delete_ast(AST_leaf *leaf){
             delete_ast(leaf->right);
 
             if(leaf->token){
-                if(leaf->token->lexeme->inter){
-                    free(leaf->token->lexeme->inter);
+                if(leaf->token->lexeme){
+                    if (leaf->token->lexeme->inter) {
+                        string_free(leaf->token->lexeme->inter);
+                    }
+                    free(leaf->token->lexeme);
+                    leaf->token->lexeme = NULL;
+                    free(leaf->token);
+                    leaf->token = NULL;
                 }
-                free(leaf->token->lexeme);
-                free(leaf->token);
             }
+            free(leaf->token);
+            leaf->token = NULL;
             free(leaf);
             leaf = NULL;
         }

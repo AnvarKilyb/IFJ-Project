@@ -537,3 +537,96 @@
 //*e_check = ERROR_SEMANTIC_ANALYSIS_EXPR;
 //}
 //}
+
+
+
+
+
+
+
+
+
+
+
+//void ast_free(t_ast_node* ast){
+//    if(ast->variable) {
+//        string_param_free(ast->variable);
+//    }
+//
+//    if(ast->type_variable)
+//        string_param_free(ast->type_variable);
+////    if(ast->func_param)
+////        string_param_free(ast->func_param);
+//
+//    t_ast_node *ptr = ast->next_node;
+//    while(ast->next_node){
+//        ast->next_node = ptr->next_node;
+//
+//        if(ptr->expression){
+//            if(ptr->expression->first_exp){
+//                ptr->expression = ptr->expression->first_exp;
+//            }
+//
+//            t_exp_list *p = ptr->expression->next_exp;
+//            while (ptr->expression->next_exp) {
+//                ptr->expression->next_exp = p->next_exp;
+//                if(p->data){
+//                    string_free(p->data);
+//                    p->data = NULL;
+//                }
+//                if(p->preced_expression_tree){
+//                    delete_ast(p->preced_expression_tree);
+//                    p->preced_expression_tree = NULL;
+//                }
+//                free(p);
+//                p = ptr->expression->next_exp;
+//            }
+//            if(ptr->expression->data){
+//                string_free(ptr->expression->data);
+//                ptr->variable = NULL;
+//            }
+//            if(ptr->expression->preced_expression_tree){
+//                delete_ast(ptr->expression->preced_expression_tree);
+//                ptr->expression->preced_expression_tree = NULL;
+//            }
+//            free(ptr->expression);
+//        }
+//
+//
+//        free(ptr);
+//        ptr = ast->next_node;
+//    }
+//
+//    if(ast->expression){
+//        if(ast->expression->first_exp){
+//            ast->expression = ast->expression->first_exp;
+//        }
+//
+//        t_exp_list *p = ast->expression->next_exp;
+//        while (ast->expression->next_exp) {
+//            ast->expression->next_exp = p->next_exp;
+//            if(p->data){
+//                string_free(p->data);
+//                p->data = NULL;
+//            }
+//            if(p->preced_expression_tree){
+//                delete_ast(p->preced_expression_tree);
+//                p->preced_expression_tree = NULL;
+//            }
+//            free(p);
+//            p = ast->expression->next_exp;
+//        }
+//        if(ast->expression->data){
+//            string_free(ast->expression->data);
+//            ast->variable = NULL;
+//        }
+//        if(ast->expression->preced_expression_tree){
+//            delete_ast(ast->expression->preced_expression_tree);
+//            ast->expression->preced_expression_tree = NULL;
+//        }
+//        free(ast->expression);
+//    }
+//
+//    ast_init(ast);
+//}
+
