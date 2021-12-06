@@ -84,4 +84,5 @@ int find_operation(t_token *token, t_stack *stack);
 AST_leaf *reduce_by_rule(t_stack *tmp_stack, t_stack *stack, AST_leaf *tree, e_error_message *e_check);
 AST_leaf *get_expression(t_token *token, t_stack *stack, AST_leaf *tree, e_error_message *e_check);
 AST_leaf *precede_expression(t_token *token, e_error_message *e_check);
+int check_expression(AST_leaf *tree, t_ast_node *ast_node);
 #endif
