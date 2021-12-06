@@ -90,7 +90,7 @@ int code_gen(t_ast_node *ast_tree){
         if(p->func) {
             if(p->func->type_params) {
                 printf("type1: %s \n", p->func->type_params->data[0]->data);
-                printf("type1: %s \n", p->func->type_params->data[1]->data);
+                printf("type2: %s \n", p->func->type_params->data[1]->data);
             }
         }
         if (p->expression) {

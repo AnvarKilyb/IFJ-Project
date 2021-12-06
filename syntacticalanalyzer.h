@@ -99,6 +99,8 @@ int exp_next();
 int if_loop_ast_next();
 int return_exp(t_token* token);
 void error_processing();
+int fake_variable();
+node* check_type_stack(bool error_null, ul hash);
 /*
  *
  *

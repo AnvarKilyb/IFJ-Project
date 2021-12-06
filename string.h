@@ -43,7 +43,7 @@ int string_copy(t_str* str1, t_str* str2);
 /*
  * Вкладвает символ в строку
  */
-void string_wright_char(t_str* str, char symbol);
+int string_wright_char(t_str* str, char symbol);
 
 /*
  * Переписывает масив в строку

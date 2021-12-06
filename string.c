@@ -87,9 +87,11 @@ void string_add_arr(t_str* str1, char* arr){
 /*
  * Вкладвает символ в строку
  */
-void string_wright_char(t_str* str, char symbol){
+int string_wright_char(t_str* str, char symbol){
     if(str->lenght <= str->how_occupied) {
-        string_expansion(str);
+        if(string_expansion(str)){
+            return ERROR_INTERNAL;
+        }
     }
     if(str->how_occupied == 0){
         str->data[str->how_occupied++] = symbol;
@@ -99,7 +101,7 @@ void string_wright_char(t_str* str, char symbol){
         str->data[++str->how_occupied] = NUL;
         str->how_occupied++;
     }
-
+    return IT_IS_OK;
 }
 
 /*
