@@ -459,6 +459,7 @@ AST_leaf *precede_expression(t_token *token, e_error_message *e_check){
     AST_leaf *tree = init_leaf();
     int operation;
     bool id_to_id = false;
+    bool id_to_nil = false;
     *e_check = IT_IS_OK;
     stack_init(&stack);
     stack_push(&stack, NULL, PREC_DOLLAR);
@@ -467,7 +468,12 @@ AST_leaf *precede_expression(t_token *token, e_error_message *e_check){
         //Основная
         top_symbol = stack_top(&stack)->symbol;
         token_symbol = get_symbol_from_token(token);
-
+        if(token->token_name == TOKEN_KEYWORD){
+            if(token->lexeme->keyword == KEYWORD_NIL){
+                token->token_name = TOKEN_IDENTIFIER;
+                id_to_nil = true;
+            }
+        }
         if((token_symbol == PREC_IDENTIFIER && top_symbol == PREC_IDENTIFIER) || (token_symbol == PREC_IDENTIFIER && top_symbol == PREC_RIGHT_BRACKET)) {
             token->token_name = TOKEN_KEYWORD;
             id_to_id = true;
@@ -492,18 +498,75 @@ AST_leaf *precede_expression(t_token *token, e_error_message *e_check){
             *e_check = ERROR_SEMANTIC_ANALYSIS;
             return NULL;
         }
-        if(get_symbol_from_token(token) != PREC_DOLLAR)
+        if(id_to_nil){
+            token->token_name = TOKEN_KEYWORD;
+        }
+        if(get_symbol_from_token(token) != PREC_DOLLAR || id_to_nil){
             if(get_token(token)) *e_check = ERROR_LEX_ANALYSIS;
+            id_to_nil = false;
+        }
+
     }
     while(1);
     if(id_to_id) {
         token->token_name = TOKEN_IDENTIFIER;
     }
 
+    tree = convert_id_to_nil(tree);
     stack_free(&stack);
     hold_token();
     return tree;
 }
+
+AST_leaf *convert_id_to_nil(AST_leaf *tree){
+    if(tree){
+        if(tree->left)
+            convert_id_to_nil(tree->left);
+        if(tree->token->lexeme->keyword == KEYWORD_NIL){
+            tree->token->token_name = TOKEN_KEYWORD;
+        }
+        if(tree->right)
+            convert_id_to_nil(tree->right);
+        return tree;
+    }
+}
+
+//void tree_to_stack(AST_leaf *tree, t_stack *stack){
+//    if(tree){
+//        tree_to_stack(tree->left, stack);
+//        stack_push(stack, tree, get_symbol_from_token(tree->token));
+//        tree_to_stack(tree->right, stack);
+//    }
+//}
+//int check_var_type(t_ast_node *ast_node, AST_leaf *tree){
+//    t_stack stack;
+//    stack_init(&stack);
+//    tree_to_stack(tree, &stack);
+//    while(stack.amount_of_elements != 0){
+//        if(stack_top(&stack)->root->token->token_name == TOKEN_IDENTIFIER){
+//            node* function_var = NULL;
+//            ul hash = hashcode(stack_top(&stack)->root->token->lexeme->inter->data);
+//            if(ast_node->it_is_if || ast_node->it_is_loop){
+//                function_var = tree_search(ast_node->local,hash);
+//                if(!function_var){
+//                    function_var = tree_search(ast_node->in_function,hash);
+//                    if(!function_var){
+//                        return ERROR_SEMANTIC_ANALYSIS;
+//                    }
+//                }
+//            }else{
+//                function_var = tree_search(ast_node->in_function,hash);
+//                if(!function_var){
+//                    return ERROR_SEMANTIC_ANALYSIS;
+//                }
+//            }
+//            //...
+//        }
+//        stack_pop(&stack);
+//    }
+//
+//    return IT_IS_OK;
+//}
 
 
 
