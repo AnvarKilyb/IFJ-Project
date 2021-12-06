@@ -530,6 +530,7 @@ AST_leaf *convert_id_to_nil(AST_leaf *tree){
             convert_id_to_nil(tree->right);
         return tree;
     }
+    return NULL;
 }
 
 void tree_to_stack(AST_leaf *tree, t_stack *stack){
@@ -544,7 +545,7 @@ int check_expression(AST_leaf *tree, t_ast_node *ast_node){
     stack_init(&stack);
     tree_to_stack(tree, &stack);
     t_token *token;
-    if(ast_node->it_is_variable_expression || ast_node->it_is_return_exp){
+    if(ast_node->it_is_variable_expression){
         while(stack.amount_of_elements != 0){
             token = stack_top(&stack)->root->token;
             if(token->token_name == TOKEN_IDENTIFIER){
@@ -553,20 +554,6 @@ int check_expression(AST_leaf *tree, t_ast_node *ast_node){
                 bool error_null = false;
                 function_var = check_type_stack(error_null,hash);
 
-//                if(ast_node->it_is_if || ast_node->it_is_loop){
-//                    function_var = tree_search(ast_node->local,hash);
-//                    if(!function_var){
-//                        function_var = tree_search(ast_node->in_function,hash);
-//                        if(!function_var){
-//                            return ERROR_SEMANTIC_ANALYSIS;
-//                        }
-//                    }
-//                }else{
-//                    function_var = tree_search(ast_node->in_function,hash);
-//                    if(!function_var){
-//                        return ERROR_SEMANTIC_ANALYSIS;
-//                    }
-//                }
                 if(string_param_cmp_arr(ast_node->type_variable, ast_node->count_expression,"integer")){
                     if(string_arr_cmp(function_var->data->type, "string")){
                         if(stack.amount_of_elements > 1){

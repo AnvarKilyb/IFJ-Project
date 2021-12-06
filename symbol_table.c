@@ -65,7 +65,7 @@ node *tree_min(node *root){
 //    string_copy(data->string_params, root->data.string_params);
 //}
 // Создает дерево, уже с первым узлом
-static node *tree_init(unsigned long  key, sData *data){
+node *tree_init(unsigned long  key, sData *data){
     node *root;
     root = malloc(sizeof(node));
     if(!root){

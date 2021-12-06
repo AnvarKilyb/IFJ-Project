@@ -67,7 +67,6 @@
 //}t_stack;
 
 int stack_init(t_stack* stack);
-static int stack_is_empty(t_stack* stack);
 int stack_push(t_stack* stack, AST_leaf *root, prec_symbol symbol);
 t_stack_element* stack_top(t_stack *stack);
 int stack_pop(t_stack* stack);

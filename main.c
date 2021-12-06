@@ -120,7 +120,7 @@ int main(int argc, char** argv){
 //    //TODO обработка ошибок с читением имени файла
     FILE* file_name;
     file_name = fopen( argv[1],"r");
-    printf("%s\n",argv[1]);
+    printf("%s   %d\n",argv[1],argc);
     t_token* token;
     token = malloc(sizeof (t_token));
     token->lexeme = malloc((sizeof (t_lexeme)));

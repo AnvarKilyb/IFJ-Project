@@ -28,7 +28,7 @@ int string_param_init(t_str_param* str)
  */
 void string_param_free(t_str_param* str){
 
-    for(int i = 0; i < str->lenght; i++){
+    for(ull i = 0; i < str->lenght; i++){
         if(str->data[i]) {
             if(str->data[i]->data)
                 free(str->data[i]->data);

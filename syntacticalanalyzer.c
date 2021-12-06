@@ -1292,8 +1292,8 @@ int data_type(t_token *token, node* function_node, bool ret_param){ /// пров
 
         }else{// если это возвращаемые парамеры то
             //если функция была только декларована
-            if (function_node->data->declaration && !(function_node->data->define) ||
-                (!(function_node->data->declaration) && function_node->data->define)) {
+            if (((function_node->data->declaration) && (!function_node->data->define)) ||
+            ((!function_node->data->declaration) && (function_node->data->define))) {
                 //копируем параметры до главной таблицы
                 if(string_param_copy_string(function_node->data->type_returned_params, token->lexeme->inter)){
                     RETURN_ERROR_NUMBER(ERROR_INTERNAL);
@@ -2594,7 +2594,7 @@ void error_processing(){
         del_table = table_pop(stack_table);
         while(del_table){
             del_table = tree_delete(del_table);
-            if(del_table)
+//            if(del_table)
                 del_table = table_pop(stack_table);
         }
         table_delete(stack_table);
@@ -2660,6 +2660,7 @@ int fake_variable(){
         fake_table = tree_delete(fake_table);
         RETURN_ERROR_NUMBER(ERROR_INTERNAL);
     }
+    return IT_IS_OK;
 }
 
 
@@ -2685,7 +2686,7 @@ node* check_type_stack(bool error_null, ul hash){
                 del_table = table_pop(save_table);
                 while(del_table){
                     del_table = tree_delete(del_table);
-                    if(del_table)
+//                    if(del_table)
                         del_table = table_pop(save_table);
                 }
                 table_delete(save_table);
@@ -2713,7 +2714,7 @@ node* check_type_stack(bool error_null, ul hash){
                 del_table = table_pop(save_table);
                 while(del_table){
                     del_table = tree_delete(del_table);
-                    if(del_table)
+//                    if(del_table)
                         del_table = table_pop(save_table);
                 }
                 table_delete(save_table);
@@ -2726,6 +2727,8 @@ node* check_type_stack(bool error_null, ul hash){
 
     table_delete(save_table);
     free(save_table);
+    if(error_null)
+        return NULL;
 
     return function_var;
 }

@@ -4,6 +4,13 @@
 const char* const KEYWORDS[] = {"do","global","number","else","if","require","end","integer","return","function","local","string","nil","then","while"};
 const int AMOUNT_OF_KEYWORDS = (sizeof(KEYWORDS)/sizeof(KEYWORDS[0]));
 
+static FILE *code_file = NULL;
+static t_str *string = NULL;
+static int hold = 0;
+
+static t_token* old_token = NULL;
+static t_token* token_save = NULL;
+
 int file_ptr(FILE* f)
 {
     code_file = f;
@@ -244,6 +251,7 @@ int find_token(t_token* token)
                 }
                 else{
                     state = LEXICAL_STATE_COMMENT_LINE;
+                    break;
                 }
 
             case LEXICAL_STATE_COMMENT_LINE:

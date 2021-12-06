@@ -65,7 +65,7 @@ node* tree_search(node *root, unsigned long key);
 //Находит узел с минимальным ключом, незнаю если нужен но пусть будет
 node* tree_min(node *root);
 //Инициализирует дерево и уже создает первый узел(корень)
-static node *tree_init(unsigned long  key, sData *data);
+node *tree_init(unsigned long  key, sData *data);
 //Добавления узла в дерево ищет куда вставить с помощью ключа
 node *tree_insert(node *root, unsigned long  key, sData *data);
 //Полное удаление дерева

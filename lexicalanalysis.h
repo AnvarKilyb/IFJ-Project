@@ -15,9 +15,9 @@
 
 #define EOL '\n'
 #define SCALE_OF_NOTATION 10;
-static FILE *code_file = NULL;
-static t_str *string = NULL;
-static  int hold = 0;
+//static FILE *code_file = NULL;
+//static t_str *string = NULL;
+//static int hold = 0;
 
 
 typedef enum {
@@ -128,9 +128,6 @@ typedef struct s_token{
     int str;
 }t_token;
 
-
-static t_token* old_token = NULL;
-static t_token* token_save = NULL;
 
 int file_ptr(FILE* f);
 void keyword_check(t_token* token);

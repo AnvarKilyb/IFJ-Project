@@ -1,7 +1,7 @@
 
 #include "codgen.h"
 char *header = ".IFJcode21";
-static t_str *program_body;
+//static t_str *program_body;
 static t_str *program_header;
 
 
