@@ -249,13 +249,10 @@ static prec_symbol get_symbol_from_token(t_token *token){
         case TOKEN_RIGHT_BRACKET:
             return PREC_RIGHT_BRACKET;
         case TOKEN_IDENTIFIER:
-            return PREC_IDENTIFIER;
         case TOKEN_INTEGER:
-            return PREC_INT_NUMBER;
         case TOKEN_NUMBER:
-            return PREC_DOUBLE_NUMBER;
         case TOKEN_STRING:
-            return PREC_STRING;
+            return PREC_IDENTIFIER;
         default:
             return PREC_DOLLAR;
     }
