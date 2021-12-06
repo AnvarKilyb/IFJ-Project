@@ -1614,7 +1614,19 @@ int value(t_token *token){ ///проверенна
                 ERROR_TEXT("expected string of variable type mismatch");
                 RETURN_ERROR_NUMBER(ERROR_SEMANTIC_ANALYSIS_EXPR);
             }
-            //TODO прецеденчни анализа
+            AST_leaf *tree;
+
+            tree = precede_expression(token, &ERROR_ALL);
+            if(ERROR_ALL == ERROR_SEMANTIC_ANALYSIS){
+                ERROR_TEXT("invalid expression");
+                RETURN_ERROR_NUMBER(ERROR_ALL);
+            }
+            else if(ERROR_ALL == ERROR_SEMANTIC_ANALYSIS_EXPR){
+                ERROR_TEXT("incompatible type");
+                RETURN_ERROR_NUMBER(ERROR_ALL);
+            }
+            ast_node->expression->preced_expression_tree = tree;
+            //TODO прецеденчни анализа ..вставил
         }else if(token->token_name == TOKEN_PLUS || token->token_name == TOKEN_MINUS || token->token_name == TOKEN_MULTIPLICATION || token->token_name == TOKEN_DIVISION || token->token_name == TOKEN_INT_DIVISION){
             hold_token();
             get_old_token(token);
@@ -1677,7 +1689,22 @@ int value(t_token *token){ ///проверенна
     }else if(token->token_name == TOKEN_STRING){
         GET_TOKEN(token);
         if(token->token_name == TOKEN_CONCATENATION){
-            //TODO прецеденчни анализа
+            hold_token();
+            get_old_token(token);
+
+            AST_leaf *tree;
+
+            tree = precede_expression(token, &ERROR_ALL);
+            if(ERROR_ALL == ERROR_SEMANTIC_ANALYSIS){
+                ERROR_TEXT("invalid expression");
+                RETURN_ERROR_NUMBER(ERROR_ALL);
+            }
+            else if(ERROR_ALL == ERROR_SEMANTIC_ANALYSIS_EXPR){
+                ERROR_TEXT("incompatible type");
+                RETURN_ERROR_NUMBER(ERROR_ALL);
+            }
+            ast_node->expression->preced_expression_tree = tree;
+            //TODO ..вставил
         }else{
             hold_token();
             get_old_token(token);
