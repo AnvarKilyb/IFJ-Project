@@ -30,11 +30,14 @@ void string_param_free(t_str_param* str){
 
     for(ull i = 0; i < str->lenght; i++){
         if(str->data[i]) {
-            if(str->data[i]->data)
-                free(str->data[i]->data);
-            free(str->data[i]);
+//            if(str->data[i]->data)
+//                free(str->data[i]->data);
+            string_free(str->data[i]);
+//            free(str->data[i]);
         }
+
     }
+    free(str->data);
     free(str);
 }
 

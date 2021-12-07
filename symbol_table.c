@@ -115,6 +115,9 @@ node *tree_delete(node *root){
         if(root->data->type_params){
             string_param_free(root->data->type_params);
         }
+        if(root->data->type_returned_params){
+            string_param_free(root->data->type_returned_params);
+        }
         if(root->data->data_string){
             string_free(root->data->data_string);
         }

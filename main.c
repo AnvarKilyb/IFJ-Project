@@ -144,7 +144,7 @@ int main(int argc, char** argv){
     free(token->lexeme);
     free(token);
     token_free();
-
+    fclose(file_name);
     return a;
 
 
