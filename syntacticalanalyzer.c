@@ -2534,6 +2534,7 @@ void exp_init(t_exp_list* exp){
     exp->tree = false;
     exp->var = false;
     exp->preced_expression_tree = NULL;
+    exp->data = NULL;
 
 
     exp->str = false;
