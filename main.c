@@ -135,31 +135,41 @@ int main(int argc, char** argv){
     token->lexeme->number = 0.0;
     token->str = 1;
 
-    return start_analysis(token);
+    printf("privet\n");
+    int a = 0;
+
+    a = start_analysis(token);
+
+    string_free(token->lexeme->inter);
+    free(token->lexeme);
+    free(token);
+    token_free();
+
+    return a;
 
 
 
 //    while(token->token_name != TOKEN_EOF){
-//        token->lexeme->keyword = 100;
-//        token->lexeme->inter->data[0] = '\0';
-//        token->lexeme->inter->how_occupied = 0;
-//        token->lexeme->integer = 0;
-//        token->lexeme->number = 0.0;
-
+////        token->lexeme->keyword = 100;
+////        token->lexeme->inter->data[0] = '\0';
+////        token->lexeme->inter->how_occupied = 0;
+////        token->lexeme->integer = 0;
+////        token->lexeme->number = 0.0;
+//
 //        if(get_token(token))
 //        {
 //            return 222;
 //        }
-//        printf("string = %d",token->str);
-//        printf("...token{ %d }.....data{ %s }.....keyword{ %d }.....number_int{ %d }.....number_double{ %g }...\n",
-//               token->token_name,token->lexeme->inter->data,token->lexeme->keyword,token->lexeme->integer,token->lexeme->number);
-
-//        get_old_token(token);
-//        printf("...token{ %d }.....data{ %s }.....keyword{ %d }.....number_int{ %d }.....number_double{ %g }...\n",
-//               token->token_name,token->lexeme->inter->data,token->lexeme->keyword,token->lexeme->integer,token->lexeme->number);
-//        get_token(token);
-//        printf("...token{ %d }.....data{ %s }.....keyword{ %d }.....number_int{ %d }.....number_double{ %g }...\n",
-//               token->token_name,token->lexeme->inter->data,token->lexeme->keyword,token->lexeme->integer,token->lexeme->number);
+////        printf("string = %d",token->str);
+////        printf("...token{ %d }.....data{ %s }.....keyword{ %d }.....number_int{ %d }.....number_double{ %g }...\n",
+////               token->token_name,token->lexeme->inter->data,token->lexeme->keyword,token->lexeme->integer,token->lexeme->number);
+//
+////        get_old_token(token);
+////        printf("...token{ %d }.....data{ %s }.....keyword{ %d }.....number_int{ %d }.....number_double{ %g }...\n",
+////               token->token_name,token->lexeme->inter->data,token->lexeme->keyword,token->lexeme->integer,token->lexeme->number);
+////        get_token(token);
+////        printf("...token{ %d }.....data{ %s }.....keyword{ %d }.....number_int{ %d }.....number_double{ %g }...\n",
+////               token->token_name,token->lexeme->inter->data,token->lexeme->keyword,token->lexeme->integer,token->lexeme->number);
 //    }
 
 
@@ -207,6 +217,11 @@ int main(int argc, char** argv){
 //    printf("%d\n",a);
 //    stack_pop(&stack);
 //    printf("%s......%d\n",stack.stack_top,stack.amount_of_elements);
+    string_free(token->lexeme->inter);
+    free(token->lexeme);
+    free(token);
+    token_free();
+    fclose(file_name);
 
     return 0;
 }

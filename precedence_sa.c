@@ -558,60 +558,97 @@ int check_expression(AST_leaf *tree, t_ast_node *ast_node){
                     if(string_arr_cmp(function_var->data->type, "string")){
                         if(stack.amount_of_elements > 1){
                             if(stack_top(&stack)->down_element->root->token->token_name != TOKEN_LENGTH){
+                                stack_free(&stack);
                                 return ERROR_SEMANTIC_ANALYSIS_EXPR;
                             }
                         }
                     }
-                    if(string_arr_cmp(function_var->data->type, "number"))
+                    if(string_arr_cmp(function_var->data->type, "number")){
+                        stack_free(&stack);
                         return ERROR_SEMANTIC_ANALYSIS_EXPR;
+                    }
                 }
                 else if(string_param_cmp_arr(ast_node->type_variable, ast_node->count_expression,"number")){
                     if(string_arr_cmp(function_var->data->type, "string")){
                         if(stack.amount_of_elements > 1){
                             if(stack_top(&stack)->down_element->root->token->token_name != TOKEN_LENGTH){
+                                stack_free(&stack);
+                                return ERROR_SEMANTIC_ANALYSIS_EXPR;
+                            }
+                        }
+                        else{
+                            stack_free(&stack);
+                            return ERROR_SEMANTIC_ANALYSIS_EXPR;
+                        }
+                    }
+                }
+                else if(string_param_cmp_arr(ast_node->type_variable, ast_node->count_expression,"string")){
+                    if(!string_arr_cmp(function_var->data->type, "string")){
+                        stack_free(&stack);
+                        return ERROR_SEMANTIC_ANALYSIS_EXPR;
+                    }
+                    else{
+                        if(stack.amount_of_elements > 1){
+                            if(stack_top(&stack)->down_element->root->token->token_name == TOKEN_LENGTH){
+                                stack_free(&stack);
                                 return ERROR_SEMANTIC_ANALYSIS_EXPR;
                             }
                         }
                     }
                 }
-                else if(string_param_cmp_arr(ast_node->type_variable, ast_node->count_expression,"string")){
-                    if(!string_arr_cmp(function_var->data->type, "string"))
-                        return ERROR_SEMANTIC_ANALYSIS_EXPR;
-                    else{
-                        if(stack.amount_of_elements > 1){
-                            if(stack_top(&stack)->down_element->root->token->token_name == TOKEN_LENGTH){
-                                return ERROR_SEMANTIC_ANALYSIS_EXPR;
-                            }
+                if(stack.amount_of_elements > 1){
+                    if(stack_top(&stack)->down_element->root->token->token_name == TOKEN_LENGTH){
+                        if(!string_arr_cmp(function_var->data->type, "string")){
+                            stack_free(&stack);
+                            return ERROR_SEMANTIC_ANALYSIS_EXPR;
                         }
                     }
                 }
             }
             if(token->token_name == TOKEN_INTEGER){
                 if(string_param_cmp_arr(ast_node->type_variable, ast_node->count_expression,"string")){
+                    stack_free(&stack);
                     return ERROR_SEMANTIC_ANALYSIS_EXPR;
                 }
             }
             else if(token->token_name == TOKEN_NUMBER){
                 if(string_param_cmp_arr(ast_node->type_variable, ast_node->count_expression,"integer")){
+                    stack_free(&stack);
                     return ERROR_SEMANTIC_ANALYSIS_EXPR;
                 }
                 if(string_param_cmp_arr(ast_node->type_variable, ast_node->count_expression,"string")){
+                    stack_free(&stack);
                     return ERROR_SEMANTIC_ANALYSIS_EXPR;
                 }
             }
             else if(token->token_name == TOKEN_STRING){
                 if(!string_param_cmp_arr(ast_node->type_variable, ast_node->count_expression,"string")){
+                    stack_free(&stack);
                     return ERROR_SEMANTIC_ANALYSIS_EXPR;
                 }
             }
             stack_pop(&stack);
         }
     }
-    else{
-        while(stack.amount_of_elements != 0){
+    else if(ast_node->it_is_return_exp){
+        return IT_IS_OK;
+//        while(stack.amount_of_elements != 0){
+//            token = stack_top(&stack)->root->token;
+//            if(token->token_name == TOKEN_IDENTIFIER){
+//                node *function_var = NULL;
+//                ul hash = hashcode(token->lexeme->inter->data);
+//                bool error_null = false;
+//                function_var = check_type_stack(error_null,hash);
+//
+//            }
+//            stack_pop(&stack);
+//        }
+//    }
+//    else{
+//        while(stack.amount_of_elements != 0){
 
-            stack_pop(&stack);
-        }
+//            stack_pop(&stack);
+//        }
     }
 
     return IT_IS_OK;

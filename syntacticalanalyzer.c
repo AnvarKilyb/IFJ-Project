@@ -1770,6 +1770,7 @@ int value(t_token *token){ ///проверенна
             AST_leaf *tree;
 
             tree = precede_expression(token, &ERROR_ALL);
+
             if(ERROR_ALL == ERROR_SEMANTIC_ANALYSIS){
                 ERROR_TEXT("invalid expression");
                 RETURN_ERROR_NUMBER(ERROR_ALL);
@@ -1912,6 +1913,8 @@ int value(t_token *token){ ///проверенна
         AST_leaf *tree;
 
         tree = precede_expression(token, &ERROR_ALL);
+        ERROR_ALL = check_expression(tree,ast_node);
+        printf("dasfsdg\n");
         if(ERROR_ALL == ERROR_SEMANTIC_ANALYSIS){
             ERROR_TEXT("invalid expression");
             RETURN_ERROR_NUMBER(ERROR_ALL);
@@ -2047,7 +2050,8 @@ void ast_init(t_ast_node* ast){
     ast->next_node = NULL;
 }
 void ast_free(t_ast_node* ptr){
-    t_ast_node* ast = ptr->next_node;
+   t_ast_node* ast = ptr->next_node;
+
 
     while(ast){
         if(ast->variable) {
@@ -2529,6 +2533,7 @@ int send_ast(){
 void exp_init(t_exp_list* exp){
     exp->tree = false;
     exp->var = false;
+    exp->preced_expression_tree = NULL;
 
 
     exp->str = false;
@@ -2583,7 +2588,7 @@ int exp_next(){
 }
 
 void error_processing(){
-    //free all
+//    free all
     if(global_table){
         global_table = tree_delete(global_table);
         global_table = NULL;
@@ -2774,6 +2779,11 @@ int start_analysis(t_token *token){
     }
 
 
-    return (start_program(token));
+
+
+    int a = 0;
+    a = start_program(token);
+    error_processing();
+    return a;
 
 }

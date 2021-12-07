@@ -630,6 +630,18 @@ void to_old_token(t_token* token){
     old_token->str = token->str;
 
 }
+
+void token_free(){
+    if(old_token->lexeme->inter)
+        string_free(old_token->lexeme->inter);
+    if(old_token->lexeme)
+        free(old_token->lexeme);
+    free(old_token);
+    old_token = NULL;
+
+    string_free(string);
+}
+
 int get_token(t_token* token)
 {
     if(token_save){
