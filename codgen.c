@@ -189,6 +189,22 @@ int make_substr(){
     ADD_BUILTIN("GT LF@cond_b LF@position_2 LF@lenght\n");
     ADD_BUILTIN("OR LF@cond_a LF@cond_a LF@cond_b\n");
     ADD_BUILTIN("JUMPIFEQ substr%valid LF@cond_a bool@false\n");
+    ADD_BUILTIN("DEFVAR LF@cond\n");
+    ADD_BUILTIN("GT LF@cond LF@position_1 LF@position_2\n");
+    ADD_BUILTIN("JUMPIFEQ substr%out LF@cond bool@true\n");
+    ADD_BUILTIN("DEFVAR LF@lenght\n");
+    ADD_BUILTIN("STRLEN LF@lenght LF@string\n");
+    ADD_BUILTIN("DEFVAR LF@cond_a\n");
+    ADD_BUILTIN("DEFVAR LF@cond_b\n");
+    ADD_BUILTIN("LT LF@cond_a LF@position_1 int@1\n");
+    ADD_BUILTIN("GT LF@cond_b LF@position_1 LF@lenght\n");
+    ADD_BUILTIN("OR LF@cond_a LF@cond_a LF@cond_b\n");
+    ADD_BUILTIN("JUMPIFEQ substr%out LF@cond_a bool@true\n");
+    ADD_BUILTIN("LT LF@cond_a LF@position_2 int@1\n");
+    ADD_BUILTIN("GT LF@cond_b LF@position_2 LF@lenght\n");
+    ADD_BUILTIN("OR LF@cond_a LF@cond_a LF@cond_b\n");
+    ADD_BUILTIN("JUMPIFEQ substr%valid LF@cond_a bool@false\n");
+    //write an empty string:
     ADD_BUILTIN("LABEL substr%out\n");
     ADD_BUILTIN("MOVE LF@new_string string@\n");
     ADD_BUILTIN("JUMP substr%end\n");
@@ -224,7 +240,7 @@ int make_ord(){
     ADD_BUILTIN("DEFVAR LF@cond_0\n");
     ADD_BUILTIN("DEFVAR LF@cond_1\n");
     ADD_BUILTIN("GT LF@cond_0 LF@position LF@lenght\n");
-    ADD_BUILTIN("EQ LF@cond_1 LF@position int@0\n");
+    ADD_BUILTIN("LT LF@cond_1 LF@position int@1\n");
     ADD_BUILTIN("OR LF@cond_0 LF@cond_0 LF@cond_1\n");
     ADD_BUILTIN("JUMPIFEQ ord%valid LF@cond_0 bool@false\n");
     ADD_BUILTIN("MOVE LF@string nil@nil\n");
@@ -364,6 +380,11 @@ int make_call(t_ast_node *ast_tree){
         for (int i = 0; i < ast_tree->func->count_params; i++){
             ADD_TMP("PUSHS ");
             make_call_params(ptr);
+            if(string_arr_cmp(ast_tree->func->type_params->data[i],"number")){
+                if(ptr->expression->integer){
+                    ADD_TMP("INT2FLOATS\n")
+                }
+            }
             ptr->expression = ptr->expression->next_exp;
         }
         ADD_TMP("CALL "); ADD_TMP(ast_tree->func->name->data); ADD_TMP("\n");
@@ -392,6 +413,11 @@ int make_main_body_call(t_ast_node *ast_tree){
         for (int i = 0; i < ast_tree->func->count_params; i++){
             ADD_MAIN("PUSHS ");
             make_call_params_main(ptr);
+            if(string_arr_cmp(ast_tree->func->params->data[i],"number")) {
+                if (ptr->expression->integer) {
+                    ADD_MAIN("INT2FLOATS\n");
+                }
+            }
             ptr->expression = ptr->expression->next_exp;
         }
         ADD_MAIN("CALL "); ADD_STRING_MAIN(ast_tree->func->name); ADD_MAIN("\n");
@@ -426,21 +452,64 @@ int make_function_end(t_ast_node *ast_tree){
 /* expressions:
 */
 
+int int_to_number(){
+    ADD_BUILTIN ("LABEL inttonumber\n");
+    ADD_BUILTIN ("CREATEFRAME\n");
+    ADD_BUILTIN ("PUSHFRAME\n")
+    ADD_BUILTIN ("DEFVAR LF@%check_1%\n")
+    ADD_BUILTIN ("DEFVAR LF@%check_2%\n")
+    ADD_BUILTIN ("DEFVAR LF@%cond_numb_1%\n")
+    ADD_BUILTIN ("DEFVAR LF@%cond_numb_2%\n");
+    ADD_BUILTIN ("DEFVAR LF@%type_check_1%\n");
+    ADD_BUILTIN ("DEFVAR LF@%type_check_2%\n");
+    ADD_BUILTIN ("DEFVAR LF@%cond_numb%\n");
+    ADD_BUILTIN ("POPS LF@%check_2%\n");
+    ADD_BUILTIN ("POPS LF@%check_1%\n");
+    ADD_BUILTIN ("TYPE LF@%type_check_1% LF@%check_1%\n");
+    ADD_BUILTIN ("TYPE LF@%type_check_2% LF@%check_2%\n");
+    ADD_BUILTIN ("JUMPIFEQ $ok$ LF@%type_check_1% LF@%type_check_2%\n");
+    ADD_BUILTIN ("EQ LF@%cond_numb_1% LF@%type_check_1% string@int\n");
+    ADD_BUILTIN ("EQ LF@%cond_numb_2% LF@%type_check_2% string@float\n");
+    ADD_BUILTIN ("AND LF@%cond_numb% LF@%cond_numb_1% LF@%cond_numb_2%\n");
+    ADD_BUILTIN ("JUMPIFEQ $first$ LF@%cond_numb% bool@true\n");
+    ADD_BUILTIN ("EQ LF@%cond_numb_1% LF@%type_check_1% string@float\n");
+    ADD_BUILTIN ("EQ LF@%cond_numb_2% LF@%type_check_2% string@int\n");
+    ADD_BUILTIN ("AND LF@%cond_numb% LF@%cond_numb_1% LF@%cond_numb_2%\n");
+    ADD_BUILTIN ("JUMPIFEQ $second$ LF@%cond_numb% bool@true\n");
+    ADD_BUILTIN ("LABEL $first$\n");
+    ADD_BUILTIN ("INT2FLOAT LF@%check_1% LF@%check_1%\n");
+    ADD_BUILTIN ("JUMP $ok$\n");
+    ADD_BUILTIN ("LABEL $second$\n");
+    ADD_BUILTIN ("INT2FLOAT LF@%check_2% LF@%check_2%\n");
+    ADD_BUILTIN ("LABEL $ok$\n");
+    ADD_BUILTIN ("PUSHS LF@%check_1%\n");
+    ADD_BUILTIN ("PUSHS LF@%check_2%\n");
+    ADD_BUILTIN ("POPFRAME\n");
+    ADD_BUILTIN ("RETURN\n");
+    return IT_IS_OK;
+}
+
 int make_expression(AST_leaf *tree ,char *location){
 //    static AST_leaf *tree;
 //    tree = ast_tree;
-    if(tree){//todo ???
+    if(tree){
         //recursion:
         make_expression(tree->left, location);
         make_expression(tree->right, location);
         //do:
         if(tree->token->token_name == TOKEN_PLUS){
+            ADD_TMP("CREATEFRAME\n");
+            ADD_TMP("CALL inttonumber\n");
             ADD_TMP("ADDS\n");
         }
         else if(tree->token->token_name == TOKEN_MINUS){
+            ADD_TMP("CREATEFRAME\n");
+            ADD_TMP("CALL inttonumber\n");
             ADD_TMP("SUBS\n");
         }
         else if(tree->token->token_name == TOKEN_MULTIPLICATION){
+            ADD_TMP("CREATEFRAME\n");
+            ADD_TMP("CALL inttonumber\n");
             ADD_TMP("MULS\n");
         }
         else if(tree->token->token_name == TOKEN_DIVISION){
@@ -473,6 +542,8 @@ int make_expression(AST_leaf *tree ,char *location){
         //relational operators:
         if(tree->token->token_name == TOKEN_GREATER){
             if(strcmp(location, "while") == 0){
+                ADD_TMP("CREATEFRAME\n");
+                ADD_TMP("CALL inttonumber\n");
                 ADD_VARS("DEFVAR LF@*exp_a*"); WHILE_ID_VARS(); ADD_VARS("\n");
                 ADD_VARS("DEFVAR LF@*exp_b*"); WHILE_ID_VARS(); ADD_VARS("\n");
                 ADD_VARS("DEFVAR LF@*cond*"); WHILE_ID_VARS(); ADD_VARS("\n");
@@ -481,6 +552,8 @@ int make_expression(AST_leaf *tree ,char *location){
                 ADD_TMP("GT LF@*cond*"); WHILE_ID_TMP(); ADD_TMP(" LF@*exp_a*"); WHILE_ID_TMP(); ADD_TMP(" LF@*exp_b*") WHILE_ID_TMP(); ADD_TMP("\n");
             }
             else if(strcmp(location, "if") == 0){
+                ADD_TMP("CREATEFRAME\n");
+                ADD_TMP("CALL inttonumber\n");
                 ADD_VARS("DEFVAR LF@*exp_a*"); IF_ID_VARS(); ADD_VARS("\n");
                 ADD_VARS("DEFVAR LF@*exp_b*"); IF_ID_VARS(); ADD_VARS("\n");
                 ADD_VARS("DEFVAR LF@*cond*"); IF_ID_VARS(); ADD_VARS("\n");
@@ -491,6 +564,8 @@ int make_expression(AST_leaf *tree ,char *location){
         }
         else if(tree->token->token_name == TOKEN_GREATER_OR_EQUAL){
             if(strcmp(location, "while") == 0){
+                ADD_TMP("CREATEFRAME\n");
+                ADD_TMP("CALL inttonumber\n");
                 ADD_VARS("DEFVAR LF@*exp_a*"); WHILE_ID_VARS(); ADD_VARS("\n");
                 ADD_VARS("DEFVAR LF@*exp_b*"); WHILE_ID_VARS(); ADD_VARS("\n");
                 ADD_VARS("DEFVAR LF@*cond_a*"); WHILE_ID_VARS(); ADD_VARS("\n");
@@ -503,6 +578,8 @@ int make_expression(AST_leaf *tree ,char *location){
                 ADD_TMP("OR LF@*cond*"); WHILE_ID_TMP(); ADD_TMP(" LF@*cond_a*"); WHILE_ID_TMP(); ADD_TMP(" LF@*cond_b*") WHILE_ID_TMP(); ADD_TMP("\n");
             }
             else if(strcmp(location, "if") == 0){
+                ADD_TMP("CREATEFRAME\n");
+                ADD_TMP("CALL inttonumber\n");
                 ADD_VARS("DEFVAR LF@*exp_a*"); IF_ID_VARS(); ADD_VARS("\n");
                 ADD_VARS("DEFVAR LF@*exp_b*"); IF_ID_VARS(); ADD_VARS("\n");
                 ADD_VARS("DEFVAR LF@*cond_a*"); IF_ID_VARS(); ADD_VARS("\n");
@@ -517,6 +594,8 @@ int make_expression(AST_leaf *tree ,char *location){
         }
         else if(tree->token->token_name == TOKEN_LESS){
             if(strcmp(location, "while") == 0){
+                ADD_TMP("CREATEFRAME\n");
+                ADD_TMP("CALL inttonumber\n");
                 ADD_VARS("DEFVAR LF@*exp_a*"); WHILE_ID_VARS(); ADD_VARS("\n");
                 ADD_VARS("DEFVAR LF@*exp_b*"); WHILE_ID_VARS(); ADD_VARS("\n");
                 ADD_VARS("DEFVAR LF@*cond*"); WHILE_ID_VARS(); ADD_VARS("\n");
@@ -525,6 +604,8 @@ int make_expression(AST_leaf *tree ,char *location){
                 ADD_TMP("LT LF@*cond*"); WHILE_ID_TMP(); ADD_TMP(" LF@*exp_a*"); WHILE_ID_TMP(); ADD_TMP(" LF@*exp_b*") WHILE_ID_TMP(); ADD_TMP("\n");
             }
             else if(strcmp(location, "if") == 0){
+                ADD_TMP("CREATEFRAME\n");
+                ADD_TMP("CALL inttonumber\n");
                 ADD_VARS("DEFVAR LF@*exp_a*"); IF_ID_VARS(); ADD_VARS("\n");
                 ADD_VARS("DEFVAR LF@*exp_b*"); IF_ID_VARS(); ADD_VARS("\n");
                 ADD_VARS("DEFVAR LF@*cond*"); IF_ID_VARS(); ADD_VARS("\n");
@@ -535,6 +616,8 @@ int make_expression(AST_leaf *tree ,char *location){
         }
         else if(tree->token->token_name == TOKEN_LESS_OR_EQUAL){
             if(strcmp(location, "while") == 0){
+                ADD_TMP("CREATEFRAME\n");
+                ADD_TMP("CALL inttonumber\n");
                 ADD_VARS("DEFVAR LF@*exp_a*"); WHILE_ID_VARS(); ADD_VARS("\n");
                 ADD_VARS("DEFVAR LF@*exp_b*"); WHILE_ID_VARS(); ADD_VARS("\n");
                 ADD_VARS("DEFVAR LF@*cond_a*"); WHILE_ID_VARS(); ADD_VARS("\n");
@@ -547,6 +630,8 @@ int make_expression(AST_leaf *tree ,char *location){
                 ADD_TMP("OR LF@*cond*"); WHILE_ID_TMP(); ADD_TMP(" LF@*cond_a*"); WHILE_ID_TMP(); ADD_TMP(" LF@*cond_b*") WHILE_ID_TMP(); ADD_TMP("\n");
             }
             else if(strcmp(location, "if") == 0){
+                ADD_TMP("CREATEFRAME\n");
+                ADD_TMP("CALL inttonumber\n");
                 ADD_VARS("DEFVAR LF@*exp_a*"); IF_ID_VARS(); ADD_VARS("\n");
                 ADD_VARS("DEFVAR LF@*exp_b*"); IF_ID_VARS(); ADD_VARS("\n");
                 ADD_VARS("DEFVAR LF@*cond_a*"); IF_ID_VARS(); ADD_VARS("\n");
@@ -561,6 +646,8 @@ int make_expression(AST_leaf *tree ,char *location){
         }
         else if(tree->token->token_name == TOKEN_EQUALS){
             if(strcmp(location, "while") == 0){
+                ADD_TMP("CREATEFRAME\n");
+                ADD_TMP("CALL inttonumber\n");
                 ADD_VARS("DEFVAR LF@*exp_a*"); WHILE_ID_VARS(); ADD_VARS("\n");
                 ADD_VARS("DEFVAR LF@*exp_b*"); WHILE_ID_VARS(); ADD_VARS("\n");
                 ADD_VARS("DEFVAR LF@*cond*"); WHILE_ID_VARS(); ADD_VARS("\n");
@@ -569,6 +656,8 @@ int make_expression(AST_leaf *tree ,char *location){
                 ADD_TMP("EQ LF@*cond*"); WHILE_ID_TMP(); ADD_TMP(" LF@*exp_a*"); WHILE_ID_TMP(); ADD_TMP(" LF@*exp_b*") WHILE_ID_TMP(); ADD_TMP("\n");
             }
             else if(strcmp(location, "if") == 0){
+                ADD_TMP("CREATEFRAME\n");
+                ADD_TMP("CALL inttonumber\n");
                 ADD_VARS("DEFVAR LF@*exp_a*"); IF_ID_VARS(); ADD_VARS("\n");
                 ADD_VARS("DEFVAR LF@*exp_b*"); IF_ID_VARS(); ADD_VARS("\n");
                 ADD_VARS("DEFVAR LF@*cond*"); IF_ID_VARS(); ADD_VARS("\n");
@@ -579,6 +668,8 @@ int make_expression(AST_leaf *tree ,char *location){
         }
         else if(tree->token->token_name == TOKEN_NOT_EQUALS){
             if(strcmp(location, "while") == 0){
+                ADD_TMP("CREATEFRAME\n");
+                ADD_TMP("CALL inttonumber\n");
                 ADD_VARS("DEFVAR LF@*exp_a*"); WHILE_ID_VARS(); ADD_VARS("\n");
                 ADD_VARS("DEFVAR LF@*exp_b*"); WHILE_ID_VARS(); ADD_VARS("\n");
                 ADD_VARS("DEFVAR LF@*cond*"); WHILE_ID_VARS(); ADD_VARS("\n");
@@ -588,6 +679,8 @@ int make_expression(AST_leaf *tree ,char *location){
                 ADD_TMP("NOT LF@*cond*"); WHILE_ID_TMP(); ADD_TMP(" LF@*cond*"); WHILE_ID_TMP(); ADD_TMP("\n");
             }
             else if(strcmp(location, "if") == 0){
+                ADD_TMP("CREATEFRAME\n");
+                ADD_TMP("CALL inttonumber\n");
                 ADD_VARS("DEFVAR LF@*exp_a*"); IF_ID_VARS(); ADD_VARS("\n");
                 ADD_VARS("DEFVAR LF@*exp_b*"); IF_ID_VARS(); ADD_VARS("\n");
                 ADD_VARS("DEFVAR LF@*cond*"); IF_ID_VARS(); ADD_VARS("\n");
@@ -689,7 +782,6 @@ int make_variable_expression(t_ast_node *ast_tree){ //todo поменял
     while(ptr->expression) {
         if (ast_tree->expression->tree) {
             make_expression(ptr->expression->preced_expression_tree, "exp");
-            ptr->expression = ptr->expression->next_exp;
         }else{
             make_expression_not_tree(ptr->expression);
         }
@@ -714,6 +806,7 @@ int make_return(t_ast_node *ast_tree){
 int make_return_expression(t_ast_node *ast_tree){ //todo поменял
     t_ast_node* ptr = malloc(sizeof (t_ast_node));
     ast_init(ptr);
+    int i = 0;
     ptr->expression = ast_tree->expression;
     while(ptr->expression){
         if(ptr->expression->tree){
@@ -727,21 +820,32 @@ int make_return_expression(t_ast_node *ast_tree){ //todo поменял
             }
             else if(ptr->expression->var){
                 ADD_TMP("PUSHS LF@"); ADD_STRING_TMP(ptr->expression->data); ADD_TMP("\n");
+                if(string_arr_cmp(ast_tree->function_info->type_returned_params->data[i],"number")) {
+                    if (ptr->expression->integer) {
+                        ADD_TMP("INT2FLOATS\n");
+                    }
+                }
             }
             else if(ptr->expression->numb && !(ptr->expression->var)){
                 ADD_TMP("PUSHS float@"); ADD_TMP(float_converter(ptr->expression->data_double)); ADD_TMP("\n");
             }
             else if(ptr->expression->integer && !(ptr->expression->var)){
                 ADD_TMP("PUSHS int@"); ADD_STRING_TMP(ptr->expression->data); ADD_TMP("\n");
+                if(string_arr_cmp(ast_tree->function_info->type_returned_params->data[i],"number")) {
+                    if (ptr->expression->integer) {
+                        ADD_TMP("INT2FLOATS\n");
+                    }
+                }
             }
             else if(ptr->expression->data && !(ptr->expression->var)){
                 ADD_TMP("PUSHS string@"); ADD_STRING_TMP(ptr->expression->data); ADD_TMP("\n");
             }
         }
         ptr->expression= ptr->expression->next_exp;
+        i++;
     }
     free(ptr);
-    ADD_TMP("JUMP "); ADD_TMP(ast_tree->function_info->name->data); ADD_TMP("%end\n")
+    ADD_TMP("JUMP "); ADD_TMP(ast_tree->function_info->name->data); ADD_TMP("%end\n") //todo та функция в которой он написан ?
     return IT_IS_OK;
 
 }
@@ -896,6 +1000,7 @@ int code_generation(t_ast_node *ast_tree){
 }
 
 int code_assemble(){
+    int_to_number();
     ADD_STRING(builtin);
     ADD("LABEL $$main\n");
     ADD_STRING(main_b);

@@ -21,11 +21,12 @@
 
 //#include "main.h"
 
-int main(){
+int main(int argc, char** argv){
+
 
     FILE* file_name = stdin;
-//    file_name = fopen( argv[1],"r");
-//    printf("%s   %d\n",argv[1],argc);
+    file_name = fopen( argv[1],"r");
+    printf("%s   %d\n",argv[1],argc);
     t_token* token;
     token = malloc(sizeof (t_token));
     token->lexeme = malloc((sizeof (t_lexeme)));

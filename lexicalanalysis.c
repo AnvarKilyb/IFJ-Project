@@ -137,7 +137,7 @@ int find_token(t_token* token)
                 }else if(symbol >= '0' && symbol <= '9' ){
                     state = LEXICAL_STATE_NUMERIC;
                     STRING_WRIGHT_CHAR(string,symbol);
-                }else if(symbol == ' '){
+                }else if(symbol == ' ' || symbol == '\t'){
                     state = LEXICAL_STATE_SPACE;
                 }else if(symbol == EOL) {
                     state = LEXICAL_STATE_EOL;
@@ -324,7 +324,7 @@ int find_token(t_token* token)
                     break;
                 }
             case LEXICAL_STATE_SPACE:
-                if(symbol != ' '){
+                if(symbol != ' ' && symbol != '\t'){
                     ungetc(symbol,code_file);
                     state = LEXICAL_STATE_START;
                 }
@@ -332,7 +332,7 @@ int find_token(t_token* token)
 
             case LEXICAL_STATE_EOL:
                 token->str++;
-                if(symbol != ' ' && symbol != EOL){
+                if(symbol != ' ' && symbol != EOL && symbol != '\t'){
                     ungetc(symbol,code_file);
                     state = LEXICAL_STATE_START;
                 }

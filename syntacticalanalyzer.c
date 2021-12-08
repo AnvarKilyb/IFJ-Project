@@ -35,8 +35,8 @@ int start_program(t_token *token){
     if(token->lexeme->keyword == KEYWORD_REQUIRE) {
         GET_TOKEN(token);
         if (!string_arr_cmp(token->lexeme->inter, "ifj21")){
-            ERROR_TEXT("Ожидалось ifj21");
-            RETURN_ERROR_NUMBER(ERROR_SYN_ANALYSIS);
+            ERROR_TEXT("expected ifj21");
+            RETURN_ERROR_NUMBER(ERROR_SEMANTIC_ANALYSIS_ALL);
         }
     }
     else{
@@ -1056,6 +1056,10 @@ int function_call(t_token *token){ /// проверенная
 
     GET_TOKEN(token);
     if(token->token_name != TOKEN_RIGHT_BRACKET) {
+        if(global_function->data->count_params == 0 ){
+            ERROR_TEXT("function call with unexpected parameters");
+            RETURN_ERROR_NUMBER( ERROR_SEMANTIC_ANALYSIS_PARAM_IN_FUNC);
+        }
         //ожидалась скобка
         ERROR_TEXT("right bracket expected");
         RETURN_ERROR_NUMBER(ERROR_SYN_ANALYSIS);
@@ -1242,7 +1246,7 @@ int args(t_token *token){ /// проверенная
     }else{
         // ожидался параметр
         ERROR_TEXT("expected function parameter");
-        RETURN_ERROR_NUMBER(ERROR_SYN_ANALYSIS);
+        RETURN_ERROR_NUMBER(ERROR_SEMANTIC_ANALYSIS_PARAM_IN_FUNC);
     }
     if(next_args(token)){
         RETURN_ERROR;
@@ -1817,7 +1821,8 @@ int value(t_token *token){ ///проверенна
                 ast_node->expression->nil = true;
             }
             // проверяем тип переменной
-            if(string_param_cmp_string(check_type, ast_node->count_expression, function_var->data->type)){
+            if(string_param_cmp_string(check_type, ast_node->count_expression, function_var->data->type) ||
+            (string_param_cmp_arr(check_type,ast_node->count_expression,numb) && string_arr_cmp(function_var->data->type,integ))){
                 ast_node->expression->data = malloc(sizeof(t_str));
                 if(!ast_node->expression->data){
                     RETURN_ERROR_NUMBER(ERROR_INTERNAL);
@@ -1959,6 +1964,7 @@ int value(t_token *token){ ///проверенна
                     RETURN_ERROR_NUMBER(ERROR_SEMANTIC_ANALYSIS_EQ);
                 }else{
                     ast_node->expression->numb = true;
+                    ast_node->expression->data_double = (double) token->lexeme->integer;
                     ast_node->expression->data = malloc(sizeof(t_str));
                     if(!ast_node->expression->data){
                         RETURN_ERROR_NUMBER(ERROR_INTERNAL);
@@ -2909,15 +2915,14 @@ int tree_check(node *root,t_token* token){
     if(root == NULL)
         return IT_IS_OK;
 
-    if(!ERROR_ALL && root->right_node)
+    if(!ERROR_ALL)
         tree_check(root->right_node,token);
-    if(!ERROR_ALL && root->right_node)
+    if(!ERROR_ALL)
         tree_check(root->left_node,token);
 
     if(root->data && !ERROR_ALL){
         if(root->data->declaration && !ERROR_ALL){
             if(!root->data->define && !ERROR_ALL){
-
                 ERROR_TEXT("the function was declared but was not defined in the program");
                 RETURN_ERROR_NUMBER(ERROR_SEMANTIC_ANALYSIS);
             }
@@ -2967,11 +2972,20 @@ int start_analysis(t_token *token){
     }
 
     start_generation();
-    int a = 0;
-    a = start_program(token);
-    tree_check(global_table,token);
-    code_assemble();
+    int global_error = 0;
+    global_error = start_program(token);
+    if(global_error){
+        return global_error;
+    }
+    global_error = tree_check(global_table,token);
+    if(global_error){
+        return global_error;
+    }
+    global_error = code_assemble();
+    if(global_error){
+        return global_error;
+    }
     error_processing();
-    return a;
+    return global_error;
 
 }
