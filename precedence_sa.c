@@ -620,7 +620,15 @@ int check_expression(AST_leaf *tree, t_ast_node *ast_node){
                 }else  if(string_arr_cmp(function_var->data->type, "number")){
                     token->lexeme->number_bool = true;
                 }
-
+                if(string_arr_cmp(function_var->data->type, "nil")){
+                    if(stack.amount_of_elements > 1){
+                        if(stack_top(&stack)->down_element->root->token->token_name != TOKEN_EQUALS
+                           && stack_top(&stack)->down_element->root->token->token_name != TOKEN_NOT_EQUALS){
+                            stack_free(&stack);
+                            return ERROR_SEMANTIC_ANALYSIS_EXPR;
+                        }
+                    }
+                }
                 if(string_param_cmp_arr(ast_node->type_variable, ast_node->count_expression,"integer")){
                     if(string_arr_cmp(function_var->data->type, "string")){
                         if(stack.amount_of_elements > 1){
@@ -736,7 +744,15 @@ int check_expression(AST_leaf *tree, t_ast_node *ast_node){
                 }else  if(string_arr_cmp(function_var->data->type, "number")){
                     token->lexeme->number_bool = true;
                 }
-
+                if(string_arr_cmp(function_var->data->type, "nil")){
+                    if(stack.amount_of_elements > 1){
+                        if(stack_top(&stack)->down_element->root->token->token_name != TOKEN_EQUALS
+                           && stack_top(&stack)->down_element->root->token->token_name != TOKEN_NOT_EQUALS){
+                            stack_free(&stack);
+                            return ERROR_SEMANTIC_ANALYSIS_EXPR;
+                        }
+                    }
+                }
                 if(string_param_cmp_arr(ast_node->function_info->type_returned_params, ast_node->function_info->count_returned_params ,"integer")){
                     if(string_arr_cmp(function_var->data->type, "number")){
                         stack_free(&stack);
@@ -879,6 +895,15 @@ int check_expression(AST_leaf *tree, t_ast_node *ast_node){
                     }else  if(string_arr_cmp(function_var->data->type, "number")){
                         token->lexeme->number_bool = true;
                     }
+                    if(string_arr_cmp(function_var->data->type, "nil")){
+                        if(stack.amount_of_elements > 1){
+                            if(stack_top(&stack)->down_element->root->token->token_name != TOKEN_EQUALS
+                               && stack_top(&stack)->down_element->root->token->token_name != TOKEN_NOT_EQUALS){
+                                stack_free(&stack);
+                                return ERROR_SEMANTIC_ANALYSIS_EXPR;
+                            }
+                        }
+                    }
                     if(string_arr_cmp(top_var->data->type, "integer")){
                         if(string_arr_cmp(function_var->data->type, "string")){
                             if(stack.amount_of_elements > 1){
@@ -1001,7 +1026,15 @@ int check_expression(AST_leaf *tree, t_ast_node *ast_node){
                     }else  if(string_arr_cmp(function_var->data->type, "number")){
                         token->lexeme->number_bool = true;
                     }
-
+                    if(string_arr_cmp(function_var->data->type, "nil")){
+                        if(stack.amount_of_elements > 1){
+                            if(stack_top(&stack)->down_element->root->token->token_name != TOKEN_EQUALS
+                               && stack_top(&stack)->down_element->root->token->token_name != TOKEN_NOT_EQUALS){
+                                stack_free(&stack);
+                                return ERROR_SEMANTIC_ANALYSIS_EXPR;
+                            }
+                        }
+                    }
                     if(string_arr_cmp(function_var->data->type, "string")){
                         if(stack.amount_of_elements > 1){
                             if(stack_top(&stack)->down_element->root->token->token_name != TOKEN_LENGTH
@@ -1089,6 +1122,15 @@ int check_expression(AST_leaf *tree, t_ast_node *ast_node){
                         token->lexeme->int_bool = true;
                     }else  if(string_arr_cmp(function_var->data->type, "number")){
                         token->lexeme->number_bool = true;
+                    }
+                    if(string_arr_cmp(function_var->data->type, "nil")){
+                        if(stack.amount_of_elements > 1){
+                            if(stack_top(&stack)->down_element->root->token->token_name != TOKEN_EQUALS
+                               && stack_top(&stack)->down_element->root->token->token_name != TOKEN_NOT_EQUALS){
+                                stack_free(&stack);
+                                return ERROR_SEMANTIC_ANALYSIS_EXPR;
+                            }
+                        }
                     }
                     if(top_token->token_name == TOKEN_INTEGER){
                         if(string_arr_cmp(function_var->data->type, "string")){
