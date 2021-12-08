@@ -1,5 +1,6 @@
 #ifndef IFJ_PROJEKT_PRECEFENCE_TREE_H
 #define IFJ_PROJEKT_PRECEFENCE_TREE_H
+#include "lexicalanalysis.h"
 typedef enum
 {
     PREC_PLUS,			// +

@@ -1,11 +1,11 @@
 #ifndef IFJ_PROJEKT_SYNTACTICALANALYZER_H
 #define IFJ_PROJEKT_SYNTACTICALANALYZER_H
 
-#define GET_TOKEN(token) if(get_token(token)) return ERROR_LEX_ANALYSIS
+#define GET_TOKEN(token) ERROR_ALL = get_token(token);if(ERROR_ALL) {fprintf(stderr,"ERROR: in string #%d [lexical error]", token->str);error_check = true;} if(ERROR_ALL) return ERROR_ALL
 
 #define RETURN_ERROR_NUMBER(ERR) ERROR_ALL = ERR; error_processing(); return ERROR_ALL
-#define RETURN_ERROR  return ERROR_ALL
-#define ERROR_TEXT(string_text) if(!error_check) {printf("ERROR: in string #%d ", token->str); printf("[in "); printf("--> %s <-- ",token->lexeme->inter->data); printf("%s]",string_text);} error_check = true
+#define RETURN_ERROR error_processing(); return ERROR_ALL
+#define ERROR_TEXT(string_text) if(!error_check) {fprintf(stderr, "ERROR: in string #%d ", token->str); fprintf(stderr,"[in "); fprintf(stderr,"--> %s <-- ",token->lexeme->inter->data); fprintf(stderr,"%s]",string_text);} error_check = true
 #include "symbol_table.h"
 #include "lexicalanalysis.h"
 #include "string_param.h"

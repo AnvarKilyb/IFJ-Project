@@ -54,19 +54,19 @@ AST_leaf *create_tree(AST_leaf *leaf_1, AST_leaf *leaf_2, t_token *token){
     return new_leaf;
 }
 
-void token_ast_free(t_token* token){
-    if(token){
-        if(token->lexeme){
-            if (token->lexeme->inter) {
-                string_free(token->lexeme->inter);
-            }
-            free(token->lexeme);
-            token->lexeme = NULL;
-            free(token);
-            token = NULL;
-        }
-    }
-}
+//void token_ast_free(t_token* token){
+//    if(token){
+//        if(token->lexeme){
+//            if (token->lexeme->inter) {
+//                string_free(token->lexeme->inter);
+//            }
+//            free(token->lexeme);
+//            token->lexeme = NULL;
+//            free(token);
+//            token = NULL;
+//        }
+//    }
+//}
 
 void delete_ast(AST_leaf *leaf){
     if(leaf != NULL){
@@ -578,11 +578,12 @@ void tree_to_stack(AST_leaf *tree, t_stack *stack){
     }
 }
 int check_expression(AST_leaf *tree, t_ast_node *ast_node){
+
     t_stack stack;
     bool is_len = false;
     stack_init(&stack);
     tree_to_stack(tree, &stack);
-    AST_leaf *tmp_leaf;
+//    AST_leaf *tmp_leaf;
     t_token *token;
     if(ast_node->it_is_variable_expression){
         while(stack.amount_of_elements != 0){

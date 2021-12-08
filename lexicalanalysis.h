@@ -137,9 +137,9 @@ int find_token(t_token* token);
 int prepar_analysis(t_token* token);
 int get_token(t_token* token);
 void hold_token();
-void old_token_allocate();
+int old_token_allocate();
 void get_old_token(t_token* token);
-void to_old_token(t_token* token);
+int to_old_token(t_token* token);
 void token_free();
 
 #endif //IFJ_PROJEKT_LEXICALANALYSIS_H

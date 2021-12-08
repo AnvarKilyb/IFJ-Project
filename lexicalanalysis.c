@@ -7,9 +7,12 @@ const int AMOUNT_OF_KEYWORDS = (sizeof(KEYWORDS)/sizeof(KEYWORDS[0]));
 static FILE *code_file = NULL;
 static t_str *string = NULL;
 static int hold = 0;
+bool t_save = false;
 
 static t_token* old_token = NULL;
 static t_token* token_save = NULL;
+
+#define STRING_WRIGHT_CHAR(str,sym) if(string_wright_char(str,sym)) return ERROR_INTERNAL
 
 int file_ptr(FILE* f)
 {
@@ -37,13 +40,17 @@ void keyword_check(t_token* token)
 
 int convert_escape(char* arr)
 {
-    errno = 0;
-    char* endptr = NULL;
-    long symbol = strtol(arr,&endptr,10);
-    if(endptr == arr || *endptr != NUL || ((symbol == LONG_MIN ||  symbol == LONG_MAX) && errno == ERANGE))
-        return ERROR_INTERNAL;
-    string_wright_char(string,symbol);
-    printf("%s\n",string->data);
+//    errno = 0;
+//    char* endptr = NULL;
+//    long symbol = strtol(arr,&endptr,10);
+//    if(endptr == arr || *endptr != NUL || ((symbol == LONG_MIN ||  symbol == LONG_MAX) && errno == ERANGE))
+//        return ERROR_INTERNAL;
+    int i = 0;
+    while(arr[i] != '\0') {
+        STRING_WRIGHT_CHAR(string, arr[i]);
+        i++;
+    }
+//    printf("%s\n",string->data);
     return IT_IS_OK;
 }
 
@@ -78,72 +85,72 @@ int find_token(t_token* token)
             case LEXICAL_STATE_START:
                 if(symbol == '+') {
                     token->token_name = TOKEN_PLUS;
-                    string_wright_char(string, symbol);
+                    STRING_WRIGHT_CHAR(string, symbol);
                     return IT_IS_OK;
                 }else if(symbol == '*'){
                     token->token_name = TOKEN_MULTIPLICATION;
-                    string_wright_char(string, symbol);
+                    STRING_WRIGHT_CHAR(string, symbol);
                     return IT_IS_OK;
                 }else if(symbol == '#'){
                     token->token_name = TOKEN_LENGTH;
-                    string_wright_char(string, symbol);
+                    STRING_WRIGHT_CHAR(string, symbol);
                     return IT_IS_OK;
 //                }else if(symbol == '%'){
 //                    token->token_name = TOKEN_WRIGHT;
-//                    string_wright_char(string, symbol);
+//                    STRING_WRIGHT_CHAR(string, symbol);
 //                    return IT_IS_OK;
                 }else if(symbol == ':'){
                     token->token_name = TOKEN_ASSIGNMENT_TYPE;
-                    string_wright_char(string, symbol);
+                    STRING_WRIGHT_CHAR(string, symbol);
                     return IT_IS_OK;
                 }else if(symbol == '('){
                     token->token_name = TOKEN_LEFT_BRACKET;
-                    string_wright_char(string, symbol);
+                    STRING_WRIGHT_CHAR(string, symbol);
                     return IT_IS_OK;
                 }else if(symbol == ')'){
                     token->token_name = TOKEN_RIGHT_BRACKET;
-                    string_wright_char(string, symbol);
+                    STRING_WRIGHT_CHAR(string, symbol);
                     return IT_IS_OK;
                 }else if(symbol == ','){
                     token->token_name = TOKEN_COMMA;
-                    string_wright_char(string, symbol);
+                    STRING_WRIGHT_CHAR(string, symbol);
                     return IT_IS_OK;
                 }else if(symbol == EOF){
                     state = LEXICAL_STATE_EOF;
                 }else if((symbol >= 'A' && symbol <= 'Z' ) || ( symbol >= 'a' && symbol <= 'z')|| symbol == '_'){
-                        string_wright_char(string,symbol);
+                        STRING_WRIGHT_CHAR(string,symbol);
                         state = LEXICAL_STATE_IDENTIFIER;
                 }else if(symbol == '\"'){
                     state = LEXICAL_STATE_STRING_START;
-//                    string_wright_char(string,symbol);
+//                    STRING_WRIGHT_CHAR(string,symbol);
                 }else if(symbol >= '0' && symbol <= '9' ){
                     state = LEXICAL_STATE_NUMERIC;
-                    string_wright_char(string,symbol);
+                    STRING_WRIGHT_CHAR(string,symbol);
                 }else if(symbol == ' '){
                     state = LEXICAL_STATE_SPACE;
                 }else if(symbol == EOL) {
                     state = LEXICAL_STATE_EOL;
                 }else if(symbol == '-'){
                     state = LEXICAL_STATE_MINUS;
-                    string_wright_char(string, symbol);
+                    STRING_WRIGHT_CHAR(string, symbol);
                 }else if(symbol == '/'){
                     state = LEXICAL_STATE_DIVISION;
-                    string_wright_char(string, symbol);
+                    STRING_WRIGHT_CHAR(string, symbol);
                 }else if(symbol == '.'){
                     state = LEXICAL_STATE_CONCATENATE;
-                    string_wright_char(string, symbol);
+                    STRING_WRIGHT_CHAR(string, symbol);
                 }else if(symbol == '>'){
                     state = LEXICAL_STATE_GREATER;
-                    string_wright_char(string, symbol);
+                    STRING_WRIGHT_CHAR(string, symbol);
                 }else if(symbol == '<'){
                     state = LEXICAL_STATE_LESS;
-                    string_wright_char(string, symbol);
+                    STRING_WRIGHT_CHAR(string, symbol);
                 } else if(symbol == '='){
                     state = LEXICAL_STATE_ASSIGNMENT;
-                    string_wright_char(string, symbol);
+                    STRING_WRIGHT_CHAR(string, symbol);
                 } else if(symbol == '~'){
                     state = LEXICAL_STATE_NOT;
-                    string_wright_char(string, symbol);
+                    STRING_WRIGHT_CHAR(string, symbol);
                 }else{
                     return ERROR_LEX_ANALYSIS;
                 }
@@ -152,7 +159,7 @@ int find_token(t_token* token)
             case LEXICAL_STATE_DIVISION:
                 if(symbol=='/'){
                     token->token_name = TOKEN_INT_DIVISION;
-                    string_wright_char(string, symbol);
+                    STRING_WRIGHT_CHAR(string, symbol);
                     return IT_IS_OK;
                 }else if(symbol == ' '){
                     token->token_name = TOKEN_DIVISION;
@@ -166,7 +173,7 @@ int find_token(t_token* token)
             case LEXICAL_STATE_CONCATENATE:
                 if(symbol == '.'){
                     token->token_name = TOKEN_CONCATENATION;
-                    string_wright_char(string, symbol);
+                    STRING_WRIGHT_CHAR(string, symbol);
                     return IT_IS_OK;
                 }else{
                     return ERROR_LEX_ANALYSIS;
@@ -175,7 +182,7 @@ int find_token(t_token* token)
             case LEXICAL_STATE_GREATER:
                 if(symbol == '='){
                     token->token_name = TOKEN_GREATER_OR_EQUAL;
-                    string_wright_char(string, symbol);
+                    STRING_WRIGHT_CHAR(string, symbol);
                     return IT_IS_OK;
                 }else{
                     ungetc(symbol,code_file);
@@ -186,7 +193,7 @@ int find_token(t_token* token)
             case LEXICAL_STATE_LESS:
                 if(symbol == '='){
                     token->token_name = TOKEN_LESS_OR_EQUAL;
-                    string_wright_char(string, symbol);
+                    STRING_WRIGHT_CHAR(string, symbol);
                     return IT_IS_OK;
                 }else{
                     ungetc(symbol,code_file);
@@ -197,7 +204,7 @@ int find_token(t_token* token)
             case LEXICAL_STATE_ASSIGNMENT:
                 if(symbol == '='){
                     token->token_name = TOKEN_EQUALS;
-                    string_wright_char(string, symbol);
+                    STRING_WRIGHT_CHAR(string, symbol);
                     return IT_IS_OK;
                 }else{
                     ungetc(symbol,code_file);
@@ -208,14 +215,14 @@ int find_token(t_token* token)
             case LEXICAL_STATE_NOT:
                 if(symbol == '='){
                     token->token_name = TOKEN_NOT_EQUALS;
-                    string_wright_char(string, symbol);
+                    STRING_WRIGHT_CHAR(string, symbol);
                     return IT_IS_OK;
                 }else{
                     return ERROR_LEX_ANALYSIS;
                 }
             case LEXICAL_STATE_IDENTIFIER:
                 if((symbol >= 'A' && symbol <= 'Z' )||( symbol >= 'a' && symbol <= 'z')|| (symbol == '_') || ( symbol >= '0' && symbol <= '9')){
-                    string_wright_char(string, symbol);
+                    STRING_WRIGHT_CHAR(string, symbol);
                     break;
                 }else if(symbol == EOF){
                     ungetc(symbol,code_file);
@@ -269,6 +276,7 @@ int find_token(t_token* token)
                     state = LEXICAL_STATE_COMMENT_BLOCK;
                     break;
                 }else if(symbol == EOL){
+                    token->str++;
                     state = LEXICAL_STATE_START;
                     break;
                 }
@@ -285,6 +293,9 @@ int find_token(t_token* token)
                     return ERROR_LEX_ANALYSIS;
                 }else
                 {
+                    if(symbol == EOL){
+                        token->str++;
+                    }
                     break;
                 }
 
@@ -295,6 +306,9 @@ int find_token(t_token* token)
                 }else if(symbol == EOF){
                     return ERROR_LEX_ANALYSIS;
                 }else{
+                    if(symbol == EOL){
+                        token->str++;
+                    }
                     state = LEXICAL_STATE_COMMENT_BLOCK;
                     break;
                 }
@@ -320,15 +334,15 @@ int find_token(t_token* token)
 
             case LEXICAL_STATE_NUMERIC:
                 if(symbol >= '0' && symbol <= '9'){
-                    string_wright_char(string, symbol);
+                    STRING_WRIGHT_CHAR(string, symbol);
                     break;
                 }else if(symbol == '.'){
                     state = LEXICAL_STATE_NUMERIC_DOT;
-                    string_wright_char(string, symbol);
+                    STRING_WRIGHT_CHAR(string, symbol);
                     break;
                 }else if(symbol == 'e' || symbol == 'E'){
                     state = LEXICAL_STATE_NUMERIC_EXP;
-                    string_wright_char(string, symbol);
+                    STRING_WRIGHT_CHAR(string, symbol);
                     break;
                 }else{
                     token->token_name = TOKEN_INTEGER;
@@ -340,7 +354,7 @@ int find_token(t_token* token)
 
             case LEXICAL_STATE_NUMERIC_DOT:
                 if(symbol >= '0' && symbol <= '9'){
-                    string_wright_char(string, symbol);
+                    STRING_WRIGHT_CHAR(string, symbol);
                     state = LEXICAL_STATE_NUMERIC_NUMBER;
                     break;
                 }else{
@@ -350,11 +364,11 @@ int find_token(t_token* token)
 
             case LEXICAL_STATE_NUMERIC_NUMBER:
                 if(symbol >= '0' && symbol <= '9'){
-                    string_wright_char(string, symbol);
+                    STRING_WRIGHT_CHAR(string, symbol);
                     break;
                 }else if(symbol == 'e' || symbol == 'E'){
                     state = LEXICAL_STATE_NUMERIC_EXP;
-                    string_wright_char(string, symbol);
+                    STRING_WRIGHT_CHAR(string, symbol);
                     break;
                 }else{
                     ungetc(symbol,code_file);
@@ -367,11 +381,11 @@ int find_token(t_token* token)
             case LEXICAL_STATE_NUMERIC_EXP:
                 if(symbol == '+' || symbol == '-'){
                     state = LEXICAL_STATE_NUMERIC_EXP_SIGN;
-                    string_wright_char(string, symbol);
+                    STRING_WRIGHT_CHAR(string, symbol);
                     break;
                 }else if(symbol >= '0' && symbol <= '9'){
                     state = LEXICAL_STATE_NUMERIC_EXP_FINAL;
-                    string_wright_char(string, symbol);
+                    STRING_WRIGHT_CHAR(string, symbol);
                     break;
                 }else{
                     return ERROR_LEX_ANALYSIS;
@@ -381,7 +395,7 @@ int find_token(t_token* token)
             case LEXICAL_STATE_NUMERIC_EXP_SIGN:
                 if(symbol >= '0' && symbol <= '9'){
                     state = LEXICAL_STATE_NUMERIC_EXP_FINAL;
-                    string_wright_char(string, symbol);
+                    STRING_WRIGHT_CHAR(string, symbol);
                     break;
                 }else{
                     return ERROR_LEX_ANALYSIS;
@@ -390,7 +404,7 @@ int find_token(t_token* token)
 
             case LEXICAL_STATE_NUMERIC_EXP_FINAL:
                 if(symbol >= '0' && symbol <= '9'){
-                    string_wright_char(string, symbol);
+                    STRING_WRIGHT_CHAR(string, symbol);
                     break;
                 }else{
                     token->token_name = TOKEN_NUMBER_EXPONENT;
@@ -412,12 +426,12 @@ int find_token(t_token* token)
                 }
                 else{
                     if(symbol == ' '){
-                        string_wright_char(string,'\\');
-                        string_wright_char(string,'0');
-                        string_wright_char(string,'3');
-                        string_wright_char(string,'2');
+                        STRING_WRIGHT_CHAR(string,'\\');
+                        STRING_WRIGHT_CHAR(string,'0');
+                        STRING_WRIGHT_CHAR(string,'3');
+                        STRING_WRIGHT_CHAR(string,'2');
                     }else{
-                        string_wright_char(string, symbol);
+                        STRING_WRIGHT_CHAR(string, symbol);
                     }
                     break;
                 }
@@ -425,39 +439,40 @@ int find_token(t_token* token)
 
             case LEXICAL_STATE_STRING_ESCAPE:
                 if(symbol == '\\'){
-//                    string_wright_char(string, '\\');
-                    string_wright_char(string, '\\');
-                    string_wright_char(string, '0');
-                    string_wright_char(string, '9');
-                    string_wright_char(string, '2');
+//                    STRING_WRIGHT_CHAR(string, '\\');
+                    STRING_WRIGHT_CHAR(string, '\\');
+                    STRING_WRIGHT_CHAR(string, '0');
+                    STRING_WRIGHT_CHAR(string, '9');
+                    STRING_WRIGHT_CHAR(string, '2');
                     state = LEXICAL_STATE_STRING_START;
                     break;
                 }else if(symbol == '\"'){
-//                    string_wright_char(string, '\"');
-                    string_wright_char(string, '\\');
-                    string_wright_char(string, '0');
-                    string_wright_char(string, '3');
-                    string_wright_char(string, '4');
+//                    STRING_WRIGHT_CHAR(string, '\"');
+                    STRING_WRIGHT_CHAR(string, '\\');
+                    STRING_WRIGHT_CHAR(string, '0');
+                    STRING_WRIGHT_CHAR(string, '3');
+                    STRING_WRIGHT_CHAR(string, '4');
                     state = LEXICAL_STATE_STRING_START;
                     break;
                 }else if(symbol == 'n'){
-//                    string_wright_char(string, '\n');
-                    string_wright_char(string, '\\');
-                    string_wright_char(string, '0');
-                    string_wright_char(string, '1');
-                    string_wright_char(string, '0');
+//                    STRING_WRIGHT_CHAR(string, '\n');
+                    STRING_WRIGHT_CHAR(string, '\\');
+                    STRING_WRIGHT_CHAR(string, '0');
+                    STRING_WRIGHT_CHAR(string, '1');
+                    STRING_WRIGHT_CHAR(string, '0');
                     state = LEXICAL_STATE_STRING_START;
                     break;
                 }else if(symbol == 't'){
-//                    string_wright_char(string, '\t');
-                    string_wright_char(string, '\\');
-                    string_wright_char(string, '0');
-                    string_wright_char(string, '0');
-                    string_wright_char(string, '9');
+//                    STRING_WRIGHT_CHAR(string, '\t');
+                    STRING_WRIGHT_CHAR(string, '\\');
+                    STRING_WRIGHT_CHAR(string, '0');
+                    STRING_WRIGHT_CHAR(string, '0');
+                    STRING_WRIGHT_CHAR(string, '9');
                     state = LEXICAL_STATE_STRING_START;
                     break;
                 }else if(symbol == '0')
                 {
+                    STRING_WRIGHT_CHAR(string, '\\');
                     state = LEXICAL_STATE_STRING_ESCAPE_FN_ZERO;
                     escape_seq[0] = symbol;
                     break;
@@ -597,11 +612,28 @@ int prepar_analysis(t_token* token)
 void hold_token(){
     hold++;
 }
-void old_token_allocate(){
+int old_token_allocate(){
     old_token = malloc(sizeof (t_token));
+    if(!old_token){
+        return ERROR_INTERNAL;
+    }
     old_token->lexeme = malloc(sizeof (t_lexeme));
+    if(!old_token->lexeme){
+        free(old_token);
+        return ERROR_INTERNAL;
+    }
     old_token->lexeme->inter = malloc(sizeof (t_str));
-    string_init(old_token->lexeme->inter);
+    if(!old_token->lexeme->inter){
+        free(old_token->lexeme);
+        free(old_token);
+        return ERROR_INTERNAL;
+    }
+    if(string_init(old_token->lexeme->inter)){
+        free(old_token->lexeme->inter);
+        free(old_token->lexeme);
+        free(old_token);
+        return ERROR_INTERNAL;
+    }
 
     old_token->token_name = NONE_T;
     old_token->lexeme->keyword = NONE_K;
@@ -609,26 +641,72 @@ void old_token_allocate(){
     old_token->lexeme->inter->how_occupied = 0;
     old_token->lexeme->integer = 0;
     old_token->lexeme->number = 0.0;
+
+
+
+    token_save = malloc(sizeof (t_token));
+    if(!token_save){
+        return ERROR_INTERNAL;
+    }
+    token_save->lexeme = malloc(sizeof (t_lexeme));
+    if(!token_save->lexeme){
+        free(token_save);
+        return ERROR_INTERNAL;
+    }
+    token_save->lexeme->inter = malloc(sizeof (t_str));
+    if(!token_save->lexeme->inter){
+        free(token_save->lexeme);
+        free(token_save);
+        return ERROR_INTERNAL;
+    }
+    if(string_init(token_save->lexeme->inter)){
+        free(token_save->lexeme->inter);
+        free(token_save->lexeme);
+        free(token_save);
+        return ERROR_INTERNAL;
+    }
+
+    token_save->token_name = NONE_T;
+    token_save->lexeme->keyword = NONE_K;
+    token_save->lexeme->inter->data[0] = '\0';
+    token_save->lexeme->inter->how_occupied = 0;
+    token_save->lexeme->integer = 0;
+    token_save->lexeme->number = 0.0;
+    return IT_IS_OK;
 }
 void get_old_token(t_token* token){
-    if(!token_save) {
-        token_save = malloc(sizeof(t_token));
+    if(!t_save) {
+        t_save = true;
+//        token_save = malloc(sizeof(t_token));
         token_save->token_name = token->token_name;
-        token_save->lexeme = token->lexeme;
+//        token_save->lexeme->inter = malloc(sizeof(t_str));
+//        string_init(token_save->lexeme->inter);
+        string_copy(token->lexeme->inter, token_save->lexeme->inter);
+        token_save->token_name = token->token_name;
+        token_save->lexeme->keyword = token->lexeme->keyword;
+        token_save->lexeme->integer = token->lexeme->integer;
+        token_save->lexeme->number = token->lexeme->number;
+
         token->token_name = old_token->token_name;
-        token->lexeme = old_token->lexeme;
+        string_copy(old_token->lexeme->inter,token->lexeme->inter);
+        token->lexeme->keyword = old_token->lexeme->keyword;
+       // token->lexeme = old_token->lexeme;
+        token->lexeme->integer = old_token->lexeme->integer;
+        token->lexeme->number = old_token->lexeme->number;
         token->str = old_token->str;
     }
 }
 
-void to_old_token(t_token* token){
+int to_old_token(t_token* token){
     old_token->token_name = token->token_name;
     old_token->lexeme->keyword = token->lexeme->keyword;
     old_token->lexeme->integer = token->lexeme->integer;
     old_token->lexeme->number = token->lexeme->number;
-    string_copy(token->lexeme->inter,old_token->lexeme->inter);
+    if(string_copy(token->lexeme->inter,old_token->lexeme->inter)){
+        return ERROR_INTERNAL;
+    }
     old_token->str = token->str;
-
+    return IT_IS_OK;
 }
 
 void token_free(){
@@ -639,16 +717,29 @@ void token_free(){
     free(old_token);
     old_token = NULL;
 
+
+    if (token_save->lexeme->inter)
+        string_free(token_save->lexeme->inter);
+    if (token_save->lexeme)
+        free(token_save->lexeme);
+    free(token_save);
+    token_save = NULL;
+
+
     string_free(string);
 }
 
 int get_token(t_token* token)
 {
-    if(token_save){
+    if(t_save){
+        t_save = false;
         token->token_name = token_save->token_name;
-        token->lexeme = token_save->lexeme;
-        free(token_save);
-        token_save = NULL;
+        string_copy(token_save->lexeme->inter,token->lexeme->inter);
+        token->lexeme->keyword = token_save->lexeme->keyword;
+        // token->lexeme = old_token->lexeme;
+        token->lexeme->integer = token_save->lexeme->integer;
+        token->lexeme->number = token_save->lexeme->number;
+
     }
     if(hold){
         hold--;
@@ -656,24 +747,31 @@ int get_token(t_token* token)
     }
 
     if(!old_token){
-        old_token_allocate();
+        if(old_token_allocate()){
+            return ERROR_INTERNAL;
+        }
     }else{
-        to_old_token(token);
+        if(to_old_token(token)){
+            return ERROR_INTERNAL;
+        }
     }
 
     if (prepar_analysis(token)){
-        //TODO обработка ошибок
-        return 1;
+        return ERROR_INTERNAL;
     }
 
-    if(find_token(token)){
-        //TODO обработка ошибок
-        string_free(string);
-        return 2;
+    int er =0;
+    er = find_token(token);
+    if(er){
+        return er;
+//        string_free(string);
     }
 
-    if(token->token_name != TOKEN_EOF)
-        string_copy(string,token->lexeme->inter);
+    if(token->token_name != TOKEN_EOF){
+        if(string_copy(string, token->lexeme->inter)){
+            return ERROR_INTERNAL;
+        }
+    }
 
     return IT_IS_OK;
 }

@@ -1,5 +1,9 @@
 #ifndef IFJ_PROJEKT_AST_ONE_NODE_H
 #define IFJ_PROJEKT_AST_ONE_NODE_H
+#include "stdbool.h"
+#include "precefence_tree.h"
+#include "string.h"
+#include "symbol_table.h"
 typedef unsigned long ul;
 
 typedef struct s_exp_list{
@@ -58,6 +62,7 @@ typedef struct s_ast_node{
     bool it_is_return_exp;
     bool it_is_start_if_loop;
     bool it_is_function_end;
+    bool it_is_loop_or_if;
     struct s_ast_node *first_node;
     struct s_ast_node *next_node;
 }t_ast_node;

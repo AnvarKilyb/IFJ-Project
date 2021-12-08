@@ -118,7 +118,7 @@ int main(int argc, char** argv){
  *
  */
 //    //TODO обработка ошибок с читением имени файла
-    FILE* file_name;
+    FILE* file_name;// = stdin;
     file_name = fopen( argv[1],"r");
     printf("%s   %d\n",argv[1],argc);
     t_token* token;
@@ -135,7 +135,6 @@ int main(int argc, char** argv){
     token->lexeme->number = 0.0;
     token->str = 1;
 
-    printf("privet\n");
     int a = 0;
 
     a = start_analysis(token);
@@ -160,10 +159,10 @@ int main(int argc, char** argv){
 //        {
 //            return 222;
 //        }
-////        printf("string = %d",token->str);
-////        printf("...token{ %d }.....data{ %s }.....keyword{ %d }.....number_int{ %d }.....number_double{ %g }...\n",
-////               token->token_name,token->lexeme->inter->data,token->lexeme->keyword,token->lexeme->integer,token->lexeme->number);
-//
+//        printf("string = %d",token->str);
+//        printf("...token{ %d }.....data{ %s }.....keyword{ %d }.....number_int{ %d }.....number_double{ %g }...\n",
+//               token->token_name,token->lexeme->inter->data,token->lexeme->keyword,token->lexeme->integer,token->lexeme->number);
+
 ////        get_old_token(token);
 ////        printf("...token{ %d }.....data{ %s }.....keyword{ %d }.....number_int{ %d }.....number_double{ %g }...\n",
 ////               token->token_name,token->lexeme->inter->data,token->lexeme->keyword,token->lexeme->integer,token->lexeme->number);
