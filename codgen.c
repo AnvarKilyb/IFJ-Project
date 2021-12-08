@@ -165,30 +165,79 @@ int make_tointeger(){
 }
 
 int make_substr(){
+//    ADD_BUILTIN("LABEL substr\n");
+//    ADD_BUILTIN("PUSHFRAME\n");
+//    //params:
+//    ADD_BUILTIN("DEFVAR LF@string\n");
+//    ADD_BUILTIN("DEFVAR LF@position_1\n");
+//    ADD_BUILTIN("DEFVAR LF@position_2\n");
+//    ADD_BUILTIN("POPS LF@position_2\n");
+//    ADD_BUILTIN("POPS LF@position_1\n");
+//    ADD_BUILTIN("POPS LF@string\n");
+//    ADD_BUILTIN("DEFVAR LF@new_string\n");
+//    //check if the given positions are valid
+//    ADD_BUILTIN("DEFVAR LF@cond\n");
+//    ADD_BUILTIN("GT LF@cond LF@position_1 LF@position_2\n");
+//    ADD_BUILTIN("JUMPIFEQ substr%out LF@cond bool@true\n");
+//    ADD_BUILTIN("JUMPIFEQ substr%out LF@position_1 int@0\n");
+//    ADD_BUILTIN("JUMPIFEQ substr%out LF@position_2 int@0\n");
+//    ADD_BUILTIN("DEFVAR LF@lenght\n");
+//    ADD_BUILTIN("STRLEN LF@lenght LF@string\n");
+//    ADD_BUILTIN("DEFVAR LF@cond_a\n");
+//    ADD_BUILTIN("DEFVAR LF@cond_b\n");
+//    ADD_BUILTIN("GT LF@cond_a LF@position_1 LF@lenght\n");
+//    ADD_BUILTIN("GT LF@cond_b LF@position_2 LF@lenght\n");
+//    ADD_BUILTIN("OR LF@cond_a LF@cond_a LF@cond_b\n");
+//    ADD_BUILTIN("JUMPIFEQ substr%valid LF@cond_a bool@false\n");
+//    ADD_BUILTIN("DEFVAR LF@cond\n");
+//    ADD_BUILTIN("GT LF@cond LF@position_1 LF@position_2\n");
+//    ADD_BUILTIN("JUMPIFEQ substr%out LF@cond bool@true\n");
+//    ADD_BUILTIN("DEFVAR LF@lenght\n");
+//    ADD_BUILTIN("STRLEN LF@lenght LF@string\n");
+//    ADD_BUILTIN("DEFVAR LF@cond_a\n");
+//    ADD_BUILTIN("DEFVAR LF@cond_b\n");
+//    ADD_BUILTIN("LT LF@cond_a LF@position_1 int@1\n");
+//    ADD_BUILTIN("GT LF@cond_b LF@position_1 LF@lenght\n");
+//    ADD_BUILTIN("OR LF@cond_a LF@cond_a LF@cond_b\n");
+//    ADD_BUILTIN("JUMPIFEQ substr%out LF@cond_a bool@true\n");
+//    ADD_BUILTIN("LT LF@cond_a LF@position_2 int@1\n");
+//    ADD_BUILTIN("GT LF@cond_b LF@position_2 LF@lenght\n");
+//    ADD_BUILTIN("OR LF@cond_a LF@cond_a LF@cond_b\n");
+//    ADD_BUILTIN("JUMPIFEQ substr%valid LF@cond_a bool@false\n");
+//    //write an empty string:
+//    ADD_BUILTIN("LABEL substr%out\n");
+//    ADD_BUILTIN("MOVE LF@new_string string@\n");
+//    ADD_BUILTIN("JUMP substr%end\n");
+//    //valid:
+//    ADD_BUILTIN("LABEL substr%valid\n");
+//    ADD_BUILTIN("DEFVAR LF@char\n");
+//    ADD_BUILTIN("MOVE LF@new_string string@\n");
+//    ADD_BUILTIN("SUB LF@position_1 LF@position_1 int@1\n");
+//    ADD_BUILTIN("LABEL substr%while\n");
+//    ADD_BUILTIN("JUMPIFEQ substr%end LF@position_1 LF@position_2\n");
+//    ADD_BUILTIN("GETCHAR LF@char LF@string LF@position_1\n");
+//    ADD_BUILTIN("CONCAT LF@new_string LF@new_string LF@char\n");
+//    ADD_BUILTIN("ADD LF@position_1 LF@position_1 int@1\n");
+//    ADD_BUILTIN("JUMP substr%while\n");
+//    ADD_BUILTIN("LABEL substr%end\n");
+//    ADD_BUILTIN("PUSHS LF@new_string\n");
+//    ADD_BUILTIN("POPFRAME\n");
+//    ADD_BUILTIN("RETURN\n");
+//    return IT_IS_OK;
+//
+
+
     ADD_BUILTIN("LABEL substr\n");
     ADD_BUILTIN("PUSHFRAME\n");
-    //params:
     ADD_BUILTIN("DEFVAR LF@string\n");
     ADD_BUILTIN("DEFVAR LF@position_1\n");
     ADD_BUILTIN("DEFVAR LF@position_2\n");
+    ADD_BUILTIN("FLOAT2INTS\n");
     ADD_BUILTIN("POPS LF@position_2\n");
+    ADD_BUILTIN("FLOAT2INTS\n");
     ADD_BUILTIN("POPS LF@position_1\n");
     ADD_BUILTIN("POPS LF@string\n");
     ADD_BUILTIN("DEFVAR LF@new_string\n");
-    //check if the given positions are valid
-    ADD_BUILTIN("DEFVAR LF@cond\n");
-    ADD_BUILTIN("GT LF@cond LF@position_1 LF@position_2\n");
-    ADD_BUILTIN("JUMPIFEQ substr%out LF@cond bool@true\n");
-    ADD_BUILTIN("JUMPIFEQ substr%out LF@position_1 int@0\n");
-    ADD_BUILTIN("JUMPIFEQ substr%out LF@position_2 int@0\n");
-    ADD_BUILTIN("DEFVAR LF@lenght\n");
-    ADD_BUILTIN("STRLEN LF@lenght LF@string\n");
-    ADD_BUILTIN("DEFVAR LF@cond_a\n");
-    ADD_BUILTIN("DEFVAR LF@cond_b\n");
-    ADD_BUILTIN("GT LF@cond_a LF@position_1 LF@lenght\n");
-    ADD_BUILTIN("GT LF@cond_b LF@position_2 LF@lenght\n");
-    ADD_BUILTIN("OR LF@cond_a LF@cond_a LF@cond_b\n");
-    ADD_BUILTIN("JUMPIFEQ substr%valid LF@cond_a bool@false\n");
     ADD_BUILTIN("DEFVAR LF@cond\n");
     ADD_BUILTIN("GT LF@cond LF@position_1 LF@position_2\n");
     ADD_BUILTIN("JUMPIFEQ substr%out LF@cond bool@true\n");
@@ -204,11 +253,9 @@ int make_substr(){
     ADD_BUILTIN("GT LF@cond_b LF@position_2 LF@lenght\n");
     ADD_BUILTIN("OR LF@cond_a LF@cond_a LF@cond_b\n");
     ADD_BUILTIN("JUMPIFEQ substr%valid LF@cond_a bool@false\n");
-    //write an empty string:
     ADD_BUILTIN("LABEL substr%out\n");
     ADD_BUILTIN("MOVE LF@new_string string@\n");
     ADD_BUILTIN("JUMP substr%end\n");
-    //valid:
     ADD_BUILTIN("LABEL substr%valid\n");
     ADD_BUILTIN("DEFVAR LF@char\n");
     ADD_BUILTIN("MOVE LF@new_string string@\n");
@@ -294,6 +341,10 @@ int spot_builtin_function(t_ast_node *ast_tree){
     else if((strcmp(ast_tree->func->name->data, "readn") == 0) && readn_flag == 0){
         make_readn();
         readn_flag = 1;
+    }
+    else if((strcmp(ast_tree->func->name->data, "tointeger") == 0) && tointeger_flag == 0){
+        make_tointeger();
+        tointeger_flag = 1;
     }
     else if((strcmp(ast_tree->func->name->data, "write") == 0) && write_flag == 0){
         make_write();
