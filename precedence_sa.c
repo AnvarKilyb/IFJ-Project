@@ -607,6 +607,20 @@ int check_expression(AST_leaf *tree, t_ast_node *ast_node){
                 ul hash = hashcode(token->lexeme->inter->data);
                 bool error_null = false;
                 function_var = check_type_stack(error_null,hash);
+                if(error_null){
+                    return ERROR_INTERNAL;
+                }
+                if(!function_var){
+                    return ERROR_SEMANTIC_ANALYSIS;
+                }
+                if(string_arr_cmp(function_var->data->type, "string")){
+                    token->lexeme->str_bool = true;
+                }else  if(string_arr_cmp(function_var->data->type, "integer")){
+                    token->lexeme->int_bool = true;
+                }else  if(string_arr_cmp(function_var->data->type, "number")){
+                    token->lexeme->number_bool = true;
+                }
+
                 if(string_param_cmp_arr(ast_node->type_variable, ast_node->count_expression,"integer")){
                     if(string_arr_cmp(function_var->data->type, "string")){
                         if(stack.amount_of_elements > 1){
@@ -709,6 +723,20 @@ int check_expression(AST_leaf *tree, t_ast_node *ast_node){
                 ul hash = hashcode(token->lexeme->inter->data);
                 bool error_null = false;
                 function_var = check_type_stack(error_null,hash);
+                if(error_null){
+                    return ERROR_INTERNAL;
+                }
+                if(!function_var){
+                    return ERROR_SEMANTIC_ANALYSIS;
+                }
+                if(string_arr_cmp(function_var->data->type, "string")){
+                    token->lexeme->str_bool = true;
+                }else  if(string_arr_cmp(function_var->data->type, "integer")){
+                    token->lexeme->int_bool = true;
+                }else  if(string_arr_cmp(function_var->data->type, "number")){
+                    token->lexeme->number_bool = true;
+                }
+
                 if(string_param_cmp_arr(ast_node->function_info->type_returned_params, ast_node->function_info->count_returned_params ,"integer")){
                     if(string_arr_cmp(function_var->data->type, "number")){
                         stack_free(&stack);
@@ -809,6 +837,12 @@ int check_expression(AST_leaf *tree, t_ast_node *ast_node){
             ul hash = hashcode(top_token->lexeme->inter->data);
             bool error_null = false;
             top_var = check_type_stack(error_null,hash);
+            if(error_null){
+                return ERROR_INTERNAL;
+            }
+            if(!top_var){
+                return ERROR_SEMANTIC_ANALYSIS;
+            }
             while(stack.amount_of_elements != 0){
                 token = stack_top(&stack)->root->token;
                 if (token->token_name == TOKEN_EQUALS || token->token_name == TOKEN_NOT_EQUALS || token->token_name == TOKEN_LESS_OR_EQUAL
@@ -831,8 +865,20 @@ int check_expression(AST_leaf *tree, t_ast_node *ast_node){
                 if(token->token_name == TOKEN_IDENTIFIER){
                     node *function_var = NULL;
                     hash = hashcode(token->lexeme->inter->data);
-                    error_null = false;
                     function_var = check_type_stack(error_null,hash);
+                    if(error_null){
+                        return ERROR_INTERNAL;
+                    }
+                    if(!function_var){
+                        return ERROR_SEMANTIC_ANALYSIS;
+                    }
+                    if(string_arr_cmp(function_var->data->type, "string")){
+                        token->lexeme->str_bool = true;
+                    }else  if(string_arr_cmp(function_var->data->type, "integer")){
+                        token->lexeme->int_bool = true;
+                    }else  if(string_arr_cmp(function_var->data->type, "number")){
+                        token->lexeme->number_bool = true;
+                    }
                     if(string_arr_cmp(top_var->data->type, "integer")){
                         if(string_arr_cmp(function_var->data->type, "string")){
                             if(stack.amount_of_elements > 1){
@@ -942,6 +988,19 @@ int check_expression(AST_leaf *tree, t_ast_node *ast_node){
                     ul hash = hashcode(token->lexeme->inter->data);
                     bool error_null = false;
                     function_var = check_type_stack(error_null,hash);
+                    if(error_null){
+                        return ERROR_INTERNAL;
+                    }
+                    if(!function_var){
+                        return ERROR_SEMANTIC_ANALYSIS;
+                    }
+                    if(string_arr_cmp(function_var->data->type, "string")){
+                        token->lexeme->str_bool = true;
+                    }else  if(string_arr_cmp(function_var->data->type, "integer")){
+                        token->lexeme->int_bool = true;
+                    }else  if(string_arr_cmp(function_var->data->type, "number")){
+                        token->lexeme->number_bool = true;
+                    }
 
                     if(string_arr_cmp(function_var->data->type, "string")){
                         if(stack.amount_of_elements > 1){
@@ -1018,6 +1077,19 @@ int check_expression(AST_leaf *tree, t_ast_node *ast_node){
                     ul hash = hashcode(token->lexeme->inter->data);
                     bool error_null = false;
                     function_var = check_type_stack(error_null,hash);
+                    if(error_null){
+                        return ERROR_INTERNAL;
+                    }
+                    if(!function_var){
+                        return ERROR_SEMANTIC_ANALYSIS;
+                    }
+                    if(string_arr_cmp(function_var->data->type, "string")){
+                        token->lexeme->str_bool = true;
+                    }else  if(string_arr_cmp(function_var->data->type, "integer")){
+                        token->lexeme->int_bool = true;
+                    }else  if(string_arr_cmp(function_var->data->type, "number")){
+                        token->lexeme->number_bool = true;
+                    }
                     if(top_token->token_name == TOKEN_INTEGER){
                         if(string_arr_cmp(function_var->data->type, "string")){
                             if(stack.amount_of_elements > 1){

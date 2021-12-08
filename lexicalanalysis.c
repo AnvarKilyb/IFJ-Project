@@ -592,6 +592,9 @@ int prepar_analysis(t_token* token)
     token->lexeme->inter->how_occupied = 0;
     token->lexeme->integer = 0;
     token->lexeme->number = 0.0;
+    token->lexeme->str_bool = false;
+    token->lexeme->int_bool = false;
+    token->lexeme->number_bool = false;
     ///
 
 
@@ -641,6 +644,9 @@ int old_token_allocate(){
     old_token->lexeme->inter->how_occupied = 0;
     old_token->lexeme->integer = 0;
     old_token->lexeme->number = 0.0;
+    old_token->lexeme->str_bool = false;
+    old_token->lexeme->int_bool = false;
+    old_token->lexeme->number_bool = false;
 
 
 
@@ -672,6 +678,9 @@ int old_token_allocate(){
     token_save->lexeme->inter->how_occupied = 0;
     token_save->lexeme->integer = 0;
     token_save->lexeme->number = 0.0;
+    token_save->lexeme->str_bool = false;
+    token_save->lexeme->int_bool = false;
+    token_save->lexeme->number_bool = false;
     return IT_IS_OK;
 }
 void get_old_token(t_token* token){

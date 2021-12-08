@@ -120,6 +120,9 @@ typedef struct s_lexeme{
     e_keyword keyword;
     int integer;
     double number;
+    bool str_bool;
+    bool int_bool;
+    bool number_bool;
 }t_lexeme;
 
 typedef struct s_token{
