@@ -587,6 +587,15 @@ int check_expression(AST_leaf *tree, t_ast_node *ast_node){
     if(ast_node->it_is_variable_expression){
         while(stack.amount_of_elements != 0){
             token = stack_top(&stack)->root->token;
+            if(token->lexeme->keyword == KEYWORD_NIL){
+                if(stack.amount_of_elements > 1){
+                    if(stack_top(&stack)->down_element->root->token->token_name != TOKEN_EQUALS
+                            && stack_top(&stack)->down_element->root->token->token_name != TOKEN_NOT_EQUALS){
+                        stack_free(&stack);
+                        return ERROR_SEMANTIC_ANALYSIS_EXPR;
+                    }
+                }
+            }
             if (token->token_name == TOKEN_EQUALS || token->token_name == TOKEN_NOT_EQUALS || token->token_name == TOKEN_LESS_OR_EQUAL
                 || token->token_name == TOKEN_LESS || token->token_name == TOKEN_GREATER_OR_EQUAL || token->token_name == TOKEN_GREATER) {
                 stack_free(&stack);
@@ -680,6 +689,15 @@ int check_expression(AST_leaf *tree, t_ast_node *ast_node){
     else if(ast_node->it_is_return_exp) {
         while(stack.amount_of_elements != 0){
             token = stack_top(&stack)->root->token;
+            if(token->lexeme->keyword == KEYWORD_NIL){
+                if(stack.amount_of_elements > 1){
+                    if(stack_top(&stack)->down_element->root->token->token_name != TOKEN_EQUALS
+                       && stack_top(&stack)->down_element->root->token->token_name != TOKEN_NOT_EQUALS){
+                        stack_free(&stack);
+                        return ERROR_SEMANTIC_ANALYSIS_EXPR;
+                    }
+                }
+            }
             if (token->token_name == TOKEN_EQUALS || token->token_name == TOKEN_NOT_EQUALS || token->token_name == TOKEN_LESS_OR_EQUAL
                 || token->token_name == TOKEN_LESS || token->token_name == TOKEN_GREATER_OR_EQUAL || token->token_name == TOKEN_GREATER) {
                 stack_free(&stack);
@@ -791,6 +809,7 @@ int check_expression(AST_leaf *tree, t_ast_node *ast_node){
             bool error_null = false;
             top_var = check_type_stack(error_null,hash);
             while(stack.amount_of_elements != 0){
+                token = stack_top(&stack)->root->token;
                 if (token->token_name == TOKEN_EQUALS || token->token_name == TOKEN_NOT_EQUALS || token->token_name == TOKEN_LESS_OR_EQUAL
                     || token->token_name == TOKEN_LESS || token->token_name == TOKEN_GREATER_OR_EQUAL || token->token_name == TOKEN_GREATER) {
                     if(sign_repeat){
@@ -799,7 +818,15 @@ int check_expression(AST_leaf *tree, t_ast_node *ast_node){
                     }
                     sign_repeat = true;
                 }
-                token = stack_top(&stack)->root->token;
+                if(token->lexeme->keyword == KEYWORD_NIL){
+                    if(stack.amount_of_elements > 1){
+                        if(stack_top(&stack)->down_element->root->token->token_name != TOKEN_EQUALS
+                           && stack_top(&stack)->down_element->root->token->token_name != TOKEN_NOT_EQUALS){
+                            stack_free(&stack);
+                            return ERROR_SEMANTIC_ANALYSIS_EXPR;
+                        }
+                    }
+                }
                 if(token->token_name == TOKEN_IDENTIFIER){
                     node *function_var = NULL;
                     hash = hashcode(token->lexeme->inter->data);
@@ -892,6 +919,23 @@ int check_expression(AST_leaf *tree, t_ast_node *ast_node){
 //            top_var = check_type_stack(error_null,hash);
             while(stack.amount_of_elements != 0){
                 token = stack_top(&stack)->root->token;
+                if(token->lexeme->keyword == KEYWORD_NIL){
+                    if(stack.amount_of_elements > 1){
+                        if(stack_top(&stack)->down_element->root->token->token_name != TOKEN_EQUALS
+                           && stack_top(&stack)->down_element->root->token->token_name != TOKEN_NOT_EQUALS){
+                            stack_free(&stack);
+                            return ERROR_SEMANTIC_ANALYSIS_EXPR;
+                        }
+                    }
+                }
+                if (token->token_name == TOKEN_EQUALS || token->token_name == TOKEN_NOT_EQUALS || token->token_name == TOKEN_LESS_OR_EQUAL
+                    || token->token_name == TOKEN_LESS || token->token_name == TOKEN_GREATER_OR_EQUAL || token->token_name == TOKEN_GREATER) {
+                    if(sign_repeat){
+                        stack_free(&stack);
+                        return ERROR_SEMANTIC_ANALYSIS_EXPR;
+                    }
+                    sign_repeat = true;
+                }
                 if(token->token_name == TOKEN_IDENTIFIER){
                     node *function_var = NULL;
                     ul hash = hashcode(token->lexeme->inter->data);
@@ -951,6 +995,23 @@ int check_expression(AST_leaf *tree, t_ast_node *ast_node){
         else{
             while(stack.amount_of_elements != 0){
                 token = stack_top(&stack)->root->token;
+                if(token->lexeme->keyword == KEYWORD_NIL){
+                    if(stack.amount_of_elements > 1){
+                        if(stack_top(&stack)->down_element->root->token->token_name != TOKEN_EQUALS
+                           && stack_top(&stack)->down_element->root->token->token_name != TOKEN_NOT_EQUALS){
+                            stack_free(&stack);
+                            return ERROR_SEMANTIC_ANALYSIS_EXPR;
+                        }
+                    }
+                }
+                if (token->token_name == TOKEN_EQUALS || token->token_name == TOKEN_NOT_EQUALS || token->token_name == TOKEN_LESS_OR_EQUAL
+                    || token->token_name == TOKEN_LESS || token->token_name == TOKEN_GREATER_OR_EQUAL || token->token_name == TOKEN_GREATER) {
+                    if(sign_repeat){
+                        stack_free(&stack);
+                        return ERROR_SEMANTIC_ANALYSIS_EXPR;
+                    }
+                    sign_repeat = true;
+                }
                 if(token->token_name == TOKEN_IDENTIFIER){
                     node *function_var = NULL;
                     ul hash = hashcode(token->lexeme->inter->data);
