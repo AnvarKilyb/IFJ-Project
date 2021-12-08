@@ -1,3 +1,16 @@
+/**
+ * Project: Implementace překladače imperativního jazyka IFJ21
+ *
+ * File:     string.h
+ * Subject:  IFJ2021
+ *
+ * @author:  Vladislav Mikheda  	xmikhe00
+ * @author:  Khrisanov Vladislav    xkhris00
+ * @author:  Kilybayev Anvar        xkilyb00
+ * @author:  Gazizov Zhasdauren     xgaziz00
+ */
+
+
 
 #ifndef IFJ_PROJEKT_STRING_H
 #define IFJ_PROJEKT_STRING_H

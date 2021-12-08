@@ -1,3 +1,16 @@
+/**
+ * Project: Implementace překladače imperativního jazyka IFJ21
+ *
+ * File:     string_param.c
+ * Subject:  IFJ2021
+ *
+ * @author:  Vladislav Mikheda  	xmikhe00
+ * @author:  Khrisanov Vladislav    xkhris00
+ * @author:  Kilybayev Anvar        xkilyb00
+ * @author:  Gazizov Zhasdauren     xgaziz00
+ */
+
+
 
 #include "string_param.h"
 #include "error.h"

@@ -1,3 +1,16 @@
+/**
+ * Project: Implementace překladače imperativního jazyka IFJ21
+ *
+ * File:     syntacticalanalyzer.c
+ * Subject:  IFJ2021
+ *
+ * @author:  Vladislav Mikheda  	xmikhe00
+ * @author:  Khrisanov Vladislav    xkhris00
+ * @author:  Kilybayev Anvar        xkilyb00
+ * @author:  Gazizov Zhasdauren     xgaziz00
+ */
+
+
 
 #include "syntacticalanalyzer.h"
 #include "precedence_sa.h"
@@ -505,8 +518,10 @@ int statement(t_token *token){ ///проверенная кроме if и while
                 function_var = NULL;
                 RETURN_ERROR_NUMBER(ERROR_INTERNAL);
             }
+
             if(ast_node->it_is_loop_or_if)
             {
+                function_var->counter_in = ast_node->count_nesting;
                 if(ast_node->local){
                     node* in_function = NULL;
                     in_function = table_top(stack_table);
@@ -2890,6 +2905,28 @@ node* check_type_stack(bool error_null, ul hash){
 }
 
 
+int tree_check(node *root,t_token* token){
+    if(root == NULL)
+        return IT_IS_OK;
+
+    if(!ERROR_ALL && root->right_node)
+        tree_check(root->right_node,token);
+    if(!ERROR_ALL && root->right_node)
+        tree_check(root->left_node,token);
+
+    if(root->data && !ERROR_ALL){
+        if(root->data->declaration && !ERROR_ALL){
+            if(!root->data->define && !ERROR_ALL){
+
+                ERROR_TEXT("the function was declared but was not defined in the program");
+                RETURN_ERROR_NUMBER(ERROR_SEMANTIC_ANALYSIS);
+            }
+        }
+    }
+
+    return ERROR_ALL;
+}
+
 int start_analysis(t_token *token){
 
     ast_node = malloc(sizeof (t_ast_node));
@@ -2929,11 +2966,10 @@ int start_analysis(t_token *token){
         RETURN_ERROR_NUMBER(ERROR_INTERNAL);
     }
 
-
-
     start_generation();
     int a = 0;
     a = start_program(token);
+    tree_check(global_table,token);
     code_assemble();
     error_processing();
     return a;

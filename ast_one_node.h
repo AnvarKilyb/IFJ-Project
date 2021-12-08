@@ -1,9 +1,21 @@
+/**
+ * Project: Implementace překladače imperativního jazyka IFJ21
+ *
+ * File:     ast_one_node.h
+ * Subject:  IFJ2021
+ *
+ * @author:  Vladislav Mikheda  	xmikhe00
+ * @author:  Khrisanov Vladislav    xkhris00
+ * @author:  Kilybayev Anvar        xkilyb00
+ * @author:  Gazizov Zhasdauren     xgaziz00
+ */
+
 #ifndef IFJ_PROJEKT_AST_ONE_NODE_H
 #define IFJ_PROJEKT_AST_ONE_NODE_H
 #include "stdbool.h"
-#include "precefence_tree.h"
+#include "precedence_tree.h"
 #include "string.h"
-#include "symbol_table.h"
+#include "symtable.h"
 typedef unsigned long ul;
 
 typedef struct s_exp_list{

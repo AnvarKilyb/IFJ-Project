@@ -1,4 +1,15 @@
-//
+/**
+ * Project: Implementace překladače imperativního jazyka IFJ21
+ *
+ * File:     lexicalanalysis.c
+ * Subject:  IFJ2021
+ *
+ * @author:  Vladislav Mikheda  	xmikhe00
+ * @author:  Khrisanov Vladislav    xkhris00
+ * @author:  Kilybayev Anvar        xkilyb00
+ * @author:  Gazizov Zhasdauren     xgaziz00
+ */
+
 #include "lexicalanalysis.h"
 
 const char* const KEYWORDS[] = {"do","global","number","else","if","require","end","integer","return","function","local","string","nil","then","while"};

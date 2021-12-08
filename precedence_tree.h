@@ -1,5 +1,20 @@
-#ifndef IFJ_PROJEKT_PRECEFENCE_TREE_H
-#define IFJ_PROJEKT_PRECEFENCE_TREE_H
+/**
+ * Project: Implementace překladače imperativního jazyka IFJ21
+ *
+ * File:     precedence_tree.h
+ * Subject:  IFJ2021
+ *
+ * @author:  Vladislav Mikheda  	xmikhe00
+ * @author:  Khrisanov Vladislav    xkhris00
+ * @author:  Kilybayev Anvar        xkilyb00
+ * @author:  Gazizov Zhasdauren     xgaziz00
+ */
+
+
+
+
+#ifndef IFJ_PROJEKT_PRECEDENCE_TREE_H
+#define IFJ_PROJEKT_PRECEDENCE_TREE_H
 #include "lexicalanalysis.h"
 typedef enum
 {
@@ -64,4 +79,4 @@ typedef struct{
     int amount_of_elements;
 }t_stack;
 
-#endif //IFJ_PROJEKT_PRECEFENCE_TREE_H
+#endif //IFJ_PROJEKT_PRECEDENCE_TREE_H

@@ -1,7 +1,20 @@
+/**
+ * Project: Implementace překladače imperativního jazyka IFJ21
+ *
+ * File:     symtable.c
+ * Subject:  IFJ2021
+ *
+ * @author:  Vladislav Mikheda  	xmikhe00
+ * @author:  Khrisanov Vladislav    xkhris00
+ * @author:  Kilybayev Anvar        xkilyb00
+ * @author:  Gazizov Zhasdauren     xgaziz00
+ */
+
+
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "symbol_table.h"
+#include "symtable.h"
 #include "error.h"
 
 void s_data_init(sData* node){
@@ -22,6 +35,7 @@ void s_data_init(sData* node){
 
     node->data_int = 0;
     node->data_double = 0.0;
+    node->counter_in = 0;
     node->data_string = NULL;
     node->data_valid = false;
     node->system_function = false;

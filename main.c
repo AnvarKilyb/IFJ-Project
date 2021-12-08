@@ -1,3 +1,16 @@
+/**
+ * Project: Implementace překladače imperativního jazyka IFJ21
+ *
+ * File:     main.c
+ * Subject:  IFJ2021
+ *
+ * @author:  Vladislav Mikheda  	xmikhe00
+ * @author:  Khrisanov Vladislav    xkhris00
+ * @author:  Kilybayev Anvar        xkilyb00
+ * @author:  Gazizov Zhasdauren     xgaziz00
+ */
+
+
 
 #include <string.h>
 #include <stdio.h>
@@ -8,119 +21,11 @@
 
 //#include "main.h"
 
-int main(int argc, char** argv){
+int main(){
 
-
-//
-//    t_str_param* a = malloc(sizeof (t_str_param));
-//
-//    string_param_init(a);
-//    char b[] = "aaaaaaa";
-//    char* d = "aaaaaaa";
-//    char h[] = "adadasdassda";
-//    t_str str;
-//    string_init(&str);
-//    string_wright_arr(&str,d);
-////    char r[] = "not";
-//
-//    string_wright_arr(a->data[0], b );
-//    string_wright_arr(a->data[1], d );
-//    string_wright_arr(a->data[2], h );
-////    string_wright_arr(a->data[3], r);
-//
-//    printf("%s\n",a->data[0]->data);
-//    printf("%s\n",a->data[1]->data);
-//    printf("%s\n",a->data[2]->data);
-////    printf("%s\n",a->data[3]->data);
-//
-//    if(string_param_cmp_string_param(a, 0, a, 1)){
-//        printf("Ravno\n");
-//    }
-//    if(string_param_cmp_string(a, 0, &str)){
-//        printf("Ravno1\n");
-//    }
-//
-//    string_param_free(a);
-
-//    char arr1[] = "aaaaaaaaaaaaaaaaaaaaaaaaaa";
-//    char arr2[] = "123456789sadyftggggggggggggggg";
-//    char s1 = 'a';
-//    char s2 = 'b';
-//
-//    t_str *string = malloc(sizeof (t_str));
-//    string_init(string);
-//    t_str *string2 = malloc(sizeof (t_str));;
-//    string_init(string2);
-//
-//    string_wright_arr(string2, arr2);
-//
-//    string_wright_arr(string, arr1);
-//    string_add_string(string2,string);
-//    printf("string = %s\nhow_occupied = %lld \nlenght = %lld \n \n",string->data, string->how_occupied, string->lenght);
-//
-//    string_wright_arr(string2, arr2);
-//    printf("string = %s\nhow_occupied = %lld \nlenght = %lld \n \n",string2->data, string2->how_occupied, string2->lenght);
-
-
-
-//    node* gl = NULL;
-//    char *a = "aaaaaa";
-//    char *b = "aaavaaa";
-//    char *c = "aaaaaa";
-//    char *d = "aaaaaa";
-//    char *e = "aaaaaa";
-//    sData *data = malloc(sizeof(sData));
-//    data->type = FUNC;
-//    data->string_params = malloc( sizeof (t_str));
-//    string_init(data->string_params);
-//    string_wright_arr(data->string_params, a);
-//    data->declaration = true;
-//
-//    gl = tree_insert(gl, hashcode(a),data);
-//
-//    sData *data1 = malloc(sizeof(sData));
-//    data1->type = FUNC;
-//    data1->string_params = malloc( sizeof (t_str));
-//    string_init(data1->string_params);
-//    string_wright_arr(data1->string_params, b);
-//
-//    s_stack *stack = malloc(sizeof (s_stack));
-//    table_init(stack);
-//
-//
-//
-//    gl = tree_insert(gl, hashcode(b),data1);
-//
-//    node *n;
-//    node *f;
-//    n = tree_search(gl,hashcode(a));
-//    if(n->data->declaration)
-//    {
-//        printf("data is declaration\n");
-//    }
-//    if(!n->data->declaration){
-//        printf("data is not declaration 1\n");
-//    }
-//    n->data->declaration = false;
-//    if(!n->data->declaration){
-//        printf("data is not declaration\n");
-//    }
-//
-//    f = tree_search(gl,hashcode(b));
-//
-//    printf("%s\n",n->data->string_params->data);
-//    printf("%s\n",f->data->string_params->data);
-
-
-/*
- *
- * Проверка лексического анализатора
- *
- */
-//    //TODO обработка ошибок с читением имени файла
-    FILE* file_name;// = stdin;
-    file_name = fopen( argv[1],"r");
-    printf("%s   %d\n",argv[1],argc);
+    FILE* file_name = stdin;
+//    file_name = fopen( argv[1],"r");
+//    printf("%s   %d\n",argv[1],argc);
     t_token* token;
     token = malloc(sizeof (t_token));
     token->lexeme = malloc((sizeof (t_lexeme)));
@@ -135,19 +40,19 @@ int main(int argc, char** argv){
     token->lexeme->number = 0.0;
     token->str = 1;
 
-    int a = 0;
+    int global_error = 0;
 
-    a = start_analysis(token);
+    global_error = start_analysis(token);
 
     string_free(token->lexeme->inter);
     free(token->lexeme);
     free(token);
     token_free();
     fclose(file_name);
-    return a;
+    return global_error;
 
 
-
+/////////////////////////////////////////////////////////////
 //    while(token->token_name != TOKEN_EOF){
 ////        token->lexeme->keyword = 100;
 ////        token->lexeme->inter->data[0] = '\0';
@@ -216,11 +121,11 @@ int main(int argc, char** argv){
 //    printf("%d\n",a);
 //    stack_pop(&stack);
 //    printf("%s......%d\n",stack.stack_top,stack.amount_of_elements);
-    string_free(token->lexeme->inter);
-    free(token->lexeme);
-    free(token);
-    token_free();
-    fclose(file_name);
-
-    return 0;
+//    string_free(token->lexeme->inter);
+//    free(token->lexeme);
+//    free(token);
+//    token_free();
+//    fclose(file_name);
+//
+//    return 0;
 }

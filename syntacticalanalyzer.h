@@ -1,3 +1,15 @@
+/**
+ * Project: Implementace překladače imperativního jazyka IFJ21
+ *
+ * File:     syntacticlanalyzer.h
+ * Subject:  IFJ2021
+ *
+ * @author:  Vladislav Mikheda  	xmikhe00
+ * @author:  Khrisanov Vladislav    xkhris00
+ * @author:  Kilybayev Anvar        xkilyb00
+ * @author:  Gazizov Zhasdauren     xgaziz00
+ */
+
 #ifndef IFJ_PROJEKT_SYNTACTICALANALYZER_H
 #define IFJ_PROJEKT_SYNTACTICALANALYZER_H
 
@@ -6,11 +18,11 @@
 #define RETURN_ERROR_NUMBER(ERR) ERROR_ALL = ERR; error_processing(); return ERROR_ALL
 #define RETURN_ERROR error_processing(); return ERROR_ALL
 #define ERROR_TEXT(string_text) if(!error_check) {fprintf(stderr, "ERROR: in string #%d ", token->str); fprintf(stderr,"[in "); fprintf(stderr,"--> %s <-- ",token->lexeme->inter->data); fprintf(stderr,"%s]",string_text);} error_check = true
-#include "symbol_table.h"
+#include "symtable.h"
 #include "lexicalanalysis.h"
 #include "string_param.h"
-#include "precefence_tree.h"
-#include "coden.h"
+#include "precedence_tree.h"
+#include "codgen.h"
 #include "ast_one_node.h"
 //typedef unsigned long ul;
 //

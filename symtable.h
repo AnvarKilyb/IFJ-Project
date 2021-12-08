@@ -1,22 +1,27 @@
-#ifndef IFJ_PROJEKT_SYMBOL_TABLE_H
-#define IFJ_PROJEKT_SYMBOL_TABLE_H
+/**
+ * Project: Implementace překladače imperativního jazyka IFJ21
+ *
+ * File:     symtable.h
+ * Subject:  IFJ2021
+ *
+ * @author:  Vladislav Mikheda  	xmikhe00
+ * @author:  Khrisanov Vladislav    xkhris00
+ * @author:  Kilybayev Anvar        xkilyb00
+ * @author:  Gazizov Zhasdauren     xgaziz00
+ */
+
+
+
+#ifndef IFJ_PROJEKT_SYMTABLE_H
+#define IFJ_PROJEKT_SYMTABLE_H
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-
 #include "string.h"
 #include "string_param.h"
 
 #define STACK_CHUNK 100 // Размер стэка, если перевалит то выделит доп. память
-
-//typedef enum{
-//    STRING,
-//    INTEGER,
-//    NUMBER,
-//    FUNC,
-//} sType;
-
 
 typedef struct{
 //    sType type; // Тип идентификатора
@@ -41,6 +46,7 @@ typedef struct{
     t_str* data_string;
     bool system_function;
     bool system_function_infinity_param;
+    int counter_in;
 
     int help_count;
 } sData;
@@ -102,4 +108,4 @@ void table_delete(s_stack *stack);
 //Кодирует строку в ключ
 unsigned long hashcode(/*unsigned*/ char *str);
 
-#endif //IFJ_PROJEKT_SYMBOL_TABLE_H
+#endif //IFJ_PROJEKT_SYMTABLE_H
