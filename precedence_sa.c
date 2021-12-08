@@ -528,7 +528,8 @@ AST_leaf *precede_expression(t_token *token, e_error_message *e_check){
                 id_to_nil = true;
             }
         }
-        if((token_symbol == PREC_IDENTIFIER && top_symbol == PREC_IDENTIFIER) || (token_symbol == PREC_IDENTIFIER && top_symbol == PREC_RIGHT_BRACKET)) {
+        if((token_symbol == PREC_IDENTIFIER && top_symbol == PREC_IDENTIFIER)
+                || (token_symbol == PREC_IDENTIFIER && top_symbol == PREC_RIGHT_BRACKET)) {
             token->token_name = TOKEN_KEYWORD;
             id_to_id = true;
         }
@@ -714,8 +715,21 @@ int check_expression(AST_leaf *tree, t_ast_node *ast_node){
             }
             else if(token->token_name == TOKEN_STRING){
                 if(!string_param_cmp_arr(ast_node->type_variable, ast_node->count_expression,"string")){
-                    stack_free(&stack);
-                    return ERROR_SEMANTIC_ANALYSIS_EXPR;
+                    if(stack.amount_of_elements > 1){
+                        if(stack_top(&stack)->down_element->root->token->token_name != TOKEN_LENGTH
+                           && stack_top(&stack)->down_element->root->token->token_name != TOKEN_CONCATENATION){
+                            stack_free(&stack);
+                            return ERROR_SEMANTIC_ANALYSIS_EXPR;
+                        }
+                    }
+                }
+                else{
+                    if(stack.amount_of_elements > 1){
+                        if(stack_top(&stack)->down_element->root->token->token_name == TOKEN_LENGTH){
+                            stack_free(&stack);
+                            return ERROR_SEMANTIC_ANALYSIS_EXPR;
+                        }
+                    }
                 }
             }
             stack_pop(&stack);
@@ -843,8 +857,21 @@ int check_expression(AST_leaf *tree, t_ast_node *ast_node){
             }
             else if(token->token_name == TOKEN_STRING){
                 if(!string_param_cmp_arr(ast_node->function_info->type_returned_params, ast_node->function_info->count_returned_params,"string")){
-                    stack_free(&stack);
-                    return ERROR_SEMANTIC_ANALYSIS_EXPR;
+                    if(stack.amount_of_elements > 1){
+                        if(stack_top(&stack)->down_element->root->token->token_name != TOKEN_LENGTH
+                           && stack_top(&stack)->down_element->root->token->token_name != TOKEN_CONCATENATION){
+                            stack_free(&stack);
+                            return ERROR_SEMANTIC_ANALYSIS_EXPR;
+                        }
+                    }
+                }
+                else{
+                    if(stack.amount_of_elements > 1){
+                        if(stack_top(&stack)->down_element->root->token->token_name == TOKEN_LENGTH){
+                            stack_free(&stack);
+                            return ERROR_SEMANTIC_ANALYSIS_EXPR;
+                        }
+                    }
                 }
             }
 
@@ -926,6 +953,10 @@ int check_expression(AST_leaf *tree, t_ast_node *ast_node){
                                     return ERROR_SEMANTIC_ANALYSIS_EXPR;
                                 }
                             }
+                            else{
+                                stack_free(&stack);
+                                return ERROR_SEMANTIC_ANALYSIS_EXPR;
+                            }
                         }
                         else{
                             if(stack.amount_of_elements > 1){
@@ -990,8 +1021,21 @@ int check_expression(AST_leaf *tree, t_ast_node *ast_node){
                 }
                 else if(token->token_name == TOKEN_STRING){
                     if(!string_arr_cmp(top_var->data->type, "string")){
-                        stack_free(&stack);
-                        return ERROR_SEMANTIC_ANALYSIS_EXPR;
+                        if(stack.amount_of_elements > 1){
+                            if(stack_top(&stack)->down_element->root->token->token_name != TOKEN_LENGTH
+                               && stack_top(&stack)->down_element->root->token->token_name != TOKEN_CONCATENATION){
+                                stack_free(&stack);
+                                return ERROR_SEMANTIC_ANALYSIS_EXPR;
+                            }
+                        }
+                    }
+                    else{
+                        if(stack.amount_of_elements > 1){
+                            if(stack_top(&stack)->down_element->root->token->token_name == TOKEN_LENGTH){
+                                stack_free(&stack);
+                                return ERROR_SEMANTIC_ANALYSIS_EXPR;
+                            }
+                        }
                     }
                 }
                 stack_pop(&stack);
@@ -1218,8 +1262,21 @@ int check_expression(AST_leaf *tree, t_ast_node *ast_node){
                 }
                 else if(token->token_name == TOKEN_STRING){
                     if(top_token->token_name != TOKEN_STRING){
-                        stack_free(&stack);
-                        return ERROR_SEMANTIC_ANALYSIS_EXPR;
+                        if(stack.amount_of_elements > 1){
+                            if(stack_top(&stack)->down_element->root->token->token_name != TOKEN_LENGTH
+                                    && stack_top(&stack)->down_element->root->token->token_name != TOKEN_CONCATENATION){
+                                stack_free(&stack);
+                                return ERROR_SEMANTIC_ANALYSIS_EXPR;
+                            }
+                        }
+                    }
+                    else{
+                        if(stack.amount_of_elements > 1){
+                            if(stack_top(&stack)->down_element->root->token->token_name == TOKEN_LENGTH){
+                                stack_free(&stack);
+                                return ERROR_SEMANTIC_ANALYSIS_EXPR;
+                            }
+                        }
                     }
                 }
 
