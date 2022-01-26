@@ -1,44 +1,43 @@
-#include <string.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
+/**
+ * Project: Implementace překladače imperativního jazyka IFJ21
+ *
+ * File:     string.c
+ * Subject:  IFJ2021
+ *
+ * @author:  Vladislav Mikheda  	xmikhe00
+ * @author:  Khrisanov Vladislav    xkhris00
+ * @author:  Kilybayev Anvar        xkilyb00
+ * @author:  Gazizov Zhasdauren     xgaziz00
+ */
 
-#define STRING_LEN 16  // стандартная длин строки
-#define STRING_START 0  // начало строки
-#define EOL '\0'        // конец строки
 
 
-typedef unsigned long long ull;
-
-typedef struct s_string{
-    char* data;
-    ull lenght;
-    ull how_occupied;
-}t_str;
+#include "string.h"
+#include "error.h"
 
 /*
  * Создание строки
  */
-t_str* string_init()
+int string_init(t_str* str)
 {
-    t_str* str = (t_str*)malloc(sizeof (t_str));
+//    t_str* str = malloc(sizeof (t_str));
     str->data = malloc(STRING_LEN * sizeof (char));
     if(!str->data){
-        //TODO вызов функции ошибки
+        return ERROR_INTERNAL;
     }
 
-    str->data[STRING_START] = EOL;
+    str->data[STRING_START] = NUL;
     str->lenght = STRING_LEN;
     str->how_occupied = 0;
-
-    return str;
+    return IT_IS_OK;
 }
 
 /*
  * Очишение строки
  */
 void string_free(t_str* str){
-    free(str->data);
+    if(str->data)
+        free(str->data);
     free(str);
 }
 
@@ -46,55 +45,99 @@ void string_free(t_str* str){
 /*
  * Увелисиавает строку
  */
-void string_expansion(t_str* str){
+int string_expansion(t_str* str){
     t_str string;
     string.data = realloc(str->data, (str->lenght * 2) * sizeof(char));
     if(!string.data){
-        //TODO добавить вывод ошибки
+        return 99;
     }
 
     str->data = string.data;
     str->lenght = str->lenght * 2;
+    return 0;
+}
+/*str1 - откуда str2 - куда копируется*/
+int string_copy(t_str* str1, t_str* str2){
+    while(str1->how_occupied > str2->lenght){
+        if(string_expansion(str2)){
+            return ERROR_INTERNAL;
+        }
+    }
+    str2->how_occupied = STRING_START;
+    for(ull slider = 0; str1->data[slider] != NUL; slider++){
+        str2->data[slider] = str1->data[slider];
+        str2->how_occupied++;
+    }
+
+    str2->data[str2->how_occupied++] = NUL;
+    return IT_IS_OK;
 }
 
-/*
- * Вкладвает символ в начало строки
- */
-void string_wright_char_begin(t_str* str, char symbol){
-
-    str->how_occupied = STRING_START;
-    str->data[str->how_occupied++] = symbol;
-    str->data[str->how_occupied++] = EOL;
+void string_add_string(t_str* str1, t_str* str2){
+    for(int slider = 0; str1->data[slider] != NUL; slider++){
+        string_wright_char(str2,str1->data[slider]);
+    }
 
 }
 
+void string_add_arr(t_str* str1, char* arr){
+    for(int slider = 0; arr[slider] != NUL; slider++){
+        string_wright_char(str1,arr[slider]);
+    }
+
+}
+
+//*
+// * Вкладвает символ в начало строки
+// */
+//void string_wright_char_begin(t_str* str, const char symbol){
+//
+//    str->how_occupied = STRING_START;
+//    str->data[str->how_occupied++] = symbol;
+//    str->data[str->how_occupied++] = NUL;
+//
+//}
+
 /*
- * Вкладвает символ за уже вложеными символами
+ * Вкладвает символ в строку
  */
-void string_wright_char_behind(t_str* str, char symbol){
-    if(str->lenght < str->how_occupied + 1)
-        string_expansion(str);
-
-    str->data[--str->how_occupied] = symbol; // str->how_occupied показывает сколько символов влодина считая и конец строки
-    str->data[++str->how_occupied] = EOL;
-    str->how_occupied++;
-
+int string_wright_char(t_str* str, char symbol){
+    if(str->lenght <= str->how_occupied) {
+        if(string_expansion(str)){
+            return ERROR_INTERNAL;
+        }
+    }
+    if(str->how_occupied == 0){
+        str->data[str->how_occupied++] = symbol;
+        str->data[str->how_occupied++] = NUL;
+    }else {
+        str->data[--str->how_occupied] = symbol; // str->how_occupied показывает сколько символов влодина считая и конец строки
+        str->data[++str->how_occupied] = NUL;
+        str->how_occupied++;
+    }
+    return IT_IS_OK;
 }
 
 /*
  * Переписывает масив в строку
  */
-void string_wright_arr(t_str* str, char* arr){
-    while (str->lenght <= strlen(arr)+1)
-        string_expansion(str);   //увеличения буфера строки
+int string_wright_arr(t_str* str, char* arr){
+    while (str->lenght <= strlen(arr)+1) {
+        if (string_expansion(str))
+        {
+            return ERROR_INTERNAL;
+        }
+    }   //увеличения буфера строки
 
     str->how_occupied = STRING_START;
-    for(ull slider = 0; arr[slider] != EOL; slider++){
+    for(ull slider = 0; arr[slider] != NUL; slider++){
         str->data[slider] = arr[slider];
         str->how_occupied++;
     }
 
-    str->data[str->how_occupied++] = EOL; // сначало вкладываем 0 потом приболяем
+    str->data[str->how_occupied++] = NUL; // сначало вкладываем 0 потом приболяем
+
+    return IT_IS_OK;
 
 }
 
@@ -109,7 +152,7 @@ ull string_lenght(t_str *str){
 /*
  * Узнает соответсвует ли первая строка второй строке
  */
-bool string_equales(t_str* str1, t_str* str2){
+bool string_cmp(t_str* str1, t_str* str2){
     if (str1->how_occupied != str2->how_occupied)
         return false;
 
@@ -120,9 +163,21 @@ bool string_equales(t_str* str1, t_str* str2){
     return true;
 }
 
+bool string_arr_cmp(t_str* str,const char* arr){
+    if(strcmp(str->data,arr) == 0)
+        return true;
+    else
+        return false;
+}
+
+void string_init_state(t_str* str ){
+    str->data[STRING_START] = NUL;
+    str->how_occupied = 0;
+}
 
 
-int main(){
+
+//int main(){
 //    char arr1[] = "123456789sadyftjgggggggggggggg";
 //    char arr2[] = "123456789sadyftggggggggggggggg";
 //    char s1 = 'a';
@@ -201,6 +256,6 @@ int main(){
 //
 //
 //    string_free(string);
-
-    return 0;
-}
+//
+//    return 0;
+//}
